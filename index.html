@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Pet CÁ - Sistema Moderno de Gerenciamento</title>
+
+    <!-- Fontes modernas Google Fonts 2025 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome 6.5 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Meta tags para SEO e PWA -->
+    <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <!-- Loading Screen Moderno 2025 -->
+    <div id="loading" class="loading-screen">
+        <div class="loading-content">
+            <div class="pet-logo-animated">
+                <i class="fas fa-paw"></i>
+            </div>
+            <h2>Hotel Pet CÁ</h2>
+            <p>Sistema Moderno de Gerenciamento</p>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Moderna -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <!-- LOGO APENAS COM IMAGEM - SEM TEXTO -->
+            <div class="logo">
+                <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <!-- Fallback caso a imagem não carregue -->
+                <div class="logo-fallback" style="display: none;">
+                    <i class="fas fa-paw"></i>
+                </div>
+            </div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="sidebar-menu">
+            <!-- Visão Geral como primeiro item -->
+            <li class="menu-item active" data-section="overview">
+                <a href="#" onclick="navigateToSection('overview')">
+                    <i class="fas fa-eye"></i>
+                    <span>Visão Geral</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="dashboard">
+                <a href="#" onclick="navigateToSection('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="animals">
+                <a href="#" onclick="navigateToSection('animals')">
+                    <i class="fas fa-dog"></i>
+                    <span>Animais</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="reservations">
+                <a href="#" onclick="navigateToSection('reservations')">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Reservas</span>
+                </a>
+            </li>
+            <!-- Módulo de Controle de Estoque -->
+            <li class="menu-item" data-section="inventory">
+                <a href="#" onclick="navigateToSection('inventory')">
+                    <i class="fas fa-boxes"></i>
+                    <span>Controle de Estoque</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="reports">
+                <a href="#" onclick="navigateToSection('reports')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </a>
+            </li>
+            <!-- NOVO: Item de Backup -->
+            <li class="menu-item" data-section="backup">
+                <a href="#" onclick="window.backupManager.exportDataToFolder()">
+                    <i class="fas fa-file-export"></i>
+                    <span>Salvar na Pasta (Backup)</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Administrador</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div id="app" class="app-container hidden">
+            <!-- Visão Geral Section -->
+            <section id="overview" class="content-section active">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Visão Geral</h1>
+                        <p>Status em tempo real de todas as acomodações do Hotel Pet CÁ</p>
+                    </div>
+                </div>
+
+                <!-- Container para o módulo de visualização dos canis -->
+                <div id="kennels-visualization" class="kennels-container">
+                    <!-- Conteúdo será renderizado pelo kennels.js -->
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Dashboard</h1>
+                        <p>Visão geral completa do Hotel Pet CÁ</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-paw"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-animals">0</h3>
+                            <p>Animais Cadastrados</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="active-reservations">0</h3>
+                            <p>Reservas Ativas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="monthly-revenue">R$ 0,00</h3>
+                            <p>Receita do Mês</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="occupancy-rate">0%</h3>
+                            <p>Taxa de Ocupação</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Reservas por Mês</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Ocupação Atual</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="kennel-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Receita por Pagamento</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-reservations">
+                    <h3>Reservas Recentes</h3>
+                    <div class="table-container">
+                        <table id="recent-reservations-table">
+                            <thead>
+                                <tr>
+                                    <th>Animal</th>
+                                    <th>Tutor</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Animals Section -->
+            <section id="animals" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Gerenciamento de Animais</h1>
+                        <p>Cadastro e controle de todos os pets</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" id="add-animal-btn">
+                            <i class="fas fa-plus"></i>
+                            Novo Animal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="animal-search" placeholder="Buscar animais...">
+                        <button class="voice-search-btn" onclick="startVoiceSearch('animal-search')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <select id="kennel-filter">
+                        <option value="">Todos</option>
+                        <option value="CÃO">Cães</option>
+                        <option value="GATO">Gatos</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="animals-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Animal</th>
+                                <th>Espécie</th>
+                                <th>Tutor</th>
+                                <th>Telefone</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reservations Section -->
+            <section id="reservations" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Gerenciamento de Reservas</h1>
+                        <p>Controle completo de hospedagens</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" id="add-reservation-btn">
+                            <i class="fas fa-plus"></i>
+                            Nova Reserva
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="reservation-search" placeholder="Buscar reservas...">
+                    </div>
+                    <select id="status-filter">
+                        <option value="">Todos Status</option>
+                        <option value="ATIVA">Ativa</option>
+                        <option value="FINALIZADA">Finalizada</option>
+                    </select>
+                    <input type="month" id="month-filter">
+                </div>
+
+                <div class="table-container">
+                    <table id="reservations-table">
+                        <thead>
+                            <tr>
+                                <th>Animal</th>
+                                <th>Alojamento</th>
+                                <th>Período</th>
+                                <th>Diárias</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: Controle de Estoque COM UPLOAD DE IMAGEM -->
+            <section id="inventory" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Controle de Estoque</h1>
+                        <p>Gerenciamento completo de produtos e suprimentos</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i>
+                            Novo Produto
+                        </button>
+                        <button class="btn btn-secondary" id="stock-report-btn">
+                            <i class="fas fa-chart-bar"></i>
+                            Relatório
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cards de Estatísticas do Estoque -->
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-products">0</h3>
+                            <p>Total de Produtos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="low-stock-products">0</h3>
+                            <p>Estoque Baixo</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="expiring-products">0</h3>
+                            <p>Próximos ao Vencimento</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stock-value">R$ 0,00</h3>
+                            <p>Valor do Estoque</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filters-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="product-search" placeholder="Buscar produtos...">
+                    </div>
+                    <select id="category-filter">
+                        <option value="">Todas as Categorias</option>
+                        <option value="racao">🥘 Ração</option>
+                        <option value="petiscos">🦴 Petiscos</option>
+                        <option value="brinquedos">🎾 Brinquedos</option>
+                        <option value="higiene">🛁 Higiene</option>
+                        <option value="medicamentos">💊 Medicamentos</option>
+                        <option value="acessorios">🎀 Acessórios</option>
+                        <option value="camas">🛏️ Camas</option>
+                        <option value="coleiras">🦮 Coleiras</option>
+                    </select>
+                    <select id="animal-filter">
+                        <option value="">Todos os Animais</option>
+                        <option value="dog">🐕 Cães</option>
+                        <option value="cat">🐱 Gatos</option>
+                        <option value="bird">🐦 Aves</option>
+                        <option value="fish">🐠 Peixes</option>
+                        <option value="rodent">🐹 Roedores</option>
+                    </select>
+                    <select id="stock-status-filter">
+                        <option value="">Todos os Status</option>
+                        <option value="normal">Estoque Normal</option>
+                        <option value="low">Estoque Baixo</option>
+                        <option value="expiring">Próximo ao Vencimento</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Marca</th>
+                                <th>Animal</th>
+                                <th>Estoque</th>
+                                <th>Preço</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Relatórios</h1>
+                        <p>Análises e estatísticas detalhadas</p>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>Relatório Mensal</h3>
+                        <p>Análise detalhada do desempenho mensal</p>
+                        <select id="report-month">
+                            <option value="">Selecione o mês</option>
+                        </select>
+                        <button class="btn btn-secondary" id="generate-monthly-report">
+                            <i class="fas fa-file-pdf"></i>
+                            Gerar Relatório
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <h3>Relatório Anual</h3>
+                        <p>Visão completa do ano</p>
+                        <select id="report-year">
+                            <option value="">Selecione o ano</option>
+                        </select>
+                        <button class="btn btn-secondary" id="generate-yearly-report">
+                            <i class="fas fa-file-excel"></i>
+                            Gerar Relatório
+                        </button>
+                    </div>
+                </div>
+                <div id="report-content" class="report-content"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Produto COM UPLOAD DE IMAGEM -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Novo Produto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="product-form">
+                <!-- SEÇÃO DE UPLOAD DE IMAGEM -->
+                <div class="form-group">
+                    <label for="product-image">Imagem do Produto</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-area" id="image-upload-area">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Clique aqui ou arraste uma imagem</p>
+                                <span>JPG, PNG ou WEBP até 5MB</span>
+                            </div>
+                            <input type="file" id="product-image" accept="image/*" hidden>
+                        </div>
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button type="button" class="remove-image" id="remove-image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-name">Nome do Produto *</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-brand">Marca</label>
+                        <input type="text" id="product-brand">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-category">Categoria *</label>
+                        <select id="product-category" required>
+                            <option value="">Selecione</option>
+                            <option value="racao">🥘 Ração</option>
+                            <option value="petiscos">🦴 Petiscos</option>
+                            <option value="brinquedos">🎾 Brinquedos</option>
+                            <option value="higiene">🛁 Higiene</option>
+                            <option value="medicamentos">💊 Medicamentos</option>
+                            <option value="acessorios">🎀 Acessórios</option>
+                            <option value="camas">🛏️ Camas</option>
+                            <option value="coleiras">🦮 Coleiras</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-animals">Animais *</label>
+                        <select id="product-animals" multiple required>
+                            <option value="dog">🐕 Cães</option>
+                            <option value="cat">🐱 Gatos</option>
+                            <option value="bird">🐦 Aves</option>
+                            <option value="fish">🐠 Peixes</option>
+                            <option value="rodent">🐹 Roedores</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-cost-price">Preço de Custo *</label>
+                        <input type="number" id="product-cost-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-sale-price">Preço de Venda *</label>
+                        <input type="number" id="product-sale-price" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-current-stock">Estoque Atual *</label>
+                        <input type="number" id="product-current-stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-min-stock">Estoque Mínimo *</label>
+                        <input type="number" id="product-min-stock" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-weight">Peso (kg)</label>
+                        <input type="number" id="product-weight" step="0.001">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-expiry-date">Data de Vencimento</label>
+                        <input type="date" id="product-expiry-date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="product-supplier">Fornecedor</label>
+                    <input type="text" id="product-supplier">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Descrição</label>
+                    <textarea id="product-description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-product">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modais mantidos do projeto original -->
+    <!-- Animal Modal -->
+    <div id="animal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="animal-modal-title">Novo Animal</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="animal-form">
+                <div class="form-group">
+                    <label>Foto do Animal</label>
+                    <div class="photo-actions">
+                        <input type="file" id="animal-photo" accept="image/*" hidden>
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('animal-photo').click()">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
+                        <button type="button" class="btn btn-primary" id="start-camera-btn">
+                            <i class="fas fa-camera"></i> Tirar Foto
+                        </button>
+                    </div>
+                    <div id="camera-container" style="display: none; margin-top: 10px;">
+                        <video id="camera-feed" width="100%" height="auto" autoplay playsinline
+                            style="border-radius: 10px;"></video>
+                        <button type="button" class="btn btn-success" id="capture-photo-btn"
+                            style="width: 100%; margin-top: 5px;">
+                            <i class="fas fa-camera-retro"></i> Capturar
+                        </button>
+                    </div>
+                    <img id="photo-preview" src="" alt="Preview" class="photo-preview"
+                        style="display:none; max-width: 100%; border-radius: 10px; margin-top: 10px;">
+                </div>
+                <div class="form-group">
+                    <label for="animal-name">Nome *</label>
+                    <input type="text" id="animal-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-name">Tutor *</label>
+                    <input type="text" id="tutor-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-phone">Telefone *</label>
+                    <input type="tel" id="tutor-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="animal-species">Espécie *</label>
+                    <select id="animal-species" required>
+                        <option value="">Selecione</option>
+                        <option value="CÃO">Cão</option>
+                        <option value="GATO">Gato</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-animal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reservation Modal -->
+    <div id="reservation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="reservation-modal-title">Nova Reserva</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="reservation-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reservation-animal">Animal *</label>
+                        <select id="reservation-animal" required>
+                            <option value="">Selecione o animal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reservation-accommodation-type">Tipo de Alojamento *</label>
+                        <select id="reservation-accommodation-type" required>
+                            <option value="">Selecione</option>
+                            <option value="INTERNO">Canil Interno</option>
+                            <option value="EXTERNO">Canil Externo</option>
+                            <option value="GATIL">Gatil</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reservation-kennel-number">Número do Alojamento *</label>
+                        <select id="reservation-kennel-number" required disabled>
+                            <option value="">Selecione o tipo primeiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="daily-rate">Valor da Diária *</label>
+                        <input type="number" id="daily-rate" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkin-date">Data de Entrada *</label>
+                        <input type="date" id="checkin-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-time">Hora de Entrada</label>
+                        <input type="time" id="checkin-time" value="14:00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkout-date">Data de Saída *</label>
+                        <input type="date" id="checkout-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-time">Previsão de Saída</label>
+                        <input type="time" id="checkout-time" value="12:00">
+                    </div>
+                </div>
+                <div class="services-section">
+                    <h4>Serviços Adicionais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="transport-service">
+                                Transporte
+                            </label>
+                            <input type="number" id="transport-value" disabled placeholder="Valor">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="bath-service">
+                                Banho
+                            </label>
+                            <input type="number" id="bath-value" disabled placeholder="Valor">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payment-method">Forma de Pagamento *</label>
+                        <select id="payment-method" required>
+                            <option value="PIX">PIX</option>
+                            <option value="CREDITO">Crédito</option>
+                            <option value="DEBITO">Débito</option>
+                            <option value="DINHEIRO">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-value">Valor Total</label>
+                        <input type="text" id="total-value" readonly>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-reservation">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Botão Flutuante (FAB) - Padrão Android -->
+    <button class="fab-button" onclick="navigateToSection('reservations')" title="Nova Reserva">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/animals.js"></script>
+    <script src="js/reservations.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/kennels.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/backup.js"></script>
+    <script src="js/features.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+        // Função para navegação (adaptada para seu projeto)
+        function navigateToSection(sectionName) {
+            if (window.hotelPetApp) {
+                window.hotelPetApp.navigateToSection(sectionName);
+            }
+        }
+
+        // Função para toggle da sidebar com transições suaves
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Transição suave do loading
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('app').classList.remove('hidden');
+                    document.getElementById('app').classList.add('visible');
+                }, 800);
+            }, 2500);
+        });
+
+        // Responsividade da sidebar
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024) {
+                closeSidebar();
+            }
+        });
+
+        // Registro do Service Worker para PWA e Android
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registrado:', reg))
+                    .catch(err => console.log('Erro ao registrar SW:', err));
+            });
+        }
+
+        // Solicitar permissão para notificações
+        async function requestNotificationPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log('Permissão para notificações concedida');
+                }
+            }
+        }
+
+        // Chamar logo após o carregamento
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(requestNotificationPermission, 5000);
+        });
+    </script>
+</body>
+
+</html>

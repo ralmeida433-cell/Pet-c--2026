@@ -17,15 +17,10 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mobile.css">
 
-    <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Multiplataforma">
+    <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Nativo Android">
     <meta name="theme-color" content="#2563eb">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" href="css/logo.png">
-    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -123,7 +118,7 @@
                 <div class="page-header">
                     <div class="page-header-content">
                         <h1>Visão Geral</h1>
-                        <p>Status em tempo real de todas as acomodações do Hotel Pet CÁ</p>
+                        <p>Status em tempo real das acomodações</p>
                     </div>
                 </div>
                 <div id="kennels-visualization" class="kennels-container"></div>
@@ -242,7 +237,7 @@
                 <div class="page-header">
                     <div class="page-header-content">
                         <h1>Controle de Estoque</h1>
-                        <p>Gerenciamento completo de produtos e suprimentos</p>
+                        <p>Gerenciamento completo de produtos</p>
                     </div>
                     <div class="page-header-actions">
                         <button class="btn btn-primary" id="add-product-btn"><i class="fas fa-plus"></i> Novo Produto</button>
@@ -370,8 +365,6 @@
         </div>
     </div>
 
-    <div id="toast-container" class="toast-container"></div>
-
     <div class="fab-container" id="fab-container">
         <div class="fab-menu" id="fab-menu">
             <button class="fab-item" onclick="window.reservationsManager.openReservationModal()">
@@ -413,54 +406,6 @@
                 }, 800);
             }, 1000);
         });
-
-        // ===== PWA ROBUST UPDATE LOGIC =====
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    const registration = await navigator.serviceWorker.register('/service-worker.js');
-                    
-                    if (registration.waiting) {
-                        showUpdateNotification(registration.waiting);
-                    }
-
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                showUpdateNotification(newWorker);
-                            }
-                        });
-                    });
-                } catch (err) {
-                    console.error('SW registration failed:', err);
-                }
-            });
-
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                refreshing = true;
-                window.location.reload();
-            });
-        }
-
-        function showUpdateNotification(worker) {
-            if (document.querySelector('.update-notification')) return;
-            const notification = document.createElement('div');
-            notification.className = 'update-notification';
-            notification.innerHTML = `
-                <div class="update-content">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Nova versão disponível!</span>
-                    <button id="update-app-btn">Atualizar</button>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            document.getElementById('update-app-btn').onclick = () => {
-                worker.postMessage({ type: 'SKIP_WAITING' });
-            };
-        }
     </script>
 </body>
 </html>

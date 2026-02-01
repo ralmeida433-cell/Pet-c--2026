@@ -1,0 +1,45 @@
+.\gradlew : 
+No linha:1 caractere:74
++ ... .0.1.8-hotspot"; 
+.\gradlew assembleDebug > 
+build_log_persist.txt 2>&1
++                      ~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (:Stri  
+  ng) [], RemoteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+FAILURE: Build failed with 
+an exception.
+
+* Where:
+Settings file 'C:\Users\rafa
+e\Desktop\hotel pet\android\
+settings.gradle' line: 5
+
+* What went wrong:
+A problem occurred 
+evaluating settings 
+'android'.
+> BUG! exception in phase 
+'semantic analysis' in 
+source unit '_BuildScript_' 
+Unsupported class file 
+major version 69
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or 
+--debug option to get more 
+log output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 3s

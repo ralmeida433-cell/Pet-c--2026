@@ -170,8 +170,11 @@ class KennelVisualization {
         const statusClass = isOcupado ? 'ocupado' : 'disponivel';
         const tipoClass = canil.type.toLowerCase();
 
+        // Adiciona o evento de clique para abrir o modal de gerenciamento/exclusão
+        const clickAction = `kennelVisualization.openAddKennelModal('${canil.type}', ${canil.number}, '${canil.description || ''}')`;
+
         return `
-            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}">
+            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}" onclick="${clickAction}">
                 <div class="kennel-header">
                     <div class="kennel-number">${canil.number}</div>
                     <div class="kennel-status">
@@ -191,7 +194,7 @@ class KennelVisualization {
                         </div>
                     ` : `
                         <div class="disponivel-info">
-                            <button class="btn-reservar-small" onclick="kennelVisualization.reservarCanil('${canilId}')">
+                            <button class="btn-reservar-small" onclick="event.stopPropagation(); kennelVisualization.reservarCanil('${canilId}')">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -223,6 +226,14 @@ class KennelVisualization {
             this.addNewKennel();
         });
         document.getElementById('cancel-add-kennel')?.addEventListener('click', () => this.closeAddKennelModal());
+        
+        // NOVO: Listener para o botão de exclusão
+        document.getElementById('delete-kennel-btn')?.addEventListener('click', () => {
+            const type = document.getElementById('new-kennel-type').value;
+            const number = parseInt(document.getElementById('new-kennel-number').value);
+            this.closeAddKennelModal();
+            this.deleteKennel(type, number);
+        });
     }
 
     startAutoRefresh() {
@@ -260,7 +271,7 @@ class KennelVisualization {
         }
     }
 
-    // --- NOVOS MÉTODOS PARA ADICIONAR CANIL ---
+    // --- NOVOS MÉTODOS PARA ADICIONAR/GERENCIAR CANIL ---
 
     createAddKennelModal() {
         if (document.getElementById('add-kennel-modal')) return;
@@ -279,8 +290,8 @@ class KennelVisualization {
                             <input type="text" id="new-kennel-type-display" readonly disabled>
                         </div>
                         <div class="form-group">
-                            <label for="new-kennel-number">Próximo Número</label>
-                            <input type="number" id="new-kennel-number" readonly disabled>
+                            <label for="new-kennel-number">Número</label>
+                            <input type="number" id="new-kennel-number" required>
                         </div>
                         <div class="form-group">
                             <label for="new-kennel-description">Descrição (Opcional)</label>
@@ -289,7 +300,7 @@ class KennelVisualization {
                         <div class="form-actions">
                             <button type="button" class="btn btn-danger btn-sm" id="delete-kennel-btn" style="margin-right: auto; display: none;"><i class="fas fa-trash"></i> Excluir</button>
                             <button type="button" class="btn btn-secondary" id="cancel-add-kennel">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Adicionar Canil</button>
+                            <button type="submit" class="btn btn-primary" id="save-kennel-btn">Adicionar Canil</button>
                         </div>
                     </form>
                 </div>
@@ -298,37 +309,52 @@ class KennelVisualization {
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
-    async openAddKennelModal(type) {
+    async openAddKennelModal(type, number = null, description = '') {
         const modal = document.getElementById('add-kennel-modal');
         const title = document.getElementById('add-kennel-modal-title');
         const typeDisplay = document.getElementById('new-kennel-type-display');
         const typeInput = document.getElementById('new-kennel-type');
         const numberInput = document.getElementById('new-kennel-number');
+        const descriptionInput = document.getElementById('new-kennel-description');
         const deleteBtn = document.getElementById('delete-kennel-btn');
+        const saveBtn = document.getElementById('save-kennel-btn');
         
-        if (!modal || !typeDisplay || !typeInput || !numberInput || !deleteBtn) {
+        if (!modal || !typeDisplay || !typeInput || !numberInput || !deleteBtn || !saveBtn) {
             window.hotelPetApp.showNotification('Erro: Elementos do modal não encontrados.', 'error');
             return;
         }
 
-        try {
-            const nextNumber = await window.db.getNextKennelNumber(type);
-            
-            typeInput.value = type;
-            typeDisplay.value = type === 'GATIL' ? 'Gatil' : `Canil ${type.toLowerCase()}`;
-            numberInput.value = nextNumber;
-            
-            title.textContent = `Adicionar ${typeDisplay.value}`;
-            
-            // Ocultar botão de exclusão ao adicionar novo
-            deleteBtn.style.display = 'none';
-            
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        } catch (e) {
-            window.hotelPetApp.showNotification('Erro ao carregar dados do canil: ' + e.message, 'error');
-            console.error(e);
+        typeInput.value = type;
+        typeDisplay.value = type === 'GATIL' ? 'Gatil' : `Canil ${type.toLowerCase()}`;
+        descriptionInput.value = description;
+        
+        if (number) {
+            // Modo Gerenciamento/Exclusão
+            title.textContent = `Gerenciar ${typeDisplay.value} ${number}`;
+            numberInput.value = number;
+            numberInput.readOnly = true; // Não permite mudar o número de um canil existente
+            numberInput.disabled = true;
+            deleteBtn.style.display = 'inline-flex';
+            saveBtn.style.display = 'none'; // Não permite salvar/editar (apenas excluir ou adicionar novo)
+        } else {
+            // Modo Adição (clique no botão +)
+            try {
+                const nextNumber = await window.db.getNextKennelNumber(type);
+                numberInput.value = nextNumber;
+                title.textContent = `Adicionar ${typeDisplay.value}`;
+                numberInput.readOnly = true;
+                numberInput.disabled = true;
+                deleteBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-flex';
+                saveBtn.textContent = 'Adicionar Canil';
+            } catch (e) {
+                window.hotelPetApp.showNotification('Erro ao carregar próximo número.', 'error');
+                return;
+            }
         }
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 
     closeAddKennelModal() {

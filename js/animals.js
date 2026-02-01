@@ -6,34 +6,31 @@ class AnimalsManager {
 
     init() {
         this.bindEvents();
-        console.log('Animals Manager initialized');
+        console.log('Animals Manager: Eventos vinculados');
     }
 
     bindEvents() {
-        // Botão "Novo Animal" da página principal de animais
-        document.getElementById('add-animal-btn')?.addEventListener('click', () => {
-            this.openAnimalModal();
-        });
+        // Botão Novo Animal (página)
+        const addBtn = document.getElementById('add-animal-btn');
+        if (addBtn) {
+            addBtn.onclick = () => this.openAnimalModal();
+        }
 
-        // Formulário de salvamento
+        // Formulário de Cadastro
         const form = document.getElementById('animal-form');
         if (form) {
-            form.addEventListener('submit', (e) => {
+            form.onsubmit = async (e) => {
                 e.preventDefault();
-                this.saveAnimal();
-            });
+                console.log('Animals Manager: Iniciando salvamento...');
+                await this.saveAnimal();
+            };
         }
         
         // Upload de foto
         document.getElementById('animal-photo')?.addEventListener('change', e => this.handlePhotoUpload(e));
         
-        // Busca/Filtro
+        // Busca
         document.getElementById('animal-search')?.addEventListener('input', () => this.applyFilters());
-        
-        // Botão da câmera (se integrado com features.js)
-        document.getElementById('start-camera-btn')?.addEventListener('click', () => {
-            if (window.cameraManager) window.cameraManager.startCamera();
-        });
     }
 
     async loadAnimals() {
@@ -42,7 +39,7 @@ class AnimalsManager {
             const animals = await db.getAnimals();
             this.renderAnimalsTable(animals);
         } catch (e) {
-            console.error('Erro ao carregar lista de animais:', e);
+            console.error('Erro ao carregar animais:', e);
         }
     }
 
@@ -71,7 +68,7 @@ class AnimalsManager {
                             <span class="animal-list-species">${a.species}</span>
                         </div>
                     </div>
-                    <i class="fas fa-chevron-down animal-item-toggle"></i>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="animal-item-details">
                     <div class="detail-row"><span class="detail-label">Tutor:</span><span class="detail-value">${a.tutor_name}</span></div>
@@ -191,7 +188,7 @@ class AnimalsManager {
     }
 
     async deleteAnimal(id) {
-        if (confirm('Deseja realmente excluir este animal? Todas as reservas associadas também serão afetadas.')) {
+        if (confirm('Deseja realmente excluir este animal?')) {
             await db.deleteAnimal(id);
             await this.loadAnimals();
             window.hotelPetApp?.showNotification('Animal excluído', 'info');
@@ -207,3 +204,4 @@ class AnimalsManager {
         db.getAnimals(s).then(res => this.renderAnimalsTable(res));
     }
 }
+window.AnimalsManager = AnimalsManager;

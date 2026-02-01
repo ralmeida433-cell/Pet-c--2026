@@ -3,27 +3,56 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport otimizado para dispositivos móveis com suporte a safe-area -->
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Hotel Pet CÁ - Sistema Moderno de Gerenciamento</title>
 
+    <!-- Fontes modernas Google Fonts 2025 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
+    <!-- Font Awesome 6.5 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- CSS principal -->
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- CSS Responsivo para Mobile -->
     <link rel="stylesheet" href="css/mobile.css">
 
-    <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Nativo Android">
+    <!-- Meta tags para SEO e PWA -->
+    <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Multiplataforma">
+    <meta name="keywords" content="hotel pet, gerenciamento, pets, android, pwa">
+    <meta name="author" content="Hotel Pet CÁ">
+
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2563eb">
-    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Hotel Pet CÁ">
+
+    <!-- Android Chrome -->
+    <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: dark)">
+
+    <!-- Favicon e ícones -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="css/logo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="css/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="css/logo.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="css/logo.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
+    <!-- Loading Screen Moderno 2025 -->
     <div id="loading" class="loading-screen">
         <div class="loading-content">
             <div class="pet-logo-animated">
@@ -39,6 +68,7 @@
         </div>
     </div>
 
+    <!-- Header Mobile (Barra Superior) -->
     <header class="mobile-header">
         <div class="mobile-header-left">
             <button class="header-menu-btn" onclick="toggleSidebar()">
@@ -56,11 +86,14 @@
         </div>
     </header>
 
+    <!-- Sidebar Moderna -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
+            <!-- LOGO APENAS COM IMAGEM - SEM TEXTO -->
             <div class="logo">
                 <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <!-- Fallback caso a imagem não carregue -->
                 <div class="logo-fallback" style="display: none;">
                     <i class="fas fa-paw"></i>
                 </div>
@@ -71,6 +104,7 @@
         </div>
 
         <ul class="sidebar-menu">
+            <!-- Visão Geral como primeiro item -->
             <li class="menu-item active" data-section="overview">
                 <a href="#" onclick="navigateToSection('overview')">
                     <i class="fas fa-eye"></i>
@@ -95,6 +129,7 @@
                     <span>Reservas</span>
                 </a>
             </li>
+            <!-- Módulo de Controle de Estoque -->
             <li class="menu-item" data-section="inventory">
                 <a href="#" onclick="navigateToSection('inventory')">
                     <i class="fas fa-boxes"></i>
@@ -107,23 +142,45 @@
                     <span>Relatórios</span>
                 </a>
             </li>
+            <!-- NOVO: Item de Backup (Oculto temporariamente) -->
+            <li class="menu-item" data-section="backup" style="display: none;">
+                <a href="#" onclick="window.backupManager.exportDataToFolder()">
+                    <i class="fas fa-file-export"></i>
+                    <span>Salvar na Pasta (Backup)</span>
+                </a>
+            </li>
         </ul>
+
+        <div class="sidebar-footer" style="display: none;">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Administrador</span>
+            </div>
+        </div>
     </nav>
 
+    <!-- Overlay para mobile -->
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
+    <!-- Conteúdo principal -->
     <main class="main-content">
         <div id="app" class="app-container hidden">
+            <!-- Visão Geral Section -->
             <section id="overview" class="content-section active">
                 <div class="page-header">
                     <div class="page-header-content">
                         <h1>Visão Geral</h1>
-                        <p>Status em tempo real das acomodações</p>
+                        <p>Status em tempo real de todas as acomodações do Hotel Pet CÁ</p>
                     </div>
                 </div>
-                <div id="kennels-visualization" class="kennels-container"></div>
+
+                <!-- Container para o módulo de visualização dos canis -->
+                <div id="kennels-visualization" class="kennels-container">
+                    <!-- Conteúdo será renderizado pelo kennels.js -->
+                </div>
             </section>
 
+            <!-- Dashboard Section -->
             <section id="dashboard" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
@@ -131,35 +188,80 @@
                         <p>Visão geral completa do Hotel Pet CÁ</p>
                     </div>
                 </div>
+
                 <div class="dashboard-grid">
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-paw"></i></div>
-                        <div class="stat-info"><h3 id="total-animals">0</h3><p>Animais Cadastrados</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-paw"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-animals">0</h3>
+                            <p>Animais Cadastrados</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                        <div class="stat-info"><h3 id="active-reservations">0</h3><p>Reservas Ativas</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="active-reservations">0</h3>
+                            <p>Reservas Ativas</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                        <div class="stat-info"><h3 id="monthly-revenue">R$ 0,00</h3><p>Receita do Mês</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="monthly-revenue">R$ 0,00</h3>
+                            <p>Receita do Mês</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="stat-info"><h3 id="occupancy-rate">0%</h3><p>Taxa de Ocupação</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="occupancy-rate">0%</h3>
+                            <p>Taxa de Ocupação</p>
+                        </div>
                     </div>
                 </div>
+
                 <div class="charts-container">
-                    <div class="chart-card"><h3>Reservas por Mês</h3><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
-                    <div class="chart-card"><h3>Ocupação Atual</h3><div class="chart-wrapper"><canvas id="kennel-chart"></canvas></div></div>
-                    <div class="chart-card"><h3>Receita por Pagamento</h3><div class="chart-wrapper"><canvas id="paymentChart"></canvas></div></div>
+                    <div class="chart-card">
+                        <h3>Reservas por Mês</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Ocupação Atual</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="kennel-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Receita por Pagamento</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="recent-reservations">
                     <h3>Reservas Recentes</h3>
                     <div class="table-container">
                         <table id="recent-reservations-table">
                             <thead>
-                                <tr><th>Animal</th><th>Tutor</th><th>Check-in</th><th>Check-out</th><th>Valor</th><th>Status</th></tr>
+                                <tr>
+                                    <th>Animal</th>
+                                    <th>Tutor</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -167,6 +269,7 @@
                 </div>
             </section>
 
+            <!-- Animals Section -->
             <section id="animals" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
@@ -174,14 +277,17 @@
                         <p>Cadastro e controle de todos os pets</p>
                     </div>
                     <div class="page-header-actions">
-                        <button class="btn btn-primary" id="add-animal-btn"><i class="fas fa-plus"></i> Novo Animal</button>
+
                     </div>
                 </div>
+
                 <div class="filters-container">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <input type="text" id="animal-search" placeholder="Buscar animais...">
-                        <button class="voice-search-btn" onclick="startVoiceSearch('animal-search')"><i class="fas fa-microphone"></i></button>
+                        <button class="voice-search-btn" onclick="startVoiceSearch('animal-search')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                     </div>
                     <select id="kennel-filter">
                         <option value="">Todos</option>
@@ -189,16 +295,25 @@
                         <option value="GATO">Gatos</option>
                     </select>
                 </div>
+
                 <div class="table-container">
                     <table id="animals-table">
                         <thead>
-                            <tr><th>Foto</th><th>Animal</th><th>Espécie</th><th>Tutor</th><th>Telefone</th><th>Ações</th></tr>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Animal</th>
+                                <th>Espécie</th>
+                                <th>Tutor</th>
+                                <th>Telefone</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </section>
 
+            <!-- Reservations Section -->
             <section id="reservations" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
@@ -206,11 +321,18 @@
                         <p>Controle completo de hospedagens</p>
                     </div>
                     <div class="page-header-actions">
-                        <button class="btn btn-primary" id="add-reservation-btn"><i class="fas fa-plus"></i> Nova Reserva</button>
+                        <button class="btn btn-primary" id="add-reservation-btn">
+                            <i class="fas fa-plus"></i>
+                            Nova Reserva
+                        </button>
                     </div>
                 </div>
+
                 <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="reservation-search" placeholder="Buscar reservas..."></div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="reservation-search" placeholder="Buscar reservas...">
+                    </div>
                     <div class="quick-filters">
                         <div class="filter-pill active" data-status="">Todas</div>
                         <div class="filter-pill" data-status="ATIVA">Ativas</div>
@@ -223,56 +345,138 @@
                     </select>
                     <input type="month" id="month-filter">
                 </div>
+
                 <div class="table-container">
                     <table id="reservations-table">
                         <thead>
-                            <tr><th>Animal</th><th>Alojamento</th><th>Período</th><th>Diárias</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+                            <tr>
+                                <th>Animal</th>
+                                <th>Alojamento</th>
+                                <th>Período</th>
+                                <th>Diárias</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </section>
 
+            <!-- SEÇÃO: Controle de Estoque COM UPLOAD DE IMAGEM -->
             <section id="inventory" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
                         <h1>Controle de Estoque</h1>
-                        <p>Gerenciamento completo de produtos</p>
+                        <p>Gerenciamento completo de produtos e suprimentos</p>
                     </div>
                     <div class="page-header-actions">
-                        <button class="btn btn-primary" id="add-product-btn"><i class="fas fa-plus"></i> Novo Produto</button>
+                        <button class="btn btn-primary" id="add-product-btn">
+                            <i class="fas fa-plus"></i>
+                            Novo Produto
+                        </button>
+                        <button class="btn btn-secondary" id="stock-report-btn">
+                            <i class="fas fa-chart-bar"></i>
+                            Relatório
+                        </button>
                     </div>
                 </div>
+
+                <!-- Cards de Estatísticas do Estoque -->
                 <div class="dashboard-grid">
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
-                        <div class="stat-info"><h3 id="total-products">0</h3><p>Total de Produtos</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-products">0</h3>
+                            <p>Total de Produtos</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div class="stat-info"><h3 id="low-stock-products">0</h3><p>Estoque Baixo</p></div>
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="low-stock-products">0</h3>
+                            <p>Estoque Baixo</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="expiring-products">0</h3>
+                            <p>Próximos ao Vencimento</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="stock-value">R$ 0,00</h3>
+                            <p>Valor do Estoque</p>
+                        </div>
                     </div>
                 </div>
+
                 <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="product-search" placeholder="Buscar produtos..."></div>
-                    <select id="category-filter"><option value="">Todas Categorias</option></select>
-                    <select id="animal-filter"><option value="">Todos Animais</option></select>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="product-search" placeholder="Buscar produtos...">
+                    </div>
+                    <select id="category-filter">
+                        <option value="">Todas as Categorias</option>
+                        <option value="racao">🥘 Ração</option>
+                        <option value="petiscos">🦴 Petiscos</option>
+                        <option value="brinquedos">🎾 Brinquedos</option>
+                        <option value="higiene">🛁 Higiene</option>
+                        <option value="medicamentos">💊 Medicamentos</option>
+                        <option value="acessorios">🎀 Acessórios</option>
+                        <option value="camas">🛏️ Camas</option>
+                        <option value="coleiras">🦮 Coleiras</option>
+                    </select>
+                    <select id="animal-filter">
+                        <option value="">Todos os Animais</option>
+                        <option value="dog">🐕 Cães</option>
+                        <option value="cat">🐱 Gatos</option>
+                        <option value="bird">🐦 Aves</option>
+                        <option value="fish">🐠 Peixes</option>
+                        <option value="rodent">🐹 Roedores</option>
+                    </select>
                     <select id="stock-status-filter">
-                        <option value="">Todos Status</option>
+                        <option value="">Todos os Status</option>
+                        <option value="normal">Estoque Normal</option>
                         <option value="low">Estoque Baixo</option>
-                        <option value="expiring">Vencendo</option>
+                        <option value="expiring">Próximo ao Vencimento</option>
                     </select>
                 </div>
+
                 <div class="table-container">
                     <table id="products-table">
                         <thead>
-                            <tr><th>Imagem</th><th>Produto</th><th>Categoria</th><th>Marca</th><th>Animal</th><th>Estoque</th><th>Preço</th><th>Status</th><th>Ações</th></tr>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Marca</th>
+                                <th>Animal</th>
+                                <th>Estoque</th>
+                                <th>Preço</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </section>
 
+            <!-- Reports Section -->
             <section id="reports" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
@@ -280,18 +484,29 @@
                         <p>Análises e estatísticas detalhadas</p>
                     </div>
                 </div>
+
                 <div class="reports-grid">
                     <div class="report-card">
                         <h3>Relatório Mensal</h3>
-                        <p>Análise detalhada de faturamento e ocupação mensal.</p>
-                        <select id="report-month"><option value="">Selecione o mês</option></select>
-                        <button class="btn btn-secondary" id="generate-monthly-report"><i class="fas fa-file-pdf"></i> Gerar Relatório</button>
+                        <p>Análise detalhada do desempenho mensal</p>
+                        <select id="report-month">
+                            <option value="">Selecione o mês</option>
+                        </select>
+                        <button class="btn btn-secondary" id="generate-monthly-report">
+                            <i class="fas fa-file-pdf"></i>
+                            Gerar Relatório
+                        </button>
                     </div>
                     <div class="report-card">
                         <h3>Relatório Anual</h3>
-                        <p>Visão consolidada do desempenho ao longo do ano.</p>
-                        <select id="report-year"><option value="">Selecione o ano</option></select>
-                        <button class="btn btn-secondary" id="generate-yearly-report"><i class="fas fa-chart-line"></i> Gerar Relatório</button>
+                        <p>Visão completa do ano</p>
+                        <select id="report-year">
+                            <option value="">Selecione o ano</option>
+                        </select>
+                        <button class="btn btn-secondary" id="generate-yearly-report">
+                            <i class="fas fa-file-excel"></i>
+                            Gerar Relatório
+                        </button>
                     </div>
                 </div>
                 <div id="report-content" class="report-content"></div>
@@ -299,7 +514,119 @@
         </div>
     </main>
 
-    <!-- Modais -->
+    <!-- Modal de Produto COM UPLOAD DE IMAGEM -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Novo Produto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="product-form">
+                <!-- SEÇÃO DE UPLOAD DE IMAGEM -->
+                <div class="form-group">
+                    <label for="product-image">Imagem do Produto</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-area" id="image-upload-area">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Clique aqui ou arraste uma imagem</p>
+                                <span>JPG, PNG ou WEBP até 5MB</span>
+                            </div>
+                            <input type="file" id="product-image" accept="image/*" hidden>
+                        </div>
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Preview">
+                            <button type="button" class="remove-image" id="remove-image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-name">Nome do Produto *</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-brand">Marca</label>
+                        <input type="text" id="product-brand">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-category">Categoria *</label>
+                        <select id="product-category" required>
+                            <option value="">Selecione</option>
+                            <option value="racao">🥘 Ração</option>
+                            <option value="petiscos">🦴 Petiscos</option>
+                            <option value="brinquedos">🎾 Brinquedos</option>
+                            <option value="higiene">🛁 Higiene</option>
+                            <option value="medicamentos">💊 Medicamentos</option>
+                            <option value="acessorios">🎀 Acessórios</option>
+                            <option value="camas">🛏️ Camas</option>
+                            <option value="coleiras">🦮 Coleiras</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-animals">Animais *</label>
+                        <select id="product-animals" multiple required>
+                            <option value="dog">🐕 Cães</option>
+                            <option value="cat">🐱 Gatos</option>
+                            <option value="bird">🐦 Aves</option>
+                            <option value="fish">🐠 Peixes</option>
+                            <option value="rodent">🐹 Roedores</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-cost-price">Preço de Custo *</label>
+                        <input type="number" id="product-cost-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-sale-price">Preço de Venda *</label>
+                        <input type="number" id="product-sale-price" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-current-stock">Estoque Atual *</label>
+                        <input type="number" id="product-current-stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-min-stock">Estoque Mínimo *</label>
+                        <input type="number" id="product-min-stock" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product-weight">Peso (kg)</label>
+                        <input type="number" id="product-weight" step="0.001">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-expiry-date">Data de Vencimento</label>
+                        <input type="date" id="product-expiry-date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="product-supplier">Fornecedor</label>
+                    <input type="text" id="product-supplier">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Descrição</label>
+                    <textarea id="product-description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-product">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modais mantidos do projeto original -->
+    <!-- Animal Modal -->
     <div id="animal-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -312,23 +639,60 @@
                     <div class="photo-selector-modern">
                         <div class="photo-preview-box" onclick="document.getElementById('animal-photo').click()">
                             <img id="photo-preview" src="" alt="Preview" style="display:none;">
-                            <div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i><span>Adicionar Foto</span></div>
+                            <div class="photo-placeholder" id="photo-placeholder">
+                                <i class="fas fa-camera"></i>
+                                <span>Adicionar Foto</span>
+                            </div>
                         </div>
                         <div class="photo-actions-modern">
                             <input type="file" id="animal-photo" accept="image/*" hidden>
-                            <button type="button" class="btn-icon-modern" id="start-camera-btn"><i class="fas fa-camera"></i></button>
+                            <button type="button" class="btn-icon-modern" id="start-camera-btn" title="Usar Câmera">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <button type="button" class="btn-icon-modern"
+                                onclick="document.getElementById('animal-photo').click()" title="Galeria">
+                                <i class="fas fa-image"></i>
+                            </button>
                         </div>
                     </div>
+                    <div id="camera-container" style="display: none; margin-top: 10px;">
+                        <video id="camera-feed" width="100%" height="auto" autoplay playsinline
+                            style="border-radius: 10px;"></video>
+                        <button type="button" class="btn btn-success" id="capture-photo-btn"
+                            style="width: 100%; margin-top: 5px;">
+                            <i class="fas fa-camera-retro"></i> Capturar
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group"><label>Nome *</label><input type="text" id="animal-name" required></div>
-                <div class="form-group"><label>Tutor *</label><input type="text" id="tutor-name" required></div>
-                <div class="form-group"><label>Telefone *</label><input type="tel" id="tutor-phone" required></div>
-                <div class="form-group"><label>Espécie *</label><select id="animal-species" required><option value="CÃO">Cão</option><option value="GATO">Gato</option></select></div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-animal">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
+                <div class="form-group">
+                    <label for="animal-name">Nome *</label>
+                    <input type="text" id="animal-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-name">Tutor *</label>
+                    <input type="text" id="tutor-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="tutor-phone">Telefone *</label>
+                    <input type="tel" id="tutor-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="animal-species">Espécie *</label>
+                    <select id="animal-species" required>
+                        <option value="">Selecione</option>
+                        <option value="CÃO">Cão</option>
+                        <option value="GATO">Gato</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-animal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Reservation Modal -->
     <div id="reservation-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -337,46 +701,133 @@
             </div>
             <form id="reservation-form">
                 <div class="form-row">
-                    <div class="form-group"><label>Animal *</label><select id="reservation-animal" required></select></div>
-                    <div class="form-group"><label>Alojamento *</label><select id="reservation-accommodation-type" required></select></div>
+                    <div class="form-group">
+                        <label for="reservation-animal">Animal *</label>
+                        <select id="reservation-animal" required>
+                            <option value="">Selecione o animal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reservation-accommodation-type">Tipo de Alojamento *</label>
+                        <select id="reservation-accommodation-type" required>
+                            <option value="">Selecione</option>
+                            <option value="INTERNO">Canil Interno</option>
+                            <option value="EXTERNO">Canil Externo</option>
+                            <option value="GATIL">Gatil</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Número *</label><select id="reservation-kennel-number" required disabled></select></div>
-                    <div class="form-group"><label>Diária *</label><input type="number" id="daily-rate" step="0.01" required></div>
+                    <div class="form-group">
+                        <label for="reservation-kennel-number">Número do Alojamento *</label>
+                        <select id="reservation-kennel-number" required disabled>
+                            <option value="">Selecione o tipo primeiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="daily-rate">Valor da Diária *</label>
+                        <input type="number" id="daily-rate" step="0.01" required>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Entrada *</label><input type="date" id="checkin-date" required></div>
-                    <div class="form-group"><label>Saída *</label><input type="date" id="checkout-date" required></div>
+                    <div class="form-group">
+                        <label for="checkin-date">Data de Entrada *</label>
+                        <input type="date" id="checkin-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkin-time">Hora de Entrada</label>
+                        <input type="time" id="checkin-time" value="14:00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkout-date">Data de Saída *</label>
+                        <input type="date" id="checkout-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-time">Previsão de Saída</label>
+                        <input type="time" id="checkout-time" value="12:00">
+                    </div>
                 </div>
                 <div class="services-selection">
                     <h4>Serviços Adicionais</h4>
                     <div class="services-grid-modern">
-                        <label class="service-checkbox-card"><input type="checkbox" id="transport-service"><div class="service-card-content"><i class="fas fa-car"></i><span>Transporte</span><input type="number" id="transport-value" disabled class="mini-price-input"></div></label>
-                        <label class="service-checkbox-card"><input type="checkbox" id="bath-service"><div class="service-card-content"><i class="fas fa-shower"></i><span>Banho</span><input type="number" id="bath-value" disabled class="mini-price-input"></div></label>
-                        <label class="service-checkbox-card wa-service"><input type="checkbox" id="whatsapp-receipt"><div class="service-card-content"><i class="fab fa-whatsapp"></i><span>Recibo via WhatsApp</span></div></label>
+                        <label class="service-checkbox-card">
+                            <input type="checkbox" id="transport-service">
+                            <div class="service-card-content">
+                                <i class="fas fa-car"></i>
+                                <span>Transporte</span>
+                                <input type="number" id="transport-value" disabled placeholder="R$ 0,00"
+                                    class="mini-price-input">
+                            </div>
+                        </label>
+                        <label class="service-checkbox-card">
+                            <input type="checkbox" id="bath-service">
+                            <div class="service-card-content">
+                                <i class="fas fa-shower"></i>
+                                <span>Banho</span>
+                                <input type="number" id="bath-value" disabled placeholder="R$ 0,00"
+                                    class="mini-price-input">
+                            </div>
+                        </label>
+                        <label class="service-checkbox-card wa-service">
+                            <input type="checkbox" id="whatsapp-receipt">
+                            <div class="service-card-content">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>Recibo via WhatsApp</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Pagamento *</label><select id="payment-method" required><option value="PIX">PIX</option><option value="CREDITO">Crédito</option></select></div>
-                    <div class="form-group"><label>Total</label><input type="text" id="total-value" readonly></div>
+                    <div class="form-group">
+                        <label for="payment-method">Forma de Pagamento *</label>
+                        <select id="payment-method" required>
+                            <option value="PIX">PIX</option>
+                            <option value="CREDITO">Crédito</option>
+                            <option value="DEBITO">Débito</option>
+                            <option value="DINHEIRO">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-value">Valor Total</label>
+                        <input type="text" id="total-value" readonly>
+                    </div>
                 </div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-reservation">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-reservation">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Reserva</button>
+                </div>
             </form>
         </div>
     </div>
 
+    <!-- Toast notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Botão Flutuante (FAB) - Padrão Android -->
+    <!-- Botão Flutuante (FAB) - Menu de Ações Rápidas -->
     <div class="fab-container" id="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()">
-                <i class="fas fa-calendar-check"></i><span>Reserva</span>
+            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()" title="Nova Reserva">
+                <i class="fas fa-calendar-check"></i>
+                <span>Reserva</span>
             </button>
-            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()">
-                <i class="fas fa-dog"></i><span>Animal</span>
+            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()" title="Novo Animal">
+                <i class="fas fa-dog"></i>
+                <span>Animal</span>
+            </button>
+            <button class="fab-item" onclick="window.inventoryManager.openProductModal()" title="Novo Produto">
+                <i class="fas fa-box"></i>
+                <span>Produto</span>
             </button>
         </div>
-        <button class="fab-main" id="fab-main"><i class="fas fa-plus"></i></button>
+        <button class="fab-main" id="fab-main" title="Ações Rápidas">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/storage-service.js"></script>
@@ -392,10 +843,38 @@
     <script src="js/app.js"></script>
 
     <script>
-        function navigateToSection(sectionName) { if (window.hotelPetApp) window.hotelPetApp.navigateToSection(sectionName); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); }
+        // Função para navegação (adaptada para seu projeto)
+        function navigateToSection(sectionName) {
+            if (window.hotelPetApp) {
+                window.hotelPetApp.navigateToSection(sectionName);
+            }
+        }
 
+        // Função para toggle da sidebar com transições suaves
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Transição suave do loading
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loading').classList.add('fade-out');
@@ -404,8 +883,200 @@
                     document.getElementById('app').classList.remove('hidden');
                     document.getElementById('app').classList.add('visible');
                 }, 800);
-            }, 1000);
+            }, 2500);
+        });
+
+        // Responsividade da sidebar
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024) {
+                closeSidebar();
+            }
+        });
+
+        // ===== REGISTRO DO SERVICE WORKER PARA PWA =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                        scope: '/'
+                    });
+                    console.log('✅ Service Worker registrado:', registration.scope);
+
+                    // Verifica updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nova versão disponível
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('❌ Erro ao registrar Service Worker:', error);
+                }
+            });
+        }
+
+        // Notificação de atualização disponível
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'update-notification';
+            notification.innerHTML = `
+                <div class="update-content">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Nova versão disponível!</span>
+                    <button onclick="window.location.reload()">Atualizar</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+
+        // ===== PROMPT DE INSTALAÇÃO PWA =====
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Mostrar botão de instalação personalizado
+            showInstallPrompt();
+        });
+
+        function showInstallPrompt() {
+            const installBtn = document.createElement('div');
+            installBtn.className = 'install-pwa-btn';
+            installBtn.innerHTML = `
+                <button class="btn btn-primary" onclick="installPWA()">
+                    <i class="fas fa-download"></i>
+                    Instalar Aplicativo
+                </button>
+            `;
+            installBtn.style.cssText = `
+                position: fixed;
+                bottom: calc(80px + var(--safe-area-inset-bottom, 20px));
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 9999;
+                animation: slideUp 0.3s ease;
+            `;
+            document.body.appendChild(installBtn);
+
+            // Remover após 10 segundos se não clicar
+            setTimeout(() => {
+                if (installBtn.parentElement) {
+                    installBtn.remove();
+                }
+            }, 10000);
+        }
+
+        window.installPWA = async function () {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                console.log('✅ PWA instalado com sucesso!');
+            }
+
+            deferredPrompt = null;
+            document.querySelector('.install-pwa-btn')?.remove();
+        };
+
+        // Detectar quando PWA é instalado
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA instalado!');
+            // Opcional: Mostrar mensagem de boas-vindas
+        });
+
+        // ===== DETECÇÃO DE CONECTIVIDADE =====
+        function updateOnlineStatus() {
+            const status = navigator.onLine ? 'online' : 'offline';
+            console.log(`🌐 Status: ${status}`);
+
+            // Mostrar indicador visual
+            const indicator = document.createElement('div');
+            indicator.className = `connectivity-indicator ${status}`;
+            indicator.innerHTML = navigator.onLine ?
+                '<i class="fas fa-wifi"></i> Online' :
+                '<i class="fas fa-wifi-slash"></i> Modo Offline';
+            indicator.style.cssText = `
+                position: fixed;
+                top: calc(var(--safe-area-inset-top, 0px) + 20px);
+                right: 20px;
+                padding: 10px 20px;
+                background: ${navigator.onLine ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 8px;
+                z-index: 9999;
+                animation: slideDown 0.3s ease;
+            `;
+
+            document.body.appendChild(indicator);
+            setTimeout(() => indicator.remove(), 3000);
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // ===== DETECÇÃO DE DISPOSITIVO E ORIENTAÇÃO =====
+        function detectDevice() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            document.body.classList.add(isMobile ? 'mobile-device' : 'desktop-device');
+            if (isAndroid) document.body.classList.add('android-device');
+            if (isIOS) document.body.classList.add('ios-device');
+
+            console.log('📱 Dispositivo:', { isMobile, isAndroid, isIOS });
+        }
+
+        function handleOrientationChange() {
+            const orientation = window.screen.orientation?.type ||
+                (window.innerHeight > window.innerWidth ? 'portrait' : 'landscape');
+
+            document.body.setAttribute('data-orientation', orientation);
+            console.log('🔄 Orientação:', orientation);
+        }
+
+        // Detectar no carregamento
+        window.addEventListener('DOMContentLoaded', () => {
+            detectDevice();
+            handleOrientationChange();
+        });
+
+        // Detectar mudanças de orientação
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
+
+        // ===== SOLICITAR PERMISSÃO PARA NOTIFICAÇÕES =====
+        async function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        console.log('✅ Permissão para notificações concedida');
+
+                        // Mostrar notificação de boas-vindas
+                        new Notification('Hotel Pet CÁ', {
+                            body: 'Você receberá notificações sobre reservas e atualizações!',
+                            icon: '/css/logo.png',
+                            badge: '/css/logo.png'
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao solicitar permissão:', error);
+                }
+            }
+        }
+
+        // Chamar após 5 segundos para não ser intrusivo
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(requestNotificationPermission, 5000);
         });
     </script>
 </body>
+
 </html>

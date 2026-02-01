@@ -513,7 +513,7 @@ class ReservationsManager {
             if (!res) return;
 
             const tutorPhone = this.formatPhoneForWhatsApp(res.tutor_phone);
-            const message = `Olá ${res.tutor_name}! 🐾\n\nInformamos que a reserva de *${res.animal_name}* no *Hotel Pet CÁ* foi finalizada com sucesso.\n\n📅 *Período:* ${this.formatDate(res.checkin_date)} a ${this.formatDate(res.checkout_date)}\n💰 *Valor Total:* ${this.formatCurrency(res.total_value)}\n\nAgradecemos imensamente pela confiança! Esperamos ver vocês em breve.\n\n*Aqui seu pet é bem cuidado.* ❤️`;
+            const message = `Olá ${res.tutor_name}! 🐾\n\nInformamos que a reserva de *${res.animal_name}* no *Hotel Pet CÁ* foi finalizada com sucesso.\n\n📅 *Período:* ${this.formatDate(res.checkin_date)} a ${this.formatDate(res.checkout_date)}\n💰 *Valor Total:* ${this.formatCurrency(res.total_value)}\n\nAgradecemos a confiança! Esperamos ver vocês em breve. ❤️`;
 
             const waUrl = `https://wa.me/${tutorPhone}?text=${encodeURIComponent(message)}`;
             window.open(waUrl, '_blank');

@@ -445,12 +445,17 @@ class DashboardManager {
         }
 
         tbody.innerHTML = safeReservations.map(reservation => `
-            <tr>
+            <tr class="recent-res-row">
                 <td data-label="Animal">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
-                        <i class="fas fa-${(reservation.animal_species === 'GATO') ? 'cat' : 'dog'}" style="color: var(--primary-color);"></i>
+                    <div style="display: flex; align-items: center; gap: 1rem; justify-content: flex-end;">
+                        <div class="animal-avatar-mini">
+                            ${reservation.photo_url ? 
+                                `<img src="${reservation.photo_url}" alt="${reservation.animal_name}" class="avatar-img">` :
+                                `<div class="avatar-fallback"><i class="fas fa-${(reservation.animal_species === 'GATO') ? 'cat' : 'dog'}"></i></div>`
+                            }
+                        </div>
                         <div style="text-align: right;">
-                            <strong>${reservation.animal_name || 'N/A'}</strong>
+                            <strong style="color: var(--primary-color); font-size: 1rem;">${reservation.animal_name || 'N/A'}</strong>
                             <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; color: var(--text-secondary); justify-content: flex-end;">
                                 <i class="fas fa-home"></i>
                                 <span>${reservation.accommodation_type || 'N/A'} ${reservation.kennel_number || ''}</span>
@@ -458,20 +463,24 @@ class DashboardManager {
                         </div>
                     </div>
                 </td>
-                <td data-label="Tutor">${reservation.tutor_name || 'N/A'}</td>
+                <td data-label="Tutor">
+                    <div style="font-weight: 600; color: var(--text-primary);">${reservation.tutor_name || 'N/A'}</div>
+                </td>
                 <td data-label="Check-in">
                     <div>
-                        <div>${this.formatDate(reservation.checkin_date)}</div>
+                        <div style="font-weight: 500;">${this.formatDate(reservation.checkin_date)}</div>
                         <small style="color: var(--text-secondary);">${reservation.checkin_time || '14:00'}</small>
                     </div>
                 </td>
                 <td data-label="Check-out">
                     <div>
-                        <div>${this.formatDate(reservation.checkout_date)}</div>
+                        <div style="font-weight: 500;">${this.formatDate(reservation.checkout_date)}</div>
                         <small style="color: var(--text-secondary);">${reservation.checkout_time || '12:00'}</small>
                     </div>
                 </td>
-                <td data-label="Valor"><strong>${this.formatCurrency(reservation.total_value)}</strong></td>
+                <td data-label="Valor">
+                    <div style="color: var(--success-color); font-weight: 700;">${this.formatCurrency(reservation.total_value)}</div>
+                </td>
                 <td data-label="Status">
                     <span class="status-badge ${this.getStatusClass(reservation.status)}">
                         ${reservation.status || 'N/A'}

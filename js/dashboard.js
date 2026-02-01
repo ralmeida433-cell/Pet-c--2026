@@ -447,19 +447,18 @@ class DashboardManager {
         tbody.innerHTML = safeReservations.map(reservation => `
             <tr class="recent-res-row">
                 <td data-label="Animal">
-                    <div style="display: flex; align-items: center; gap: 1rem; justify-content: flex-end;">
+                    <div style="display: flex; align-items: center; gap: 1rem; justify-content: flex-start;">
                         <div class="animal-avatar-mini">
                             ${reservation.photo_url ? 
                                 `<img src="${reservation.photo_url}" alt="${reservation.animal_name}" class="avatar-img">` :
                                 `<div class="avatar-fallback"><i class="fas fa-${(reservation.animal_species === 'GATO') ? 'cat' : 'dog'}"></i></div>`
                             }
                         </div>
-                        <div style="text-align: right;">
-                            <strong style="color: var(--primary-color); font-size: 1rem;">${reservation.animal_name || 'N/A'}</strong>
-                            <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; color: var(--text-secondary); justify-content: flex-end;">
-                                <i class="fas fa-home"></i>
-                                <span>${reservation.accommodation_type || 'N/A'} ${reservation.kennel_number || ''}</span>
-                            </div>
+                        <div style="text-align: left;">
+                            <strong style="color: var(--primary-color); font-size: 1rem; display: block;">${reservation.animal_name || 'N/A'}</strong>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">
+                                <i class="fas fa-home"></i> ${reservation.accommodation_type || 'N/A'} ${reservation.kennel_number || ''}
+                            </span>
                         </div>
                     </div>
                 </td>

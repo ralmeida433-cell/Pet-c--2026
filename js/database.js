@@ -392,7 +392,7 @@ class Database {
 
     async getRecentReservations(limit = 5) {
         return this.executeQuery(`
-            SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name 
+            SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.photo_url
             FROM reservations r 
             JOIN animals a ON r.animal_id = a.id 
             ORDER BY r.created_at DESC 

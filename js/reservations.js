@@ -37,8 +37,30 @@ class ReservationsManager {
         
         // Cálculos
         document.getElementById('daily-rate')?.addEventListener('input', () => this.calculateTotalValue());
-        document.getElementById('transport-service')?.addEventListener('change', () => this.calculateTotalValue());
-        document.getElementById('bath-service')?.addEventListener('change', () => this.calculateTotalValue());
+        
+        // Lógica de Serviços Adicionais (Correção do Bug)
+        const transportService = document.getElementById('transport-service');
+        const transportValue = document.getElementById('transport-value');
+        const bathService = document.getElementById('bath-service');
+        const bathValue = document.getElementById('bath-value');
+
+        if (transportService && transportValue) {
+            transportService.addEventListener('change', () => {
+                transportValue.disabled = !transportService.checked;
+                if (!transportService.checked) transportValue.value = '';
+                this.calculateTotalValue();
+            });
+            transportValue.addEventListener('input', () => this.calculateTotalValue());
+        }
+
+        if (bathService && bathValue) {
+            bathService.addEventListener('change', () => {
+                bathValue.disabled = !bathService.checked;
+                if (!bathService.checked) bathValue.value = '';
+                this.calculateTotalValue();
+            });
+            bathValue.addEventListener('input', () => this.calculateTotalValue());
+        }
 
         // Busca e filtros
         document.getElementById('reservation-search')?.addEventListener('input', () => this.applyFilters());
@@ -148,21 +170,33 @@ class ReservationsManager {
     calculateTotalValue() {
         const d1 = new Date(document.getElementById('checkin-date').value);
         const d2 = new Date(document.getElementById('checkout-date').value);
-        const daily = parseFloat(document.getElementById('daily-rate').value) || 0;
+        const daily = parseFloat(document.getElementById('daily-rate')?.value) || 0;
         
         if (d1 && d2 && d2 > d1) {
             const days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
             let total = days * daily;
             
-            if (document.getElementById('transport-service').checked) {
-                total += parseFloat(document.getElementById('transport-value').value) || 0;
+            const transportService = document.getElementById('transport-service');
+            const transportValue = parseFloat(document.getElementById('transport-value')?.value) || 0;
+            
+            const bathService = document.getElementById('bath-service');
+            const bathValue = parseFloat(document.getElementById('bath-value')?.value) || 0;
+
+            if (transportService?.checked) {
+                total += transportValue;
             }
-            if (document.getElementById('bath-service').checked) {
-                total += parseFloat(document.getElementById('bath-value').value) || 0;
+            if (bathService?.checked) {
+                total += bathValue;
             }
 
             document.getElementById('total-value').value = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total);
+        } else {
+            document.getElementById('total-value').value = this.formatCurrency(0);
         }
+    }
+    
+    formatCurrency(value) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
     }
 
     openReservationModal(data = null) {
@@ -173,6 +207,12 @@ class ReservationsManager {
         form.reset();
         this.loadAnimalsDropdown();
 
+        // Resetar campos de serviço
+        document.getElementById('transport-value').disabled = true;
+        document.getElementById('bath-value').disabled = true;
+        document.getElementById('total-value').value = this.formatCurrency(0);
+
+
         // Datas Padrão (Hoje e Amanhã) para facilitar a busca automática de canis
         const today = new Date();
         const tomorrow = new Date(today);
@@ -180,6 +220,10 @@ class ReservationsManager {
         
         document.getElementById('checkin-date').valueAsDate = today;
         document.getElementById('checkout-date').valueAsDate = tomorrow;
+        
+        // Forçar cálculo inicial para preencher o total
+        this.calculateTotalValue();
+
 
         if (data && data.tipo) {
             setTimeout(() => {
@@ -205,31 +249,73 @@ class ReservationsManager {
     }
 
     async saveReservation() {
-        const d1 = new Date(document.getElementById('checkin-date').value);
-        const d2 = new Date(document.getElementById('checkout-date').value);
+        window.hotelPetApp.showLoading();
+        
+        const animalId = document.getElementById('reservation-animal').value;
+        const accommodationType = document.getElementById('reservation-accommodation-type').value;
+        const kennelNumber = document.getElementById('reservation-kennel-number').value;
+        const dailyRate = parseFloat(document.getElementById('daily-rate').value);
+        const checkinDate = document.getElementById('checkin-date').value;
+        const checkoutDate = document.getElementById('checkout-date').value;
+        const paymentMethod = document.getElementById('payment-method').value;
+
+        // Validação básica (Correção do Bug)
+        if (!animalId || !accommodationType || !kennelNumber || isNaN(dailyRate) || !checkinDate || !checkoutDate || !paymentMethod) {
+            window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (Animal, Alojamento, Diária, Datas e Pagamento).', 'error');
+            window.hotelPetApp.hideLoading();
+            return;
+        }
+
+        const d1 = new Date(checkinDate);
+        const d2 = new Date(checkoutDate);
         const days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        
+        if (days <= 0) {
+            window.hotelPetApp.showNotification('A data de saída deve ser posterior à data de entrada.', 'error');
+            window.hotelPetApp.hideLoading();
+            return;
+        }
+
+        // Recalcular total para garantir precisão
+        let totalValue = days * dailyRate;
+        const transportService = document.getElementById('transport-service').checked;
+        const transportValue = parseFloat(document.getElementById('transport-value').value) || 0;
+        const bathService = document.getElementById('bath-service').checked;
+        const bathValue = parseFloat(document.getElementById('bath-value').value) || 0;
+
+        if (transportService) totalValue += transportValue;
+        if (bathService) totalValue += bathValue;
+
 
         const data = {
-            animal_id: document.getElementById('reservation-animal').value,
-            accommodation_type: document.getElementById('reservation-accommodation-type').value,
-            kennel_number: document.getElementById('reservation-kennel-number').value,
-            daily_rate: document.getElementById('daily-rate').value,
-            checkin_date: document.getElementById('checkin-date').value,
-            checkout_date: document.getElementById('checkout-date').value,
+            animal_id: animalId,
+            accommodation_type: accommodationType,
+            kennel_number: kennelNumber,
+            daily_rate: dailyRate,
+            checkin_date: checkinDate,
+            checkout_date: checkoutDate,
             total_days: days,
-            transport_service: document.getElementById('transport-service').checked,
-            transport_value: document.getElementById('transport-value').value,
-            bath_service: document.getElementById('bath-service').checked,
-            bath_value: document.getElementById('bath-value').value,
-            payment_method: document.getElementById('payment-method').value,
-            total_value: parseFloat(document.getElementById('total-value').value.replace(/[R$\s.]/g, '').replace(',', '.'))
+            transport_service: transportService,
+            transport_value: transportValue,
+            bath_service: bathService,
+            bath_value: bathValue,
+            payment_method: paymentMethod,
+            total_value: totalValue
         };
 
-        await db.addReservation(data);
-        window.hotelPetApp.closeAllModals();
-        this.loadReservations();
-        if (window.dashboardManager) window.dashboardManager.loadDashboard();
-        if (window.kennelVisualization) window.kennelVisualization.refresh();
+        try {
+            await db.addReservation(data);
+            window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
+            window.hotelPetApp.closeAllModals();
+            this.loadReservations();
+            if (window.dashboardManager) window.dashboardManager.loadDashboard();
+            if (window.kennelVisualization) window.kennelVisualization.refresh();
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao salvar reserva: ' + e.message, 'error');
+            console.error(e);
+        } finally {
+            window.hotelPetApp.hideLoading();
+        }
     }
 
     applyFilters() {

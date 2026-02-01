@@ -954,6 +954,28 @@ body {
     box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.1);
 }
 
+/* Estilo para o filtro de mês na seção de reservas */
+.month-filter-modern {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    font-weight: 500;
+    flex-grow: 0;
+    min-width: 180px;
+    text-align: center;
+}
+
+.month-filter-modern:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.1);
+}
+
 /* Table Styles */
 .table-container {
     background: white;

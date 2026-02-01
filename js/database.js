@@ -29,10 +29,9 @@ class Database {
             }
 
             this.isInitialized = true;
-            console.log('✅ Banco SQLite inicializado com sucesso');
+            console.log('✅ Banco SQLite inicializado');
         } catch (error) {
             console.error('Erro ao inicializar banco:', error);
-            alert('Erro crítico no banco: ' + error.message);
         }
     }
 
@@ -46,9 +45,8 @@ class Database {
             if (data.length < 5000000) {
                 localStorage.setItem('hotelPetDB', JSON.stringify(Array.from(data)));
             }
-            console.log('💾 Dados salvos no dispositivo');
         } catch (error) {
-            console.error('Erro ao salvar dados:', error);
+            console.error('Erro ao salvar:', error);
         }
     }
 
@@ -71,12 +69,7 @@ class Database {
     async createTables() {
         this.db.run(`CREATE TABLE IF NOT EXISTS animals (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT NOT NULL, 
-            species TEXT NOT NULL, 
-            tutor_name TEXT NOT NULL, 
-            tutor_phone TEXT, 
-            photo_url TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            name TEXT, species TEXT, tutor_name TEXT, tutor_phone TEXT, photo_url TEXT
         )`);
 
         this.db.run(`CREATE TABLE IF NOT EXISTS reservations (
@@ -87,141 +80,111 @@ class Database {
             daily_rate REAL,
             checkin_date DATE,
             checkout_date DATE,
-            checkin_time TEXT DEFAULT '14:00',
-            checkout_time TEXT DEFAULT '12:00',
+            checkin_time TEXT,
+            checkout_time TEXT,
             total_days INTEGER,
-            transport_service BOOLEAN DEFAULT 0,
-            transport_value REAL DEFAULT 0,
-            bath_service BOOLEAN DEFAULT 0,
-            bath_value REAL DEFAULT 0,
+            transport_service BOOLEAN,
+            transport_value REAL,
+            bath_service BOOLEAN,
+            bath_value REAL,
             payment_method TEXT,
             total_value REAL,
-            status TEXT DEFAULT 'ATIVA',
-            whatsapp_receipt BOOLEAN DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (animal_id) REFERENCES animals (id)
+            status TEXT DEFAULT 'ATIVA'
         )`);
         await this.saveData();
     }
 
     async insertSampleData() {
-        // Animal de exemplo
         this.db.run(`INSERT OR IGNORE INTO animals (name, species, tutor_name, tutor_phone) 
                      VALUES ('PANQUECA', 'CÃO', 'MARISTELA', '31992089660')`);
         await this.saveData();
     }
 
-    // ===== MÉTODOS DE ANIMALS =====
-    async addAnimal(animalData) {
-        if (!this.isInitialized) throw new Error('Banco não inicializado');
-        const query = `INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url) VALUES (?, ?, ?, ?, ?)`;
-        this.db.run(query, [
-            animalData.name || '',
-            animalData.species || 'CÃO',
-            animalData.tutor_name || '',
-            animalData.tutor_phone || '',
-            animalData.photo_url || null
-        ]);
-        await this.saveData();
-        console.log('✅ Animal adicionado:', animalData.name);
-        return true;
+    // --- MÉTODOS DE ANIMALS ---
+    async addAnimal(a) { 
+        this.db.run(`INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url) VALUES (?,?,?,?,?)`, 
+        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url]); 
+        await this.saveData(); 
     }
-
-    async updateAnimal(id, animalData) {
-        if (!this.isInitialized) throw new Error('Banco não inicializado');
-        const query = `UPDATE animals SET name = ?, species = ?, tutor_name = ?, tutor_phone = ?, photo_url = ? WHERE id = ?`;
-        this.db.run(query, [
-            animalData.name || '',
-            animalData.species || 'CÃO',
-            animalData.tutor_name || '',
-            animalData.tutor_phone || '',
-            animalData.photo_url || null,
-            id
-        ]);
-        await this.saveData();
-        console.log('✅ Animal atualizado ID:', id);
-        return true;
+    async updateAnimal(id, a) { 
+        this.db.run(`UPDATE animals SET name=?, species=?, tutor_name=?, tutor_phone=?, photo_url=? WHERE id=?`, 
+        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, id]); 
+        await this.saveData(); 
     }
+    async deleteAnimal(id) { this.db.run('DELETE FROM animals WHERE id=?', [id]); await this.saveData(); }
+    async getAnimals(s = '') { return this.executeQuery(`SELECT * FROM animals WHERE name LIKE ? OR tutor_name LIKE ? ORDER BY name`, [`%${s}%`, `%${s}%`]); }
+    async getAnimalById(id) { const r = this.executeQuery(`SELECT * FROM animals WHERE id=?`, [id]); return r[0]; }
 
-    async deleteAnimal(id) {
-        if (!this.isInitialized) throw new Error('Banco não inicializado');
-        this.db.run('DELETE FROM animals WHERE id = ?', [id]);
-        await this.saveData();
-        console.log('🗑️ Animal deletado ID:', id);
-        return true;
-    }
-
-    async getAnimals(search = '') {
-        if (!this.isInitialized) return [];
-        const query = search ? 
-            `SELECT * FROM animals WHERE name LIKE ? OR tutor_name LIKE ? ORDER BY name ASC` :
-            `SELECT * FROM animals ORDER BY name ASC`;
-        const params = search ? [`%${search}%`, `%${search}%`] : [];
-        return this.executeQuery(query, params);
-    }
-
-    async getAnimalById(id) {
-        if (!this.isInitialized) return null;
-        const results = this.executeQuery('SELECT * FROM animals WHERE id = ?', [id]);
-        return results[0] || null;
-    }
-
-    // ===== MÉTODOS DE RESERVAS (básicos) =====
+    // --- MÉTODOS DE RESERVAS ---
     async getReservations(search = '', status = '', month = '') {
-        let query = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name 
-                     FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id 
-                     WHERE 1=1`;
-        const params = [];
-
-        if (search) {
-            query += ` AND (a.name LIKE ? OR a.tutor_name LIKE ?)`;
-            params.push(`%${search}%`, `%${search}%`);
-        }
-        if (status) {
-            query += ` AND r.status = ?`;
-            params.push(status);
-        }
-        if (month) {
-            query += ` AND r.checkin_date LIKE ?`;
-            params.push(`${month}%`);
-        }
-        query += ` ORDER BY r.checkin_date DESC`;
-
-        return this.executeQuery(query, params);
+        let q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone 
+                 FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id WHERE 1=1`;
+        const p = [];
+        if (search) { q += ` AND (a.name LIKE ? OR a.tutor_name LIKE ?)`; p.push(`%${search}%`, `%${search}%`); }
+        if (status) { q += ` AND r.status = ?`; p.push(status); }
+        if (month) { q += ` AND r.checkin_date LIKE ?`; p.push(`${month}%`); }
+        q += ` ORDER BY r.checkin_date DESC`;
+        return this.executeQuery(q, p);
     }
 
-    async addReservation(reservationData) {
-        const query = `INSERT INTO reservations (
-            animal_id, accommodation_type, kennel_number, daily_rate, checkin_date, checkout_date,
-            total_days, transport_service, transport_value, bath_service, bath_value,
-            payment_method, total_value, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        this.db.run(query, [
-            reservationData.animal_id,
-            reservationData.accommodation_type,
-            reservationData.kennel_number,
-            reservationData.daily_rate,
-            reservationData.checkin_date,
-            reservationData.checkout_date,
-            reservationData.total_days,
-            reservationData.transport_service ? 1 : 0,
-            reservationData.transport_value || 0,
-            reservationData.bath_service ? 1 : 0,
-            reservationData.bath_value || 0,
-            reservationData.payment_method,
-            reservationData.total_value,
-            'ATIVA'
-        ]);
+    async getReservationById(id) {
+        const q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone 
+                   FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id WHERE r.id = ?`;
+        const r = this.executeQuery(q, [id]);
+        return r[0];
+    }
+
+    async addReservation(r) {
+        const q = `INSERT INTO reservations (animal_id, accommodation_type, kennel_number, daily_rate, checkin_date, checkout_date, total_days, transport_service, transport_value, bath_service, bath_value, payment_method, total_value, status) 
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, 'ATIVA')`;
+        this.db.run(q, [r.animal_id, r.accommodation_type, r.kennel_number, r.daily_rate, r.checkin_date, r.checkout_date, r.total_days, r.transport_service, r.transport_value, r.bath_service, r.bath_value, r.payment_method, r.total_value]);
         await this.saveData();
-        return true;
     }
 
-    // Outros métodos...
+    async updateReservation(id, r) {
+        const q = `UPDATE reservations SET animal_id=?, accommodation_type=?, kennel_number=?, daily_rate=?, checkin_date=?, checkout_date=?, total_days=?, transport_service=?, transport_value=?, bath_service=?, bath_value=?, payment_method=?, total_value=?, status=? WHERE id=?`;
+        this.db.run(q, [r.animal_id, r.accommodation_type, r.kennel_number, r.daily_rate, r.checkin_date, r.checkout_date, r.total_days, r.transport_service, r.transport_value, r.bath_service, r.bath_value, r.payment_method, r.total_value, r.status, id]);
+        await this.saveData();
+    }
+
+    async deleteReservation(id) { this.db.run('DELETE FROM reservations WHERE id=?', [id]); await this.saveData(); }
+
+    // NOVO: Verificar canis ocupados
+    async getOccupiedKennels(start, end) {
+        const q = `SELECT accommodation_type, kennel_number FROM reservations 
+                   WHERE status = 'ATIVA' 
+                   AND (
+                       (checkin_date BETWEEN ? AND ?) OR 
+                       (checkout_date BETWEEN ? AND ?) OR 
+                       (? BETWEEN checkin_date AND checkout_date)
+                   )`;
+        return this.executeQuery(q, [start, end, start, end, start]);
+    }
+
     async getDashboardStats() {
         const totalAnimals = this.executeQuery('SELECT COUNT(*) as count FROM animals')[0]?.count || 0;
-        const activeReservations = this.executeQuery("SELECT COUNT(*) as count FROM reservations WHERE status = 'ATIVA'")[0]?.count || 0;
-        return { totalAnimals, activeReservations, monthlyRevenue: 0, occupancyRate: 0 };
+        const activeRes = this.executeQuery("SELECT COUNT(*) as count FROM reservations WHERE status = 'ATIVA'")[0]?.count || 0;
+        const revenue = this.executeQuery("SELECT SUM(total_value) as sum FROM reservations WHERE status = 'ATIVA'")[0]?.sum || 0;
+        return { totalAnimals, activeReservations: activeRes, monthlyRevenue: revenue, occupancyRate: Math.round((activeRes / 15) * 100) };
+    }
+
+    async getRecentReservations(limit = 5) {
+        const q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.photo_url 
+                   FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id 
+                   ORDER BY r.id DESC LIMIT ?`;
+        return this.executeQuery(q, [limit]);
+    }
+
+    async getMonthlyData() {
+        const q = `SELECT strftime('%Y-%m', checkin_date) as month, COUNT(*) as reservations, SUM(total_value) as revenue 
+                   FROM reservations GROUP BY month ORDER BY month DESC LIMIT 12`;
+        return this.executeQuery(q);
+    }
+
+    async getKennelTypeData() {
+        const q = `SELECT accommodation_type as kennel_type, COUNT(*) as count 
+                   FROM reservations WHERE status = 'ATIVA' GROUP BY kennel_type`;
+        return this.executeQuery(q);
     }
 }
-
 window.db = new Database();

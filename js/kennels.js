@@ -141,7 +141,7 @@ class KennelVisualization {
                     </div>
                     <div class="stat-info">
                         <h3>${stats.taxaOcupacao}%</h3>
-                        <p>Taxa de Ocupação</p>
+                        <p>Taxa</p>
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@ class KennelVisualization {
                 <h3 class="section-title">
                     <i class="fas fa-${tipo === 'gatil' ? 'cat' : 'dog'}"></i>
                     ${titulo}
-                    <span class="section-count">${canis.length} unidades</span>
+                    <span class="section-count">${canis.length}</span>
                 </h3>
                 <div class="kennels-grid ${tipo}">
                     ${canis.map(canil => this.renderKennel(canil)).join('')}
@@ -175,7 +175,6 @@ class KennelVisualization {
                     <div class="kennel-number">${canil.numero}</div>
                     <div class="kennel-status">
                         <i class="fas fa-${isOcupado ? 'paw' : 'check'}"></i>
-                        ${isOcupado ? 'Ocupado' : 'Disponível'}
                     </div>
                 </div>
                 
@@ -183,26 +182,17 @@ class KennelVisualization {
                     ${isOcupado ? `
                         <div class="animal-info">
                             <div class="animal-name">
-                                <i class="fas fa-${ocupacao.tipo_animal === 'GATO' ? 'cat' : 'dog'}"></i>
                                 ${ocupacao.animal}
                             </div>
                             <div class="tutor-info">
-                                <strong>Tutor:</strong> ${ocupacao.tutor}
-                            </div>
-                            <div class="periodo-info">
-                                <strong>Período:</strong><br>
-                                ${this.formatDate(ocupacao.entrada)} até ${this.formatDate(ocupacao.saida)}
+                                ${ocupacao.tutor}
                             </div>
                         </div>
                     ` : `
                         <div class="disponivel-info">
-                            <p>${canil.descricao}</p>
-                            <div class="button-container">
-                                <button class="btn-reservar-small" onclick="kennelVisualization.reservarCanil('${canil.id}')">
-                                    <i class="fas fa-plus"></i>
-                                    Reservar
-                                </button>
-                            </div>
+                            <button class="btn-reservar-small" onclick="kennelVisualization.reservarCanil('${canil.id}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                     `}
                 </div>
@@ -277,7 +267,7 @@ class KennelVisualization {
         const styles = document.createElement('style');
         styles.id = 'kennels-styles';
         styles.textContent = `
-            /* Estilos para Visualização de Canis - Otimizado para APK Nativo */
+            /* Estilos Ultra Compactos para Mobile - Hotel Pet CÁ */
             .kennels-overview {
                 padding: 0;
                 max-width: 100%;
@@ -286,32 +276,33 @@ class KennelVisualization {
 
             .kennels-stats {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 0.75rem;
-                margin-bottom: 1.5rem;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.4rem;
+                margin-bottom: 1rem;
                 width: 100%;
             }
 
             .stat-item {
                 background: white;
-                padding: 1rem;
-                border-radius: 0.75rem;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                padding: 0.5rem;
+                border-radius: 0.6rem;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
                 display: flex;
+                flex-direction: column;
                 align-items: center;
-                gap: 0.75rem;
-                min-width: 0; /* Permite encolher no grid */
+                gap: 0.2rem;
+                text-align: center;
             }
 
             .stat-icon {
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                border-radius: 0.5rem;
+                width: 28px;
+                height: 28px;
+                min-width: 28px;
+                border-radius: 0.4rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1rem;
+                font-size: 0.8rem;
                 color: white;
             }
 
@@ -321,170 +312,131 @@ class KennelVisualization {
             .stat-icon.taxa { background: #8b5cf6; }
 
             .stat-info h3 {
-                font-size: 1.25rem;
+                font-size: 0.9rem;
                 font-weight: 700;
                 color: #1e293b;
                 line-height: 1;
-                margin-bottom: 0.25rem;
+                margin-bottom: 0.1rem;
             }
 
             .stat-info p {
                 color: #64748b;
-                font-size: 0.7rem;
+                font-size: 0.6rem;
                 font-weight: 500;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                text-transform: uppercase;
             }
 
             .kennel-section {
-                margin-bottom: 2rem;
+                margin-bottom: 1.5rem;
             }
 
             .section-title {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: #1e293b;
-                margin-bottom: 1rem;
-                padding-bottom: 0.5rem;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
-            .section-count {
-                background: #e2e8f0;
-                color: #64748b;
-                padding: 0.15rem 0.5rem;
-                border-radius: 9999px;
-                font-size: 0.65rem;
-                font-weight: 500;
-                margin-left: auto;
-            }
-
-            .kennels-grid {
-                display: grid;
-                gap: 1rem;
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-
-            .kennel-card {
-                background: white;
-                border-radius: 0.75rem;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                overflow: hidden;
-                transition: all 0.2s ease;
-                border: 1px solid transparent;
-                min-height: 140px;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .kennel-card.ocupado { border-color: #fee2e2; }
-            .kennel-card.disponivel { border-color: #dcfce7; }
-
-            .kennel-header {
-                padding: 0.75rem 1rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid #f1f5f9;
-            }
-
-            .kennel-card.ocupado .kennel-header { background: #fef2f2; }
-            .kennel-card.disponivel .kennel-header { background: #f0fdf4; }
-
-            .kennel-number {
-                font-size: 1.1rem;
-                font-weight: 700;
-                color: #1e293b;
-            }
-
-            .kennel-status {
-                display: flex;
-                align-items: center;
-                gap: 0.35rem;
-                font-size: 0.7rem;
-                font-weight: 600;
-                padding: 0.25rem 0.6rem;
-                border-radius: 9999px;
-            }
-
-            .kennel-card.ocupado .kennel-status { background: #ef4444; color: white; }
-            .kennel-card.disponivel .kennel-status { background: #10b981; color: white; }
-
-            .kennel-content {
-                padding: 1rem;
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-            }
-
-            .animal-info {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .animal-name {
                 display: flex;
                 align-items: center;
                 gap: 0.4rem;
                 font-size: 0.9rem;
                 font-weight: 600;
                 color: #1e293b;
+                margin-bottom: 0.75rem;
+                padding-bottom: 0.4rem;
+                border-bottom: 1px solid #e2e8f0;
             }
 
-            .tutor-info, .periodo-info {
-                font-size: 0.75rem;
+            .section-count {
+                background: #e2e8f0;
                 color: #64748b;
-                line-height: 1.4;
+                padding: 0.1rem 0.4rem;
+                border-radius: 9999px;
+                font-size: 0.6rem;
+                margin-left: auto;
             }
 
-            .disponivel-info {
+            .kennels-grid {
+                display: grid;
+                gap: 0.5rem;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .kennel-card {
+                background: white;
+                border-radius: 0.6rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+                border: 1px solid #f1f5f9;
+                min-height: 80px;
                 display: flex;
                 flex-direction: column;
-                height: 100%;
-                text-align: center;
-                justify-content: center;
             }
 
-            .disponivel-info p {
-                color: #94a3b8;
+            .kennel-header {
+                padding: 0.4rem 0.6rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #f1f5f9;
+                background: #f8fafc;
+            }
+
+            .kennel-number {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: #1e293b;
+            }
+
+            .kennel-status i {
+                font-size: 0.7rem;
+            }
+
+            .kennel-card.ocupado .kennel-status i { color: #ef4444; }
+            .kennel-card.disponivel .kennel-status i { color: #10b981; }
+
+            .kennel-content {
+                padding: 0.5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                flex-grow: 1;
+                text-align: center;
+            }
+
+            .animal-name {
                 font-size: 0.75rem;
-                margin-bottom: 0.75rem;
+                font-weight: 700;
+                color: #1e293b;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .tutor-info {
+                font-size: 0.65rem;
+                color: #64748b;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .btn-reservar-small {
                 background: #2563eb;
                 color: white;
                 border: none;
-                padding: 0.4rem 0.75rem;
-                border-radius: 0.375rem;
-                font-weight: 600;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
                 font-size: 0.7rem;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
-                gap: 0.35rem;
                 justify-content: center;
                 margin: 0 auto;
             }
 
-            /* Mobile Adjustments */
-            @media (max-width: 480px) {
-                .kennels-stats {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-                
-                .stat-info h3 {
-                    font-size: 1.1rem;
-                }
-
-                .kennels-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                }
+            /* Ultra Mobile Adjustments */
+            @media (max-width: 360px) {
+                .kennels-stats { gap: 0.2rem; }
+                .stat-item { padding: 0.3rem; }
+                .stat-info h3 { font-size: 0.8rem; }
+                .kennels-grid { grid-template-columns: repeat(2, 1fr); }
             }
         `;
         document.head.appendChild(styles);

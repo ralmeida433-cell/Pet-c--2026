@@ -1,45 +1,34 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.1 - Correção de Overflow e Transbordamento */
+/* Versão 2.2 - Ultra Compacta para Telas Pequenas */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --header-height: 60px;
+    --header-height: 50px; /* Reduzido de 60px */
 }
 
-/* ===== ELEMENTOS DE NAVEGAÇÃO MOBILE ===== */
-.mobile-header {
-    display: none;
-    /* Oculto no desktop */
-}
-
-.mobile-nav-controls {
-    display: none;
-}
-
-/* ===== MEDIA QUERY PRINCIPAL (Celulares e Tablets até 1024px) ===== */
+/* ===== MEDIA QUERY PRINCIPAL ===== */
 @media screen and (max-width: 1024px) {
 
-    /* 1. LAYOUT GERAL */
     body {
         padding-top: calc(var(--header-height) + var(--safe-area-top));
-        overflow-x: hidden; /* Evita scroll lateral */
+        overflow-x: hidden;
         width: 100vw;
     }
 
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding: 0.75rem; /* Reduzido para dar mais espaço interno */
+        padding: 0.4rem; /* Reduzido de 0.75rem */
         overflow-x: hidden;
     }
 
     .content-section {
-        padding: 0.5rem 0; /* Remove padding lateral da seção para usar o do main-content */
+        padding: 0.2rem 0;
         width: 100%;
     }
 
-    /* 2. HEADER MOBILE FIXO (BARRA SUPERIOR) */
+    /* BARRA SUPERIOR MAIS FINA */
     .mobile-header {
         display: flex;
         align-items: center;
@@ -49,97 +38,78 @@
         left: 0;
         right: 0;
         height: calc(var(--header-height) + var(--safe-area-top));
-        padding: var(--safe-area-top) 1rem 0 1rem;
+        padding: var(--safe-area-top) 0.75rem 0 0.75rem;
         background: white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
         z-index: 900;
         border-bottom: 1px solid #e2e8f0;
     }
 
-    .mobile-header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
     .mobile-header-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 130px;
-    }
-
-    /* Botão Hambúrguer no Header */
-    .header-menu-btn {
-        font-size: 1.2rem;
-        color: var(--primary-color);
-        background: none;
-        border: none;
-        padding: 0.5rem;
-        cursor: pointer;
-    }
-
-    /* Controles de Navegação (Voltar/Avançar) */
-    .mobile-nav-controls {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
+        font-size: 0.9rem;
+        font-weight: 700;
     }
 
     .nav-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        color: var(--text-secondary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
     }
 
-    /* 3. SIDEBAR (MENU LATERAL RETRÁTIL) */
-    .sidebar {
-        width: 280px !important;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: -100% !important;
-        z-index: 10000;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .sidebar.open {
-        left: 0 !important;
-    }
-
-    /* 5. GRIDS E CONTEÚDO */
+    /* GRIDS DE ESTATÍSTICAS DO DASHBOARD */
     .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr) !important; /* Força 2 colunas se couber */
-        gap: 0.75rem;
-        width: 100%;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important; /* Espaçamento mínimo */
+    }
+
+    .stat-card {
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
+        border-radius: 0.75rem !important;
+        flex-direction: row !important; /* Ícone ao lado do texto */
+        align-items: center !important;
+        text-align: left !important;
+    }
+
+    .stat-icon {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 1rem !important;
+        border-radius: 0.5rem !important;
+    }
+
+    .stat-info h3 {
+        font-size: 1.1rem !important; /* Fonte menor */
+        margin-bottom: 0 !important;
+    }
+
+    .stat-info p {
+        font-size: 0.65rem !important;
+        line-height: 1 !important;
+    }
+
+    /* Tabelas em Cards Compactos */
+    table tr {
+        padding: 0.75rem !important;
+        border-radius: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    table td {
+        padding: 0.4rem 0 !important;
+        font-size: 0.85rem !important;
     }
     
-    @media (max-width: 360px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr !important; /* 1 coluna em telas minúsculas */
-        }
+    table td::before {
+        font-size: 0.7rem !important;
     }
 
-    .page-header {
-        display: none;
-    }
-
-    /* Ajuste de Modais */
-    .modal-content {
-        width: 92%;
-        margin: 1rem auto;
-        padding: 1.25rem;
+    /* Botão Flutuante Menor */
+    .fab-main {
+        width: 50px !important;
+        height: 50px !important;
+        bottom: 1rem !important;
+        right: 1rem !important;
     }
 }

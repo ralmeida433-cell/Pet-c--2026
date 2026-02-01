@@ -26,6 +26,9 @@ class Database {
             if (!data) {
                 await this.createTables();
                 await this.insertSampleData();
+            } else {
+                // Garantir que a nova tabela exista em bancos existentes
+                await this.createKennelsTableIfMissing();
             }
 
             this.isInitialized = true;
@@ -91,12 +94,51 @@ class Database {
             total_value REAL,
             status TEXT DEFAULT 'ATIVA'
         )`);
+        
+        this.db.run(`CREATE TABLE IF NOT EXISTS kennels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            number INTEGER NOT NULL,
+            description TEXT,
+            UNIQUE(type, number)
+        )`);
+
         await this.saveData();
+    }
+    
+    async createKennelsTableIfMissing() {
+        // Método para adicionar a tabela 'kennels' em bancos de dados antigos
+        try {
+            this.db.run(`CREATE TABLE IF NOT EXISTS kennels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT NOT NULL,
+                number INTEGER NOT NULL,
+                description TEXT,
+                UNIQUE(type, number)
+            )`);
+            await this.saveData();
+        } catch (e) {
+            console.warn('Tabela kennels já existe ou erro ao criar:', e);
+        }
     }
 
     async insertSampleData() {
         this.db.run(`INSERT OR IGNORE INTO animals (name, species, tutor_name, tutor_phone) 
                      VALUES ('PANQUECA', 'CÃO', 'MARISTELA', '31992089660')`);
+        
+        // Inserir canis padrão na nova tabela
+        const defaultKennels = [
+            { type: 'INTERNO', count: 5, description: 'Área coberta climatizada' },
+            { type: 'EXTERNO', count: 6, description: 'Área externa com jardim' },
+            { type: 'GATIL', count: 4, description: 'Área especializada para felinos' }
+        ];
+
+        for (const { type, count, description } of defaultKennels) {
+            for (let i = 1; i <= count; i++) {
+                this.db.run(`INSERT OR IGNORE INTO kennels (type, number, description) VALUES (?, ?, ?)`, [type, i, description]);
+            }
+        }
+
         await this.saveData();
     }
 
@@ -161,11 +203,29 @@ class Database {
         return this.executeQuery(q, [start, end, start, end, start]);
     }
 
+    // --- MÉTODOS DE KENNELS ---
+    async getAllKennels() {
+        return this.executeQuery(`SELECT * FROM kennels ORDER BY type, number`);
+    }
+
+    async addKennel(type, number, description) {
+        this.db.run(`INSERT INTO kennels (type, number, description) VALUES (?, ?, ?)`, [type, number, description]);
+        await this.saveData();
+    }
+
+    async getNextKennelNumber(type) {
+        const result = this.executeQuery(`SELECT MAX(number) as max_number FROM kennels WHERE type = ?`, [type]);
+        return (result[0]?.max_number || 0) + 1;
+    }
+
+    // --- MÉTODOS DE DASHBOARD E RELATÓRIOS ---
     async getDashboardStats() {
         const totalAnimals = this.executeQuery('SELECT COUNT(*) as count FROM animals')[0]?.count || 0;
         const activeRes = this.executeQuery("SELECT COUNT(*) as count FROM reservations WHERE status = 'ATIVA'")[0]?.count || 0;
+        const totalKennels = this.executeQuery('SELECT COUNT(*) as count FROM kennels')[0]?.count || 0;
         const revenue = this.executeQuery("SELECT SUM(total_value) as sum FROM reservations WHERE status = 'ATIVA'")[0]?.sum || 0;
-        return { totalAnimals, activeReservations: activeRes, monthlyRevenue: revenue, occupancyRate: Math.round((activeRes / 15) * 100) };
+        const occupancyRate = totalKennels > 0 ? Math.round((activeRes / totalKennels) * 100) : 0;
+        return { totalAnimals, activeReservations: activeRes, monthlyRevenue: revenue, occupancyRate, totalKennels };
     }
 
     async getRecentReservations(limit = 5) {

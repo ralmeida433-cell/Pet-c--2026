@@ -5,11 +5,13 @@ class ReservationsManager {
         this.filteredReservations = [];
         this.animals = [];
         this.isInitialized = false;
-        this.accommodations = {
-            'INTERNO': { count: 5, species: 'CÃO' },
-            'EXTERNO': { count: 6, species: 'CÃO' },
-            'GATIL': { count: 4, species: 'GATO' }
+        // Lista de acomodações agora é dinâmica, mas mantemos a estrutura para mapeamento de espécies
+        this.accommodationTypes = {
+            'INTERNO': { species: 'CÃO' },
+            'EXTERNO': { species: 'CÃO' },
+            'GATIL': { species: 'GATO' }
         };
+        this.allKennels = []; // Lista completa de canis do DB
         this.init();
     }
 
@@ -55,8 +57,15 @@ class ReservationsManager {
         this.reservations = await db.getReservations();
         this.applyFilters();
     }
+    
+    async updateAccommodationList() {
+        if (!window.db || !window.db.isInitialized) return;
+        this.allKennels = await window.db.getAllKennels();
+    }
 
     async loadAnimalsDropdown() {
+        await this.updateAccommodationList(); // Garante que a lista de canis esteja atualizada
+        
         const animals = await db.getAnimals();
         const select = document.getElementById('reservation-animal');
         if (!select) return;
@@ -72,12 +81,21 @@ class ReservationsManager {
     filterAccommodationBySpecies(species) {
         const select = document.getElementById('reservation-accommodation-type');
         if (!select) return;
+        
+        // Determina os tipos de acomodação compatíveis com a espécie
+        const compatibleTypes = Object.entries(this.accommodationTypes)
+            .filter(([type, info]) => info.species === species)
+            .map(([type]) => type);
+
         select.innerHTML = '<option value="">Selecione</option>';
-        for (const [type, info] of Object.entries(this.accommodations)) {
-            if (info.species === species) {
-                select.innerHTML += `<option value="${type}">${type === 'GATIL' ? 'Gatil' : 'Canil ' + type.toLowerCase()}</option>`;
-            }
-        }
+        
+        compatibleTypes.forEach(type => {
+            select.innerHTML += `<option value="${type}">${type === 'GATIL' ? 'Gatil' : 'Canil ' + type.toLowerCase()}</option>`;
+        });
+        
+        // Limpa o número do canil
+        document.getElementById('reservation-kennel-number').innerHTML = '<option value="">Escolha o número</option>';
+        document.getElementById('reservation-kennel-number').disabled = true;
     }
 
     async populateKennelNumbers(accommodationType) {
@@ -100,13 +118,15 @@ class ReservationsManager {
                 .filter(o => o.accommodation_type === accommodationType)
                 .map(o => o.kennel_number);
 
-            const max = this.accommodations[accommodationType].count;
+            // Filtra os canis disponíveis do tipo selecionado
+            const availableKennels = this.allKennels.filter(k => k.type === accommodationType);
+            
             let options = '<option value="">Escolha o número</option>';
             
-            for (let i = 1; i <= max; i++) {
-                const isOccupied = occupiedNumbers.includes(i);
-                options += `<option value="${i}" ${isOccupied ? 'disabled' : ''}>${accommodationType} ${i} ${isOccupied ? '(Ocupado)' : '(Livre)'}</option>`;
-            }
+            availableKennels.forEach(kennel => {
+                const isOccupied = occupiedNumbers.includes(kennel.number);
+                options += `<option value="${kennel.number}" ${isOccupied ? 'disabled' : ''}>${accommodationType} ${kennel.number} ${isOccupied ? '(Ocupado)' : '(Livre)'}</option>`;
+            });
 
             kennelSelect.innerHTML = options;
             kennelSelect.disabled = false;
@@ -167,6 +187,16 @@ class ReservationsManager {
                 this.filterAccommodationBySpecies(species);
                 document.getElementById('reservation-accommodation-type').value = data.tipo;
                 this.populateKennelNumbers(data.tipo);
+                
+                // Pré-selecionar o número se for passado
+                if (data.numero) {
+                    setTimeout(() => {
+                        const kennelOption = document.querySelector(`#reservation-kennel-number option[value="${data.numero}"]`);
+                        if (kennelOption && !kennelOption.disabled) {
+                            document.getElementById('reservation-kennel-number').value = data.numero;
+                        }
+                    }, 100);
+                }
             }, 300);
         }
 
@@ -199,6 +229,7 @@ class ReservationsManager {
         window.hotelPetApp.closeAllModals();
         this.loadReservations();
         if (window.dashboardManager) window.dashboardManager.loadDashboard();
+        if (window.kennelVisualization) window.kennelVisualization.refresh();
     }
 
     applyFilters() {
@@ -234,6 +265,7 @@ class ReservationsManager {
         if (confirm('Excluir reserva?')) {
             await db.deleteReservation(id);
             this.loadReservations();
+            if (window.kennelVisualization) window.kennelVisualization.refresh();
         }
     }
 }

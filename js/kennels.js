@@ -6,39 +6,22 @@
 
 class KennelVisualization {
     constructor() {
-        this.canis = this.initializeKennels();
+        this.canis = [];
         this.ocupacao = new Map();
         this.isInitialized = false;
         this.init();
     }
 
-    initializeKennels() {
-        return [
-            // 5 Canis Internos
-            { id: 'INTERNO-01', tipo: 'INTERNO', numero: 1, descricao: 'Área coberta climatizada', capacidade: 1 },
-            { id: 'INTERNO-02', tipo: 'INTERNO', numero: 2, descricao: 'Área coberta climatizada', capacidade: 1 },
-            { id: 'INTERNO-03', tipo: 'INTERNO', numero: 3, descricao: 'Área coberta climatizada', capacidade: 1 },
-            { id: 'INTERNO-04', tipo: 'INTERNO', numero: 4, descricao: 'Área coberta climatizada', capacidade: 1 },
-            { id: 'INTERNO-05', tipo: 'INTERNO', numero: 5, descricao: 'Área coberta climatizada', capacidade: 1 },
-
-            // 6 Canis Externos
-            { id: 'EXTERNO-01', tipo: 'EXTERNO', numero: 1, descricao: 'Área externa com jardim', capacidade: 1 },
-            { id: 'EXTERNO-02', tipo: 'EXTERNO', numero: 2, descricao: 'Área externa com jardim', capacidade: 1 },
-            { id: 'EXTERNO-03', tipo: 'EXTERNO', numero: 3, descricao: 'Área externa com jardim', capacidade: 1 },
-            { id: 'EXTERNO-04', tipo: 'EXTERNO', numero: 4, descricao: 'Área externa com jardim', capacidade: 1 },
-            { id: 'EXTERNO-05', tipo: 'EXTERNO', numero: 5, descricao: 'Área externa com jardim', capacidade: 1 },
-            { id: 'EXTERNO-06', tipo: 'EXTERNO', numero: 6, descricao: 'Área externa com jardim', capacidade: 1 },
-
-            // 4 Gatils
-            { id: 'GATIL-01', tipo: 'GATIL', numero: 1, descricao: 'Área especializada para felinos', capacidade: 1 },
-            { id: 'GATIL-02', tipo: 'GATIL', numero: 2, descricao: 'Área especializada para felinos', capacidade: 1 },
-            { id: 'GATIL-03', tipo: 'GATIL', numero: 3, descricao: 'Área especializada para felinos', capacidade: 1 },
-            { id: 'GATIL-04', tipo: 'GATIL', numero: 4, descricao: 'Área especializada para felinos', capacidade: 1 }
-        ];
+    // Removemos a inicialização estática e passamos a carregar do DB
+    async initializeKennels() {
+        if (window.db && window.db.isInitialized) {
+            this.canis = await window.db.getAllKennels();
+        }
     }
 
     async init() {
         try {
+            await this.initializeKennels();
             await this.carregarOcupacao();
             this.render();
             this.setupEventListeners();
@@ -52,23 +35,20 @@ class KennelVisualization {
 
     async carregarOcupacao() {
         try {
-            // Integração com o banco de dados existente
             if (window.db && window.db.isInitialized) {
                 const reservasAtivas = await window.db.getReservations('', 'ATIVA', '');
                 this.ocupacao.clear();
 
                 if (Array.isArray(reservasAtivas)) {
                     reservasAtivas.forEach(reserva => {
-                        const canilId = `${reserva.accommodation_type}-${String(reserva.kennel_number).padStart(2, '0')}`;
+                        // O ID do canil agora é baseado no tipo e número
+                        const canilId = `${reserva.accommodation_type}-${reserva.kennel_number}`;
                         this.ocupacao.set(canilId, {
                             animal: reserva.animal_name,
                             tutor: reserva.tutor_name,
-                            telefone: '',
                             entrada: reserva.checkin_date,
                             saida: reserva.checkout_date,
-                            valor: reserva.total_value,
                             tipo_animal: reserva.animal_species || 'CÃO',
-                            observacoes: ''
                         });
                     });
                 }
@@ -86,9 +66,9 @@ class KennelVisualization {
         }
 
         // Agrupar canis por tipo
-        const canisInternos = this.canis.filter(c => c.tipo === 'INTERNO');
-        const canisExternos = this.canis.filter(c => c.tipo === 'EXTERNO');
-        const gatils = this.canis.filter(c => c.tipo === 'GATIL');
+        const canisInternos = this.canis.filter(c => c.type === 'INTERNO');
+        const canisExternos = this.canis.filter(c => c.type === 'EXTERNO');
+        const gatils = this.canis.filter(c => c.type === 'GATIL');
 
         // Calcular estatísticas
         const stats = this.calcularEstatisticas();
@@ -96,9 +76,9 @@ class KennelVisualization {
         container.innerHTML = `
             <div class="kennels-overview">
                 ${this.renderStats(stats)}
-                ${this.renderKennelSection('Canis Internos', canisInternos, 'interno')}
-                ${this.renderKennelSection('Canis Externos', canisExternos, 'externo')}
-                ${this.renderKennelSection('Gatil', gatils, 'gatil')}
+                ${this.renderKennelSection('Canis Internos', canisInternos, 'INTERNO')}
+                ${this.renderKennelSection('Canis Externos', canisExternos, 'EXTERNO')}
+                ${this.renderKennelSection('Gatil', gatils, 'GATIL')}
             </div>
         `;
 
@@ -106,6 +86,7 @@ class KennelVisualization {
     }
 
     renderStats(stats) {
+        // ... (mantido o mesmo)
         return `
             <div class="kennels-stats">
                 <div class="stat-item">
@@ -149,30 +130,50 @@ class KennelVisualization {
     }
 
     renderKennelSection(titulo, canis, tipo) {
+        const tipoClass = tipo.toLowerCase();
+        const icon = tipo === 'GATIL' ? 'cat' : 'dog';
+        
+        // Renderiza todos os canis existentes
+        const kennelCards = canis.map(canil => this.renderKennel(canil)).join('');
+
+        // Adiciona o botão de expansão no final
+        const expansionButton = `
+            <div class="kennel-card expansion-card" onclick="kennelVisualization.openAddKennelModal('${tipo}')">
+                <div class="kennel-content">
+                    <button class="btn-reservar-small expansion-btn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="expansion-text">Adicionar ${tipo === 'GATIL' ? 'Gatil' : 'Canil'}</div>
+                </div>
+            </div>
+        `;
+
         return `
             <div class="kennel-section">
                 <h3 class="section-title">
-                    <i class="fas fa-${tipo === 'gatil' ? 'cat' : 'dog'}"></i>
+                    <i class="fas fa-${icon}"></i>
                     ${titulo}
                     <span class="section-count">${canis.length}</span>
                 </h3>
-                <div class="kennels-grid ${tipo}">
-                    ${canis.map(canil => this.renderKennel(canil)).join('')}
+                <div class="kennels-grid ${tipoClass}">
+                    ${kennelCards}
+                    ${expansionButton}
                 </div>
             </div>
         `;
     }
 
     renderKennel(canil) {
-        const ocupacao = this.ocupacao.get(canil.id);
+        const canilId = `${canil.type}-${canil.number}`;
+        const ocupacao = this.ocupacao.get(canilId);
         const isOcupado = !!ocupacao;
         const statusClass = isOcupado ? 'ocupado' : 'disponivel';
-        const tipoClass = canil.tipo.toLowerCase();
+        const tipoClass = canil.type.toLowerCase();
 
         return `
-            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canil.id}">
+            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}">
                 <div class="kennel-header">
-                    <div class="kennel-number">${canil.numero}</div>
+                    <div class="kennel-number">${canil.number}</div>
                     <div class="kennel-status">
                         <i class="fas fa-${isOcupado ? 'paw' : 'check'}"></i>
                     </div>
@@ -190,7 +191,7 @@ class KennelVisualization {
                         </div>
                     ` : `
                         <div class="disponivel-info">
-                            <button class="btn-reservar-small" onclick="kennelVisualization.reservarCanil('${canil.id}')">
+                            <button class="btn-reservar-small" onclick="kennelVisualization.reservarCanil('${canilId}')">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -214,10 +215,17 @@ class KennelVisualization {
         this.refreshInterval = setInterval(() => {
             this.refresh();
         }, 30000);
+        
+        // Adicionar listener para o modal de adição de canil
+        this.createAddKennelModal();
+        document.getElementById('add-kennel-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addNewKennel();
+        });
+        document.getElementById('cancel-add-kennel')?.addEventListener('click', () => this.closeAddKennelModal());
     }
 
     startAutoRefresh() {
-        // Refresh inicial após 5 segundos
         setTimeout(() => {
             this.refresh();
         }, 5000);
@@ -225,39 +233,121 @@ class KennelVisualization {
 
     async refresh() {
         try {
+            await this.initializeKennels(); // Recarrega a lista de canis
             await this.carregarOcupacao();
             this.render();
+            // Atualiza o Dashboard se estiver ativo
+            if (window.dashboardManager && window.dashboardManager.isInitialized) {
+                window.dashboardManager.loadDashboardStats();
+            }
         } catch (error) {
             console.error('Erro ao atualizar visualização:', error);
         }
     }
 
     reservarCanil(canilId) {
-        // Extrair tipo e número do canil do ID (formato: TIPO-NUMERO)
         const [tipo, numeroStr] = canilId.split('-');
         const numero = parseInt(numeroStr, 10);
 
-        // Integração com o sistema de reservas
         if (window.hotelPetApp) {
             window.hotelPetApp.navigateToSection('reservations');
 
-            // Aguardar um pouco para a seção carregar
             setTimeout(() => {
                 if (window.reservationsManager) {
-                    // Abrir modal com contexto do alojamento pré-selecionado
                     window.reservationsManager.openReservationModal({ tipo, numero });
                 }
             }, 500);
         }
     }
 
-    formatDate(dateStr) {
-        if (!dateStr) return '-';
+    // --- NOVOS MÉTODOS PARA ADICIONAR CANIL ---
+
+    createAddKennelModal() {
+        if (document.getElementById('add-kennel-modal')) return;
+
+        const modalHTML = `
+            <div id="add-kennel-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="add-kennel-modal-title">Adicionar Novo Alojamento</h3>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <form id="add-kennel-form">
+                        <input type="hidden" id="new-kennel-type">
+                        <div class="form-group">
+                            <label for="new-kennel-type-display">Tipo de Alojamento</label>
+                            <input type="text" id="new-kennel-type-display" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-kennel-number">Próximo Número</label>
+                            <input type="number" id="new-kennel-number" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-kennel-description">Descrição (Opcional)</label>
+                            <textarea id="new-kennel-description" rows="2"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-add-kennel">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Adicionar Canil</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    async openAddKennelModal(type) {
+        const modal = document.getElementById('add-kennel-modal');
+        const title = document.getElementById('add-kennel-modal-title');
+        const typeDisplay = document.getElementById('new-kennel-type-display');
+        const typeInput = document.getElementById('new-kennel-type');
+        const numberInput = document.getElementById('new-kennel-number');
+        
+        if (!modal || !typeDisplay || !typeInput || !numberInput) return;
+
+        const nextNumber = await window.db.getNextKennelNumber(type);
+        
+        typeInput.value = type;
+        typeDisplay.value = type === 'GATIL' ? 'Gatil' : `Canil ${type.toLowerCase()}`;
+        numberInput.value = nextNumber;
+        
+        title.textContent = `Adicionar ${typeDisplay.value}`;
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeAddKennelModal() {
+        document.getElementById('add-kennel-modal')?.classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('add-kennel-form')?.reset();
+    }
+
+    async addNewKennel() {
+        const type = document.getElementById('new-kennel-type').value;
+        const number = parseInt(document.getElementById('new-kennel-number').value);
+        const description = document.getElementById('new-kennel-description').value || '';
+
+        if (!type || isNaN(number)) {
+            window.hotelPetApp.showNotification('Erro nos dados do canil.', 'error');
+            return;
+        }
+
         try {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('pt-BR');
-        } catch (error) {
-            return dateStr;
+            await window.db.addKennel(type, number, description);
+            window.hotelPetApp.showNotification(`✅ ${type} ${number} adicionado com sucesso!`, 'success');
+            this.closeAddKennelModal();
+            await this.refresh(); // Recarrega a visualização e o dashboard
+            
+            // Atualiza o ReservationsManager para incluir o novo canil no dropdown
+            if (window.reservationsManager) {
+                window.reservationsManager.updateAccommodationList();
+            }
+
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao adicionar canil. Verifique se o número já existe.', 'error');
+            console.error(e);
         }
     }
 
@@ -366,6 +456,12 @@ class KennelVisualization {
                 min-height: 80px;
                 display: flex;
                 flex-direction: column;
+                transition: all 0.2s ease;
+            }
+            
+            .kennel-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
 
             .kennel-header {
@@ -429,6 +525,35 @@ class KennelVisualization {
                 align-items: center;
                 justify-content: center;
                 margin: 0 auto;
+            }
+            
+            /* Estilos para o botão de expansão */
+            .kennel-card.expansion-card {
+                background: #e0e7ff;
+                border: 2px dashed #a5b4fc;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .kennel-card.expansion-card:hover {
+                background: #c7d2fe;
+            }
+            
+            .expansion-btn {
+                background: #2563eb !important;
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 1rem !important;
+                margin: 0 auto 0.2rem !important;
+            }
+            
+            .expansion-text {
+                font-size: 0.65rem;
+                font-weight: 600;
+                color: #3730a3;
+                margin-top: 0.2rem;
             }
 
             /* Ultra Mobile Adjustments */

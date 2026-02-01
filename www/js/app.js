@@ -59,6 +59,7 @@ class HotelPetApp {
         window.reservationsManager = new ReservationsManager();
         window.dashboardManager = new DashboardManager();
         window.reportsManager = new ReportsManager();
+        window.animalProfileManager = new AnimalProfileManager(); // NOVO MANAGER
 
         if (typeof InventoryManager !== 'undefined') {
             window.inventoryManager = new InventoryManager();
@@ -70,6 +71,7 @@ class HotelPetApp {
         // Chamamos o init de cada um para bindar eventos do DOM
         window.animalsManager.init();
         window.reservationsManager.init();
+        window.animalProfileManager.init(); // Inicializa o novo manager
         // Dashboard, Reports e Inventory gerenciam seus inits internamente ou via DOM
     }
 
@@ -120,7 +122,7 @@ class HotelPetApp {
 
         const mobileTitle = document.getElementById('mobile-page-title');
         if (mobileTitle) {
-            const titles = { overview: 'Visão Geral', dashboard: 'Dashboard', animals: 'Animais', reservations: 'Reservas', inventory: 'Estoque', reports: 'Relatórios' };
+            const titles = { overview: 'Visão Geral', dashboard: 'Dashboard', animals: 'Animais', reservations: 'Reservas', inventory: 'Estoque', reports: 'Relatórios', 'animal-profile': 'Perfil do Pet' };
             mobileTitle.textContent = titles[sectionName] || 'Hotel Pet CÁ';
         }
     }
@@ -137,6 +139,7 @@ class HotelPetApp {
             case 'reservations': if (window.reservationsManager) { await window.reservationsManager.loadReservations(); await window.reservationsManager.loadAnimalsDropdown(); } break;
             case 'inventory': if (window.inventoryManager) await window.inventoryManager.loadInventory(); break;
             case 'reports': if (window.reportsManager) await window.reportsManager.loadReports(); break;
+            case 'animal-profile': /* O carregamento é feito via animalProfileManager.loadProfile(id) */ break;
         }
     }
 

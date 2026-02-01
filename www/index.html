@@ -199,6 +199,21 @@
                 </div>
             </section>
 
+            <section id="animal-profile" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Perfil do Pet</h1>
+                        <p>Histórico completo e dados de saúde</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-secondary" onclick="navigateToSection('animals')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    </div>
+                </div>
+                <div id="animal-profile-content">
+                    <!-- Conteúdo do perfil será injetado aqui -->
+                </div>
+            </section>
+
             <section id="reservations" class="content-section">
                 <div class="page-header">
                     <div class="page-header-content">
@@ -310,8 +325,8 @@
             <form id="animal-form">
                 <div class="form-group animal-photo-group">
                     <label>Identificação do Animal</label>
-                    <div class="photo-selector-modern" onclick="document.getElementById('animal-photo').click()">
-                        <div class="photo-preview-box">
+                    <div class="photo-selector-modern">
+                        <div class="photo-preview-box" onclick="document.getElementById('animal-photo').click()">
                             <img id="photo-preview" src="" alt="Preview" style="display:none;">
                             <div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i><span>Adicionar Foto</span></div>
                         </div>
@@ -441,6 +456,47 @@
         </div>
     </div>
 
+    <!-- NOVO MODAL DE HISTÓRICO -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="history-modal-title">Adicionar Histórico de Serviço</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="history-form">
+                <div class="form-group">
+                    <label>Animal</label>
+                    <input type="text" id="history-animal-name" readonly disabled>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="history-type">Tipo de Serviço *</label>
+                        <select id="history-type" required>
+                            <option value="">Selecione</option>
+                            <option value="BANHO">Banho</option>
+                            <option value="TOSA">Tosa</option>
+                            <option value="VETERINÁRIO">Veterinário</option>
+                            <option value="MEDICAÇÃO">Medicação</option>
+                            <option value="OBSERVAÇÃO">Observação Geral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="history-date">Data *</label>
+                        <input type="date" id="history-date" required value="${new Date().toISOString().split('T')[0]}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="history-description">Descrição Detalhada *</label>
+                    <textarea id="history-description" rows="4" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="fab-container" id="fab-container">
         <div class="fab-menu" id="fab-menu">
             <button class="fab-item" onclick="window.reservationsManager.openReservationModal()">
@@ -465,6 +521,7 @@
     <script src="js/inventory.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/features.js"></script>
+    <script src="js/animal-profile.js"></script> <!-- NOVO SCRIPT -->
     <script src="js/app.js"></script>
 
     <script>

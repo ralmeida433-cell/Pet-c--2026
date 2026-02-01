@@ -58,8 +58,8 @@ class AnimalsManager {
             const waUrl = cleanPhone ? `https://wa.me/55${cleanPhone}` : '#';
 
             html += `
-            <div class="animal-list-item">
-                <div class="animal-item-header" onclick="this.parentElement.classList.toggle('expanded')">
+            <div class="animal-list-item" onclick="window.animalsManager.viewProfile(${a.id})">
+                <div class="animal-item-header">
                     <div class="animal-item-summary">
                         <div class="animal-thumb">
                             <img src="${a.photo_url || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 512 512\'><path fill=\'%23cbd5e0\' d=\'M256 160c12.9 0 24.7 3.9 34.2 10.5l5.8-14.8C311 118.6 285.2 96 256 96s-55 22.6-40 59.7l5.8 14.8c9.5-6.6 21.3-10.5 34.2-10.5zm-112 80c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm224 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zM256 320c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80z\'/></svg>'}" onerror="this.style.display='none'">
@@ -69,21 +69,20 @@ class AnimalsManager {
                             <span class="animal-list-species">${a.species}</span>
                         </div>
                     </div>
-                    <i class="fas fa-chevron-down"></i>
+                    <div class="animal-item-actions-summary">
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); window.animalsManager.editAnimal(${a.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); window.animalsManager.deleteAnimal(${a.id})"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
                 <div class="animal-item-details">
                     <div class="detail-row">
                         <span class="detail-label">Tutor:</span>
                         <span class="detail-value">
                             ${a.tutor_name} 
-                            ${cleanPhone ? `<a href="${waUrl}" target="_blank" class="whatsapp-btn-table" style="color:#25d366; margin-left:8px;"><i class="fab fa-whatsapp"></i></a>` : ''}
+                            ${cleanPhone ? `<a href="${waUrl}" target="_blank" class="whatsapp-btn-table" style="color:#25d366; margin-left:8px;" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>` : ''}
                         </span>
                     </div>
                     <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${a.tutor_phone || 'Não informado'}</span></div>
-                    <div class="animal-item-actions">
-                        <button class="btn btn-secondary" onclick="window.animalsManager.editAnimal(${a.id})"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn btn-danger" onclick="window.animalsManager.deleteAnimal(${a.id})"><i class="fas fa-trash"></i> Excluir</button>
-                    </div>
                 </div>
             </div>`;
         });
@@ -114,11 +113,20 @@ class AnimalsManager {
                 species: species,
                 tutor_name: tutor.toUpperCase().trim(),
                 tutor_phone: phone.trim(),
-                photo_url: finalPhotoUrl
+                photo_url: finalPhotoUrl,
+                // Novos campos (vazios por padrão, serão preenchidos no perfil)
+                weight: '',
+                vaccination_status: '',
+                allergies: '',
+                medication: '',
+                vet_notes: ''
             };
 
             if (this.currentAnimalId) {
-                await db.updateAnimal(this.currentAnimalId, data);
+                // Ao editar, mantemos os dados de histórico/observações existentes
+                const existing = await db.getAnimalById(this.currentAnimalId);
+                const updatedData = { ...existing, ...data };
+                await db.updateAnimal(this.currentAnimalId, updatedData);
                 window.hotelPetApp?.showNotification('Animal atualizado!', 'success');
             } else {
                 await db.addAnimal(data);
@@ -178,13 +186,22 @@ class AnimalsManager {
     }
 
     async deleteAnimal(id) {
-        if (confirm('Deseja realmente excluir este animal?')) {
+        if (confirm('Deseja realmente excluir este animal? Isso removerá todo o histórico associado.')) {
             await db.deleteAnimal(id);
             await this.loadAnimals();
+            window.hotelPetApp?.showNotification('Animal e histórico excluídos.', 'success');
         }
     }
 
     editAnimal(id) { this.openAnimalModal(id); }
+    
+    viewProfile(id) {
+        if (window.hotelPetApp && window.animalProfileManager) {
+            window.hotelPetApp.navigateToSection('animal-profile');
+            window.animalProfileManager.loadProfile(id);
+        }
+    }
+
     applyFilters() {
         const s = document.getElementById('animal-search')?.value || '';
         db.getAnimals(s).then(res => this.renderAnimalsTable(res));

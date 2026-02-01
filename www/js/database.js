@@ -27,8 +27,9 @@ class Database {
                 await this.createTables();
                 await this.insertSampleData();
             } else {
-                // Garantir que a nova tabela exista em bancos existentes
+                // Garantir que as novas tabelas existam em bancos existentes
                 await this.createKennelsTableIfMissing();
+                await this.createAnimalHistoryTableIfMissing();
             }
 
             this.isInitialized = true;
@@ -72,7 +73,8 @@ class Database {
     async createTables() {
         this.db.run(`CREATE TABLE IF NOT EXISTS animals (
             id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT, species TEXT, tutor_name TEXT, tutor_phone TEXT, photo_url TEXT
+            name TEXT, species TEXT, tutor_name TEXT, tutor_phone TEXT, photo_url TEXT,
+            weight TEXT, vaccination_status TEXT, allergies TEXT, medication TEXT, vet_notes TEXT
         )`);
 
         this.db.run(`CREATE TABLE IF NOT EXISTS reservations (
@@ -103,11 +105,18 @@ class Database {
             UNIQUE(type, number)
         )`);
 
+        this.db.run(`CREATE TABLE IF NOT EXISTS animal_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            animal_id INTEGER,
+            type TEXT,
+            date DATE,
+            description TEXT
+        )`);
+
         await this.saveData();
     }
     
     async createKennelsTableIfMissing() {
-        // Método para adicionar a tabela 'kennels' em bancos de dados antigos
         try {
             this.db.run(`CREATE TABLE IF NOT EXISTS kennels (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,10 +131,44 @@ class Database {
         }
     }
 
+    async createAnimalHistoryTableIfMissing() {
+        try {
+            this.db.run(`CREATE TABLE IF NOT EXISTS animal_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                animal_id INTEGER,
+                type TEXT,
+                date DATE,
+                description TEXT
+            )`);
+            // Adicionar novas colunas à tabela animals se não existirem
+            const animalColumns = this.executeQuery("PRAGMA table_info(animals)");
+            const columnNames = animalColumns.map(c => c.name);
+            
+            if (!columnNames.includes('weight')) this.db.run(`ALTER TABLE animals ADD COLUMN weight TEXT`);
+            if (!columnNames.includes('vaccination_status')) this.db.run(`ALTER TABLE animals ADD COLUMN vaccination_status TEXT`);
+            if (!columnNames.includes('allergies')) this.db.run(`ALTER TABLE animals ADD COLUMN allergies TEXT`);
+            if (!columnNames.includes('medication')) this.db.run(`ALTER TABLE animals ADD COLUMN medication TEXT`);
+            if (!columnNames.includes('vet_notes')) this.db.run(`ALTER TABLE animals ADD COLUMN vet_notes TEXT`);
+
+            await this.saveData();
+        } catch (e) {
+            console.warn('Tabela animal_history já existe ou erro ao criar:', e);
+        }
+    }
+
     async insertSampleData() {
-        this.db.run(`INSERT OR IGNORE INTO animals (name, species, tutor_name, tutor_phone) 
-                     VALUES ('PANQUECA', 'CÃO', 'MARISTELA', '31992089660')`);
+        this.db.run(`INSERT OR IGNORE INTO animals (name, species, tutor_name, tutor_phone, weight, vaccination_status) 
+                     VALUES ('PANQUECA', 'CÃO', 'MARISTELA', '31992089660', '12kg', 'Completa')`);
         
+        // Inserir histórico de exemplo
+        const panqueca = this.executeQuery(`SELECT id FROM animals WHERE name = 'PANQUECA'`)[0];
+        if (panqueca) {
+            this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
+                [panqueca.id, 'BANHO', '2024-01-15', 'Banho completo com hidratação de coco.']);
+            this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
+                [panqueca.id, 'HOSPEDAGEM', '2024-01-10', 'Hospedagem de 5 dias no canil INTERNO 3.']);
+        }
+
         // Inserir canis padrão na nova tabela
         const defaultKennels = [
             { type: 'INTERNO', count: 5, description: 'Área coberta climatizada' },
@@ -144,22 +187,40 @@ class Database {
 
     // --- MÉTODOS DE ANIMALS ---
     async addAnimal(a) { 
-        this.db.run(`INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url) VALUES (?,?,?,?,?)`, 
-        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url]); 
+        this.db.run(`INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url, weight, vaccination_status, allergies, medication, vet_notes) VALUES (?,?,?,?,?,?,?,?,?,?)`, 
+        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, a.weight, a.vaccination_status, a.allergies, a.medication, a.vet_notes]); 
         await this.saveData(); 
     }
     async updateAnimal(id, a) { 
-        this.db.run(`UPDATE animals SET name=?, species=?, tutor_name=?, tutor_phone=?, photo_url=? WHERE id=?`, 
-        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, id]); 
+        this.db.run(`UPDATE animals SET name=?, species=?, tutor_name=?, tutor_phone=?, photo_url=?, weight=?, vaccination_status=?, allergies=?, medication=?, vet_notes=? WHERE id=?`, 
+        [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, a.weight, a.vaccination_status, a.allergies, a.medication, a.vet_notes, id]); 
         await this.saveData(); 
     }
-    async deleteAnimal(id) { this.db.run('DELETE FROM animals WHERE id=?', [id]); await this.saveData(); }
+    async deleteAnimal(id) { 
+        this.db.run('DELETE FROM animals WHERE id=?', [id]); 
+        this.db.run('DELETE FROM animal_history WHERE animal_id=?', [id]); // Deleta histórico
+        await this.saveData(); 
+    }
     async getAnimals(s = '') { return this.executeQuery(`SELECT * FROM animals WHERE name LIKE ? OR tutor_name LIKE ? ORDER BY name`, [`%${s}%`, `%${s}%`]); }
     async getAnimalById(id) { const r = this.executeQuery(`SELECT * FROM animals WHERE id=?`, [id]); return r[0]; }
 
+    // --- MÉTODOS DE HISTÓRICO ---
+    async addAnimalHistory(h) {
+        this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
+            [h.animal_id, h.type, h.date, h.description]);
+        await this.saveData();
+    }
+    async getAnimalHistory(animalId) {
+        return this.executeQuery(`SELECT * FROM animal_history WHERE animal_id = ? ORDER BY date DESC`, [animalId]);
+    }
+    async deleteAnimalHistory(id) {
+        this.db.run('DELETE FROM animal_history WHERE id=?', [id]);
+        await this.saveData();
+    }
+
     // --- MÉTODOS DE RESERVAS ---
     async getReservations(search = '', status = '', month = '') {
-        let q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone 
+        let q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone, a.photo_url 
                  FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id WHERE 1=1`;
         const p = [];
         if (search) { q += ` AND (a.name LIKE ? OR a.tutor_name LIKE ?)`; p.push(`%${search}%`, `%${search}%`); }
@@ -170,7 +231,7 @@ class Database {
     }
 
     async getReservationById(id) {
-        const q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone 
+        const q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone, a.photo_url 
                    FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id WHERE r.id = ?`;
         const r = this.executeQuery(q, [id]);
         return r[0];

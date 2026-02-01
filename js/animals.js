@@ -10,28 +10,28 @@ class AnimalsManager {
     }
 
     bindEvents() {
-        // Botão Novo Animal (na tela de listagem)
-        const addBtn = document.getElementById('add-animal-btn');
-        if (addBtn) {
-            addBtn.addEventListener('click', () => this.openAnimalModal());
+        // Máscara de Telefone Automática
+        const phoneInput = document.getElementById('tutor-phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+                e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+            });
         }
 
-        // Formulário de Cadastro
+        const addBtn = document.getElementById('add-animal-btn');
+        if (addBtn) addBtn.onclick = () => this.openAnimalModal();
+
         const form = document.getElementById('animal-form');
         if (form) {
-            // Removemos qualquer listener antigo para evitar duplicidade
-            form.onsubmit = null; 
+            form.onsubmit = null;
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                console.log('Animals Manager: Botão Salvar clicado');
                 await this.saveAnimal();
             });
         }
         
-        // Foto
         document.getElementById('animal-photo')?.addEventListener('change', e => this.handlePhotoUpload(e));
-        
-        // Filtro de busca
         document.getElementById('animal-search')?.addEventListener('input', () => this.applyFilters());
     }
 
@@ -40,9 +40,7 @@ class AnimalsManager {
         try {
             const animals = await db.getAnimals();
             this.renderAnimalsTable(animals);
-        } catch (e) {
-            console.error('Erro ao carregar lista:', e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     renderAnimalsTable(animals) {
@@ -56,6 +54,9 @@ class AnimalsManager {
 
         let html = '<div class="animals-list-container">';
         animals.forEach(a => {
+            const cleanPhone = a.tutor_phone ? a.tutor_phone.replace(/\D/g, '') : '';
+            const waUrl = cleanPhone ? `https://wa.me/55${cleanPhone}` : '#';
+
             html += `
             <div class="animal-list-item">
                 <div class="animal-item-header" onclick="this.parentElement.classList.toggle('expanded')">
@@ -71,8 +72,14 @@ class AnimalsManager {
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="animal-item-details">
-                    <div class="detail-row"><span class="detail-label">Tutor:</span><span class="detail-value">${a.tutor_name}</span></div>
-                    <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${a.tutor_phone}</span></div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tutor:</span>
+                        <span class="detail-value">
+                            ${a.tutor_name} 
+                            ${cleanPhone ? `<a href="${waUrl}" target="_blank" class="whatsapp-btn-table" style="color:#25d366; margin-left:8px;"><i class="fab fa-whatsapp"></i></a>` : ''}
+                        </span>
+                    </div>
+                    <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${a.tutor_phone || 'Não informado'}</span></div>
                     <div class="animal-item-actions">
                         <button class="btn btn-secondary" onclick="window.animalsManager.editAnimal(${a.id})"><i class="fas fa-edit"></i> Editar</button>
                         <button class="btn btn-danger" onclick="window.animalsManager.deleteAnimal(${a.id})"><i class="fas fa-trash"></i> Excluir</button>
@@ -91,17 +98,14 @@ class AnimalsManager {
             const tutor = document.getElementById('tutor-name').value;
             const phone = document.getElementById('tutor-phone').value;
 
-            console.log('Animals Manager: Validando dados', { name, tutor });
-
             if (!name || !tutor) {
                 window.hotelPetApp?.showNotification('Nome e Tutor são obrigatórios!', 'warning');
                 return;
             }
 
             window.hotelPetApp?.showLoading();
-
             let finalPhotoUrl = this.currentPhotoBase64;
-            if (this.currentPhotoBase64 && this.currentPhotoBase64.startsWith('data:image') && window.storageService) {
+            if (this.currentPhotoBase64?.startsWith('data:image') && window.storageService) {
                 finalPhotoUrl = await window.storageService.saveImage(this.currentPhotoBase64);
             }
 
@@ -114,21 +118,17 @@ class AnimalsManager {
             };
 
             if (this.currentAnimalId) {
-                console.log('Animals Manager: Atualizando ID', this.currentAnimalId);
                 await db.updateAnimal(this.currentAnimalId, data);
                 window.hotelPetApp?.showNotification('Animal atualizado!', 'success');
             } else {
-                console.log('Animals Manager: Inserindo novo');
                 await db.addAnimal(data);
                 window.hotelPetApp?.showNotification('Novo animal cadastrado!', 'success');
             }
 
             window.hotelPetApp?.closeAllModals();
             await this.loadAnimals();
-
         } catch (e) {
-            console.error('Animals Manager: Erro fatal no saveAnimal:', e);
-            window.hotelPetApp?.showNotification('Erro ao salvar: ' + e.message, 'error');
+            window.hotelPetApp?.showNotification('Erro: ' + e.message, 'error');
         } finally {
             window.hotelPetApp?.hideLoading();
         }
@@ -141,9 +141,8 @@ class AnimalsManager {
         reader.onload = (event) => {
             this.currentPhotoBase64 = event.target.result;
             const preview = document.getElementById('photo-preview');
-            const placeholder = document.getElementById('photo-placeholder');
             if (preview) { preview.src = this.currentPhotoBase64; preview.style.display = 'block'; }
-            if (placeholder) placeholder.style.display = 'none';
+            document.getElementById('photo-placeholder').style.display = 'none';
         };
         reader.readAsDataURL(file);
     }
@@ -151,15 +150,11 @@ class AnimalsManager {
     openAnimalModal(id = null) {
         this.currentAnimalId = id;
         this.currentPhotoBase64 = null;
-        
         const modal = document.getElementById('animal-modal');
-        const form = document.getElementById('animal-form');
-        const title = document.getElementById('animal-modal-title');
-
-        if (form) form.reset();
+        document.getElementById('animal-form')?.reset();
         
         if (id) {
-            if (title) title.textContent = 'Editar Animal';
+            document.getElementById('animal-modal-title').textContent = 'Editar Animal';
             db.getAnimalById(id).then(a => {
                 if (!a) return;
                 document.getElementById('animal-name').value = a.name;
@@ -174,11 +169,10 @@ class AnimalsManager {
                 }
             });
         } else {
-            if (title) title.textContent = 'Novo Animal';
+            document.getElementById('animal-modal-title').textContent = 'Novo Animal';
             document.getElementById('photo-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'flex';
         }
-        
         modal?.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
@@ -187,7 +181,6 @@ class AnimalsManager {
         if (confirm('Deseja realmente excluir este animal?')) {
             await db.deleteAnimal(id);
             await this.loadAnimals();
-            window.hotelPetApp?.showNotification('Animal excluído', 'info');
         }
     }
 

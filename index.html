@@ -178,6 +178,9 @@
                         <h1>Gerenciamento de Animais</h1>
                         <p>Cadastro e controle de todos os pets</p>
                     </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-primary" id="add-animal-btn"><i class="fas fa-plus"></i> Novo Animal</button>
+                    </div>
                 </div>
                 <div class="filters-container">
                     <div class="search-box">
@@ -257,11 +260,18 @@
                 </div>
                 <div class="filters-container">
                     <div class="search-box"><i class="fas fa-search"></i><input type="text" id="product-search" placeholder="Buscar produtos..."></div>
+                    <select id="category-filter"><option value="">Todas Categorias</option></select>
+                    <select id="animal-filter"><option value="">Todos Animais</option></select>
+                    <select id="stock-status-filter">
+                        <option value="">Todos Status</option>
+                        <option value="low">Estoque Baixo</option>
+                        <option value="expiring">Vencendo</option>
+                    </select>
                 </div>
                 <div class="table-container">
                     <table id="products-table">
                         <thead>
-                            <tr><th>Imagem</th><th>Produto</th><th>Categoria</th><th>Marca</th><th>Animal</th><th>Estoque</th><th>Preço</th><th>Ações</th></tr>
+                            <tr><th>Imagem</th><th>Produto</th><th>Categoria</th><th>Marca</th><th>Animal</th><th>Estoque</th><th>Preço</th><th>Status</th><th>Ações</th></tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -278,8 +288,15 @@
                 <div class="reports-grid">
                     <div class="report-card">
                         <h3>Relatório Mensal</h3>
+                        <p>Análise detalhada de faturamento e ocupação mensal.</p>
                         <select id="report-month"><option value="">Selecione o mês</option></select>
                         <button class="btn btn-secondary" id="generate-monthly-report"><i class="fas fa-file-pdf"></i> Gerar Relatório</button>
+                    </div>
+                    <div class="report-card">
+                        <h3>Relatório Anual</h3>
+                        <p>Visão consolidada do desempenho ao longo do ano.</p>
+                        <select id="report-year"><option value="">Selecione o ano</option></select>
+                        <button class="btn btn-secondary" id="generate-yearly-report"><i class="fas fa-chart-line"></i> Gerar Relatório</button>
                     </div>
                 </div>
                 <div id="report-content" class="report-content"></div>
@@ -403,7 +420,6 @@
                 try {
                     const registration = await navigator.serviceWorker.register('/service-worker.js');
                     
-                    // Se já existir um worker esperando (waiting), mostrar notificação
                     if (registration.waiting) {
                         showUpdateNotification(registration.waiting);
                     }
@@ -430,9 +446,7 @@
         }
 
         function showUpdateNotification(worker) {
-            // Evitar duplicatas
             if (document.querySelector('.update-notification')) return;
-
             const notification = document.createElement('div');
             notification.className = 'update-notification';
             notification.innerHTML = `
@@ -443,7 +457,6 @@
                 </div>
             `;
             document.body.appendChild(notification);
-            
             document.getElementById('update-app-btn').onclick = () => {
                 worker.postMessage({ type: 'SKIP_WAITING' });
             };

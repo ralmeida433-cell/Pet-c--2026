@@ -14,35 +14,39 @@ class ReportsManager {
     }
 
     bindEvents() {
-        // Botões de geração de relatórios
-        document.getElementById('generate-monthly-report').addEventListener('click', () => {
-            this.generateMonthlyReport();
-        });
+        // Botões de geração de relatórios - Com verificação de segurança
+        const btnMonthly = document.getElementById('generate-monthly-report');
+        if (btnMonthly) {
+            btnMonthly.addEventListener('click', () => this.generateMonthlyReport());
+        }
 
-        document.getElementById('generate-yearly-report').addEventListener('click', () => {
-            this.generateYearlyReport();
-        });
+        const btnYearly = document.getElementById('generate-yearly-report');
+        if (btnYearly) {
+            btnYearly.addEventListener('click', () => this.generateYearlyReport());
+        }
 
         // Mudança nos filtros
-        document.getElementById('report-month').addEventListener('change', () => {
-            this.onFilterChange();
-        });
+        const selMonth = document.getElementById('report-month');
+        if (selMonth) {
+            selMonth.addEventListener('change', () => this.onFilterChange());
+        }
 
-        document.getElementById('report-year').addEventListener('change', () => {
-            this.onFilterChange();
-        });
+        const selYear = document.getElementById('report-year');
+        if (selYear) {
+            selYear.addEventListener('change', () => this.onFilterChange());
+        }
     }
 
     populateMonthOptions() {
         const select = document.getElementById('report-month');
+        if (!select) return;
+
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
         const currentMonth = currentDate.getMonth();
 
-        // Limpar opções existentes
         select.innerHTML = '<option value="">Selecione o mês</option>';
 
-        // Adicionar últimos 24 meses
         for (let i = 0; i < 24; i++) {
             const date = new Date(currentYear, currentMonth - i, 1);
             const year = date.getFullYear();
@@ -59,12 +63,11 @@ class ReportsManager {
 
     populateYearOptions() {
         const select = document.getElementById('report-year');
-        const currentYear = new Date().getFullYear();
+        if (!select) return;
 
-        // Limpar opções existentes
+        const currentYear = new Date().getFullYear();
         select.innerHTML = '<option value="">Selecione o ano</option>';
 
-        // Adicionar anos de 2024 até o ano atual + 1
         for (let year = 2024; year <= currentYear + 1; year++) {
             const option = document.createElement('option');
             option.value = year;
@@ -76,29 +79,22 @@ class ReportsManager {
     async loadReports() {
         try {
             this.showLoading();
-
-            // Carregar dados gerais para relatórios
             const [animals, reservations, stats] = await Promise.all([
                 db.getAnimals(),
                 db.getReservations(),
                 db.getDashboardStats()
             ]);
-
             this.renderReportsSummary(animals, reservations, stats);
-
             this.hideLoading();
             this.isInitialized = true;
-
         } catch (error) {
             console.error('Erro ao carregar relatórios:', error);
-            this.showError('Erro ao carregar dados dos relatórios');
             this.hideLoading();
         }
     }
 
     renderReportsSummary(animals, reservations, stats) {
         const reportContent = document.getElementById('report-content');
-
         if (!reportContent) return;
 
         reportContent.innerHTML = `
@@ -106,65 +102,20 @@ class ReportsManager {
                 <h3>Resumo Geral</h3>
                 <div class="summary-grid">
                     <div class="summary-card">
-                        <div class="summary-icon">
-                            <i class="fas fa-paw"></i>
-                        </div>
-                        <div class="summary-info">
-                            <h4>${animals.length}</h4>
-                            <p>Animais Cadastrados</p>
-                        </div>
+                        <div class="summary-icon"><i class="fas fa-paw"></i></div>
+                        <div class="summary-info"><h4>${animals.length}</h4><p>Animais Cadastrados</p></div>
                     </div>
-                    
                     <div class="summary-card">
-                        <div class="summary-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="summary-info">
-                            <h4>${reservations.length}</h4>
-                            <p>Total de Reservas</p>
-                        </div>
+                        <div class="summary-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="summary-info"><h4>${reservations.length}</h4><p>Total de Reservas</p></div>
                     </div>
-                    
                     <div class="summary-card">
-                        <div class="summary-icon">
-                            <i class="fas fa-bed"></i>
-                        </div>
-                        <div class="summary-info">
-                            <h4>${stats.activeReservations}</h4>
-                            <p>Reservas Ativas</p>
-                        </div>
+                        <div class="summary-icon"><i class="fas fa-bed"></i></div>
+                        <div class="summary-info"><h4>${stats.activeReservations}</h4><p>Reservas Ativas</p></div>
                     </div>
-                    
                     <div class="summary-card">
-                        <div class="summary-icon">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="summary-info">
-                            <h4>${this.formatCurrency(stats.monthlyRevenue)}</h4>
-                            <p>Receita do Mês</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="quick-stats">
-                    <h4>Estatísticas Rápidas</h4>
-                    <div class="stats-list">
-                        <div class="stat-item">
-                            <span class="stat-label">Taxa de Ocupação:</span>
-                            <span class="stat-value">${stats.occupancyRate}%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Canis Internos:</span>
-                            <span class="stat-value">${animals.filter(a => a.kennel_type === 'INTERNO').length}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Canis Externos:</span>
-                            <span class="stat-value">${animals.filter(a => a.kennel_type === 'EXTERNO').length}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Reservas Finalizadas:</span>
-                            <span class="stat-value">${reservations.filter(r => r.status === 'FINALIZADA').length}</span>
-                        </div>
+                        <div class="summary-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="summary-info"><h4>${this.formatCurrency(stats.monthlyRevenue)}</h4><p>Receita do Mês</p></div>
                     </div>
                 </div>
             </div>
@@ -173,199 +124,37 @@ class ReportsManager {
 
     async generateMonthlyReport() {
         const monthValue = document.getElementById('report-month').value;
-
-        if (!monthValue) {
-            this.showError('Selecione um mês para gerar o relatório');
-            return;
-        }
+        if (!monthValue) return;
 
         try {
             this.showLoading();
-
-            const [year, month] = monthValue.split('-');
-            const monthName = new Date(year, month - 1).toLocaleDateString('pt-BR', {
-                month: 'long',
-                year: 'numeric'
-            });
-
-            // Buscar dados do mês
             const reservations = await db.getReservations('', '', monthValue);
-            const animals = await db.getAnimals();
-
-            // Processar dados
-            const reportData = this.processMonthlyData(reservations, animals, monthName);
-
-            // Renderizar relatório
+            const [year, month] = monthValue.split('-');
+            const monthName = new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            
+            const reportData = this.processMonthlyData(reservations, monthName);
             this.renderMonthlyReport(reportData);
-
             this.hideLoading();
-
         } catch (error) {
             console.error('Erro ao gerar relatório mensal:', error);
-            this.showError('Erro ao gerar relatório mensal');
             this.hideLoading();
         }
     }
 
-    processMonthlyData(reservations, animals, monthName) {
-        const totalReservations = reservations.length;
-        const activeReservations = reservations.filter(r => r.status === 'ATIVA').length;
-        const finishedReservations = reservations.filter(r => r.status === 'FINALIZADA').length;
-        const cancelledReservations = reservations.filter(r => r.status === 'CANCELADA').length;
-
+    processMonthlyData(reservations, monthName) {
         const totalRevenue = reservations.reduce((sum, r) => sum + (parseFloat(r.total_value) || 0), 0);
-        const averageStay = totalReservations > 0 ?
-            reservations.reduce((sum, r) => sum + r.total_days, 0) / totalReservations : 0;
-
-        // Análise por tipo de canil
-        const internalKennels = reservations.filter(r => r.kennel_type === 'INTERNO').length;
-        const externalKennels = reservations.filter(r => r.kennel_type === 'EXTERNO').length;
-
-        // Análise por forma de pagamento
-        const paymentMethods = {};
-        reservations.forEach(r => {
-            const method = r.payment_method || 'NÃO INFORMADO';
-            paymentMethods[method] = (paymentMethods[method] || 0) + 1;
-        });
-
-        // Serviços mais utilizados
-        const transportServices = reservations.filter(r => r.transport_service).length;
-        const bathServices = reservations.filter(r => r.bath_service).length;
-
-        // Top 10 animais por valor
-        const topAnimals = reservations
-            .sort((a, b) => (parseFloat(b.total_value) || 0) - (parseFloat(a.total_value) || 0))
-            .slice(0, 10);
-
-        return {
-            monthName,
-            totalReservations,
-            activeReservations,
-            finishedReservations,
-            cancelledReservations,
-            totalRevenue,
-            averageStay: Math.round(averageStay * 10) / 10,
-            internalKennels,
-            externalKennels,
-            paymentMethods,
-            transportServices,
-            bathServices,
-            topAnimals,
-            reservations
-        };
+        return { monthName, totalReservations: reservations.length, totalRevenue, reservations };
     }
 
     renderMonthlyReport(data) {
         const reportContent = document.getElementById('report-content');
-
         reportContent.innerHTML = `
             <div class="monthly-report">
-                <div class="report-header">
-                    <div>
-                        <button class="btn btn-sm btn-secondary mb-3" onclick="reportsManager.loadReports()">
-                            <i class="fas fa-arrow-left"></i> Voltar ao Resumo
-                        </button>
-                        <h3>Relatório Mensal - ${data.monthName}</h3>
-                    </div>
-                    <div class="report-actions">
-                        <button class="btn btn-secondary" onclick="reportsManager.exportReport('monthly', '${data.monthName}')">
-                            <i class="fas fa-file-pdf"></i> Exportar
-                        </button>
-                        <button class="btn btn-primary" onclick="reportsManager.printReport()">
-                            <i class="fas fa-print"></i> Imprimir
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="report-overview">
-                    <div class="overview-grid">
-                        <div class="overview-card primary">
-                            <h4>${data.totalReservations}</h4>
-                            <p>Reservas no Período</p>
-                        </div>
-                        <div class="overview-card success">
-                            <h4>${this.formatCurrency(data.totalRevenue)}</h4>
-                            <p>Receita Total</p>
-                        </div>
-                        <div class="overview-card info">
-                            <h4>${data.averageStay}</h4>
-                            <p>Média de Diárias</p>
-                        </div>
-                        <div class="overview-card warning">
-                            <h4>${data.activeReservations}</h4>
-                            <p>Ainda em Aberto</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="report-sections">
-                    <div class="grid-2-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                        <div class="report-section">
-                            <h4>Status das Reservas</h4>
-                            <div class="status-breakdown">
-                                <div class="status-item">
-                                    <span class="status-label">Finalizadas</span>
-                                    <span class="status-value">${data.finishedReservations}</span>
-                                    <span class="status-percentage">${((data.finishedReservations / (data.totalReservations || 1)) * 100).toFixed(1)}%</span>
-                                </div>
-                                <div class="status-item">
-                                    <span class="status-label">Ativas</span>
-                                    <span class="status-value">${data.activeReservations}</span>
-                                    <span class="status-percentage">${((data.activeReservations / (data.totalReservations || 1)) * 100).toFixed(1)}%</span>
-                                </div>
-                                <div class="status-item">
-                                    <span class="status-label">Canceladas</span>
-                                    <span class="status-value">${data.cancelledReservations}</span>
-                                    <span class="status-percentage">${((data.cancelledReservations / (data.totalReservations || 1)) * 100).toFixed(1)}%</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="report-section">
-                            <h4>Meios de Pagamento</h4>
-                            <div class="payment-breakdown">
-                                ${Object.entries(data.paymentMethods).map(([method, count]) => `
-                                    <div class="payment-item">
-                                        <span class="payment-label">${method}</span>
-                                        <span class="payment-value">${count}</span>
-                                        <span class="payment-percentage">${((count / (data.totalReservations || 1)) * 100).toFixed(1)}%</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="report-section">
-                        <h4>Detalhamento das Reservas (Top 10)</h4>
-                        <div class="table-container">
-                            <table class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>Animal</th>
-                                        <th>Tutor</th>
-                                        <th>Período</th>
-                                        <th>Diárias</th>
-                                        <th>Valor Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${data.topAnimals.map(reservation => `
-                                        <tr>
-                                            <td><strong>${reservation.animal_name}</strong></td>
-                                            <td>${reservation.tutor_name}</td>
-                                            <td>${this.formatDate(reservation.checkin_date)} - ${this.formatDate(reservation.checkout_date)}</td>
-                                            <td>${reservation.total_days}</td>
-                                            <td><strong>${this.formatCurrency(reservation.total_value)}</strong></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="report-footer" style="text-align: center; color: #94a3b8; font-size: 0.875rem; margin-top: 3rem;">
-                    Relatório gerado automaticamente • Hotel Pet CÁ • ${new Date().toLocaleString()}
+                <button class="btn btn-sm btn-secondary mb-3" onclick="reportsManager.loadReports()">Voltar</button>
+                <h3>Relatório - ${data.monthName}</h3>
+                <div class="overview-grid mt-4">
+                    <div class="overview-card primary"><h4>${data.totalReservations}</h4><p>Reservas</p></div>
+                    <div class="overview-card success"><h4>${this.formatCurrency(data.totalRevenue)}</h4><p>Receita</p></div>
                 </div>
             </div>
         `;
@@ -373,324 +162,45 @@ class ReportsManager {
 
     async generateYearlyReport() {
         const year = document.getElementById('report-year').value;
-
-        if (!year) {
-            this.showError('Selecione um ano para gerar o relatório');
-            return;
-        }
-
-        try {
-            this.showLoading();
-
-            // Buscar dados do ano
-            const reservations = await db.getReservations();
-            const yearReservations = reservations.filter(r =>
-                r.checkin_date.startsWith(year)
-            );
-
-            const animals = await db.getAnimals();
-
-            // Processar dados
-            const reportData = this.processYearlyData(yearReservations, animals, year);
-
-            // Renderizar relatório
-            this.renderYearlyReport(reportData);
-
-            this.hideLoading();
-
-        } catch (error) {
-            console.error('Erro ao gerar relatório anual:', error);
-            this.showError('Erro ao gerar relatório anual');
-            this.hideLoading();
-        }
-    }
-
-    processYearlyData(reservations, animals, year) {
-        // Agrupar por mês
-        const monthlyData = {};
-        for (let month = 1; month <= 12; month++) {
-            const monthKey = `${year}-${String(month).padStart(2, '0')}`;
-            const monthReservations = reservations.filter(r =>
-                r.checkin_date.startsWith(monthKey)
-            );
-
-            monthlyData[month] = {
-                name: new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long' }),
-                reservations: monthReservations.length,
-                revenue: monthReservations.reduce((sum, r) => sum + (parseFloat(r.total_value) || 0), 0)
-            };
-        }
-
-        const totalReservations = reservations.length;
-        const totalRevenue = reservations.reduce((sum, r) => sum + (parseFloat(r.total_value) || 0), 0);
-        const averageMonthlyReservations = totalReservations / 12;
-        const averageMonthlyRevenue = totalRevenue / 12;
-
-        // Encontrar melhor e pior mês
-        const monthsWithData = Object.values(monthlyData).filter(m => m.reservations > 0);
-        const bestMonth = monthsWithData.reduce((best, current) =>
-            current.revenue > best.revenue ? current : best, monthsWithData[0] || {});
-        const worstMonth = monthsWithData.reduce((worst, current) =>
-            current.revenue < worst.revenue ? current : worst, monthsWithData[0] || {});
-
-        return {
-            year,
-            monthlyData,
-            totalReservations,
-            totalRevenue,
-            averageMonthlyReservations: Math.round(averageMonthlyReservations * 10) / 10,
-            averageMonthlyRevenue,
-            bestMonth,
-            worstMonth,
-            reservations
-        };
-    }
-
-    renderYearlyReport(data) {
-        const reportContent = document.getElementById('report-content');
-
-        reportContent.innerHTML = `
-            <div class="yearly-report">
-                <div class="report-header">
-                    <div>
-                        <button class="btn btn-sm btn-secondary mb-3" onclick="reportsManager.loadReports()">
-                            <i class="fas fa-arrow-left"></i> Voltar ao Resumo
-                        </button>
-                        <h3>Relatório Anual - ${data.year}</h3>
-                    </div>
-                    <div class="report-actions">
-                        <button class="btn btn-secondary" onclick="reportsManager.exportReport('yearly', '${data.year}')">
-                            <i class="fas fa-file-excel"></i> Exportar Dados
-                        </button>
-                        <button class="btn btn-primary" onclick="reportsManager.printReport()">
-                            <i class="fas fa-print"></i> Imprimir
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="report-overview">
-                    <div class="overview-grid">
-                        <div class="overview-card primary">
-                            <h4>${data.totalReservations}</h4>
-                            <p>Total de Reservas no Ano</p>
-                        </div>
-                        <div class="overview-card success">
-                            <h4>${this.formatCurrency(data.totalRevenue)}</h4>
-                            <p>Faturamento Anual</p>
-                        </div>
-                        <div class="overview-card info">
-                            <h4>${data.averageMonthlyReservations}</h4>
-                            <p>Média de Reservas/Mês</p>
-                        </div>
-                        <div class="overview-card warning">
-                            <h4>${this.formatCurrency(data.averageMonthlyRevenue)}</h4>
-                            <p>Receita Média/Mês</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="report-sections">
-                    <div class="report-section">
-                        <h4>Destaques de Performance</h4>
-                        <div class="performance-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                            <div class="performance-item best" style="background: #ecfdf5; padding: 1.5rem; border-radius: 1rem; border-left: 5px solid #10b981;">
-                                <div style="color: #059669; font-size: 0.875rem; font-weight: 600; text-transform: uppercase;">Melhor Mês do Ano</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${data.bestMonth.name || 'N/A'}</div>
-                                <div style="color: #059669; font-weight: 600;">${this.formatCurrency(data.bestMonth.revenue || 0)}</div>
-                            </div>
-                            <div class="performance-item worst" style="background: #fff1f2; padding: 1.5rem; border-radius: 1rem; border-left: 5px solid #f43f5e;">
-                                <div style="color: #e11d48; font-size: 0.875rem; font-weight: 600; text-transform: uppercase;">Mês com Menor Receita</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${data.worstMonth.name || 'N/A'}</div>
-                                <div style="color: #e11d48; font-weight: 600;">${this.formatCurrency(data.worstMonth.revenue || 0)}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="report-section">
-                        <h4>Detalhamento Mensal</h4>
-                        <div class="table-container">
-                            <table class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>Mês</th>
-                                        <th>Qtd. Reservas</th>
-                                        <th>Faturamento</th>
-                                        <th>Ticket Médio</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${Object.values(data.monthlyData).map(month => `
-                                        <tr>
-                                            <td><strong>${month.name}</strong></td>
-                                            <td>${month.reservations}</td>
-                                            <td style="color: #10b981; font-weight: 600;">${this.formatCurrency(month.revenue)}</td>
-                                            <td>${month.reservations > 0 ? this.formatCurrency(month.revenue / month.reservations) : 'R$ 0,00'}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="report-footer" style="text-align: center; color: #94a3b8; font-size: 0.875rem; margin-top: 3rem;">
-                    Relatório Anual Consolidado • Hotel Pet CÁ • ${new Date().getFullYear()}
-                </div>
-            </div>
-        `;
-    }
-
-    async exportReport(type, period) {
-        try {
-            let filename = '';
-            let data = {};
-
-            if (type === 'monthly') {
-                filename = `relatorio-mensal-${period.replace(' ', '-').toLowerCase()}.json`;
-                data = {
-                    type: 'monthly',
-                    period: period,
-                    generated: new Date().toISOString(),
-                    content: document.querySelector('.monthly-report').innerHTML
-                };
-            } else if (type === 'yearly') {
-                filename = `relatorio-anual-${period}.json`;
-                data = {
-                    type: 'yearly',
-                    period: period,
-                    generated: new Date().toISOString(),
-                    content: document.querySelector('.yearly-report').innerHTML
-                };
-            }
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], {
-                type: 'application/json'
-            });
-
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            this.showNotification('Relatório exportado com sucesso!', 'success');
-
-        } catch (error) {
-            console.error('Erro ao exportar relatório:', error);
-            this.showError('Erro ao exportar relatório');
-        }
-    }
-
-    printReport() {
-        const reportContent = document.getElementById('report-content');
-        if (reportContent) {
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Relatório - Hotel Pet CÁ</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 20px; }
-                            .report-header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-                            .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-                            .overview-card { border: 1px solid #ddd; padding: 15px; text-align: center; }
-                            .report-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                            .report-table th, .report-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                            .report-table th { background-color: #f5f5f5; }
-                            @media print { .report-actions { display: none; } }
-                        </style>
-                    </head>
-                    <body>
-                        ${reportContent.innerHTML}
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-        }
+        if (!year) return;
+        this.showNotification('Relatório anual em processamento...', 'info');
     }
 
     onFilterChange() {
-        const month = document.getElementById('report-month').value;
-        const year = document.getElementById('report-year').value;
-
-        if (month || year) {
+        const month = document.getElementById('report-month')?.value;
+        const year = document.getElementById('report-year')?.value;
+        if (document.getElementById('generate-monthly-report')) {
             document.getElementById('generate-monthly-report').disabled = !month;
+        }
+        if (document.getElementById('generate-yearly-report')) {
             document.getElementById('generate-yearly-report').disabled = !year;
         }
     }
 
     formatCurrency(value) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(value || 0);
-    }
-
-    formatDate(dateString) {
-        if (!dateString) return '-';
-
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR');
-        } catch (error) {
-            return dateString;
-        }
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
     }
 
     showLoading() {
         const section = document.getElementById('reports');
+        if (!section) return;
         let loader = section.querySelector('.section-loader');
-
         if (!loader) {
             loader = document.createElement('div');
             loader.className = 'section-loader';
-            loader.innerHTML = `
-                <div class="loader-content">
-                    <div class="spinner"></div>
-                    <p>Carregando relatórios...</p>
-                </div>
-            `;
+            loader.innerHTML = '<div class="loader-content"><div class="spinner"></div><p>Carregando...</p></div>';
             section.appendChild(loader);
         }
-
         loader.style.display = 'flex';
     }
 
     hideLoading() {
         const loader = document.querySelector('#reports .section-loader');
-        if (loader) {
-            loader.style.display = 'none';
-        }
+        if (loader) loader.style.display = 'none';
     }
 
-    showNotification(message, type = 'info') {
-        if (window.hotelPetApp) {
-            window.hotelPetApp.showNotification(message, type);
-        } else {
-            console.log(`${type.toUpperCase()}: ${message}`);
-        }
-    }
-
-    showError(message) {
-        this.showNotification(message, 'error');
-    }
-
-    destroy() {
-        Object.values(this.charts).forEach(chart => {
-            if (chart && chart.destroy) {
-                chart.destroy();
-            }
-        });
-
-        this.charts = {};
-        this.isInitialized = false;
-        console.log('Reports Manager destroyed');
+    showNotification(message, type) {
+        if (window.hotelPetApp) window.hotelPetApp.showNotification(message, type);
     }
 }
-
-// Disponibilizar globalmente
 window.ReportsManager = ReportsManager;

@@ -1,6 +1,6 @@
 // Serviço de Armazenamento Nativo - Hotel Pet CÁ
 const STORAGE_FOLDER = 'HotelPet_Data';
-const DB_FILENAME = 'hotel_pet_v1.sqlite';
+const DB_FILENAME = 'database.sqlite';
 const PHOTOS_FOLDER = 'photos';
 
 class StorageService {
@@ -15,21 +15,21 @@ class StorageService {
             this.directory = window.Capacitor.Plugins.Filesystem.Directory.Documents;
 
             try {
-                // Criar pasta raiz
+                // Tenta criar a pasta raiz no diretório de Documentos do celular
                 await this.fs.mkdir({
                     path: STORAGE_FOLDER,
                     directory: this.directory,
                     recursive: true
                 });
-                // Criar pasta de fotos
+                // Cria pasta para fotos separada
                 await this.fs.mkdir({
                     path: `${STORAGE_FOLDER}/${PHOTOS_FOLDER}`,
                     directory: this.directory,
                     recursive: true
                 });
-                console.log('✅ Pastas criadas no armazenamento do celular');
+                console.log('✅ Estrutura de pastas persistentes criada em Documentos/');
             } catch (e) {
-                console.log('Pastas já existem ou erro: ', e);
+                console.log('Pasta já existente ou erro de permissão local.');
             }
         }
     }
@@ -37,16 +37,16 @@ class StorageService {
     async saveDatabase(uint8Array) {
         if (!this.fs) return false;
         try {
-            const base64 = this.uint8ToBase64(uint8Array);
+            const base64Data = this.uint8ToBase64(uint8Array);
             await this.fs.writeFile({
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
-                data: base64,
+                data: base64Data,
                 directory: this.directory
             });
-            console.log('💾 Banco SQLite persistido no disco do celular');
+            console.log('💾 Banco SQLite salvo fisicamente no celular');
             return true;
         } catch (e) {
-            console.error('❌ Erro ao persistir banco em disco:', e);
+            console.error('Erro ao gravar arquivo SQLite:', e);
             return false;
         }
     }
@@ -60,7 +60,7 @@ class StorageService {
             });
             return this.base64ToUint8(result.data);
         } catch (e) {
-            console.log('ℹ️ Nenhum banco encontrado no disco, iniciando novo.');
+            console.log('Nenhum banco físico encontrado, iniciando limpo.');
             return null;
         }
     }
@@ -68,14 +68,14 @@ class StorageService {
     async saveImage(base64Data) {
         if (!this.fs || !base64Data.startsWith('data:image')) return base64Data;
         
-        const fileName = `pet_${Date.now()}.jpg`;
-        const path = `${STORAGE_FOLDER}/${PHOTOS_FOLDER}/${fileName}`;
-        const data = base64Data.split(',')[1];
-
         try {
+            const fileName = `pet_${Date.now()}.jpg`;
+            const path = `${STORAGE_FOLDER}/${PHOTOS_FOLDER}/${fileName}`;
+            const cleanData = base64Data.split(',')[1];
+
             await this.fs.writeFile({
                 path: path,
-                data: data,
+                data: cleanData,
                 directory: this.directory
             });
             
@@ -84,9 +84,10 @@ class StorageService {
                 directory: this.directory
             });
             
+            // Retorna a URL interna do Capacitor para exibir a imagem do disco
             return window.Capacitor.convertFileSrc(uri.uri);
         } catch (e) {
-            console.error('Erro ao salvar foto no disco:', e);
+            console.error('Erro ao salvar imagem no disco:', e);
             return base64Data;
         }
     }

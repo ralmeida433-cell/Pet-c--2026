@@ -16,6 +16,42 @@ class AnimalProfileManager {
             this.saveHistoryEntry();
         });
         document.getElementById('cancel-history')?.addEventListener('click', () => this.closeHistoryModal());
+        
+        // Novo: Evento para expandir/retrair painéis
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.accordion-header');
+            if (header) {
+                this.toggleAccordion(header.closest('.accordion-item'));
+            }
+        });
+    }
+
+    toggleAccordion(item) {
+        if (!item) return;
+        const content = item.querySelector('.accordion-content');
+        const icon = item.querySelector('.accordion-icon');
+
+        if (item.classList.contains('expanded')) {
+            item.classList.remove('expanded');
+            content.style.maxHeight = null;
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        } else {
+            // Fechar outros painéis (opcional, mas bom para mobile)
+            document.querySelectorAll('#animal-profile-content .accordion-item.expanded').forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('expanded');
+                    otherItem.querySelector('.accordion-content').style.maxHeight = null;
+                    otherItem.querySelector('.accordion-icon').classList.remove('fa-chevron-up');
+                    otherItem.querySelector('.accordion-icon').classList.add('fa-chevron-down');
+                }
+            });
+
+            item.classList.add('expanded');
+            content.style.maxHeight = content.scrollHeight + "px";
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        }
     }
 
     async loadProfile(animalId) {
@@ -67,30 +103,49 @@ class AnimalProfileManager {
                 </div>
             </div>
 
-            <div class="profile-section-grid">
-                <div class="profile-section-card">
-                    <h3><i class="fas fa-history"></i> Histórico de Serviços</h3>
-                    <button class="btn btn-primary btn-sm" id="add-history-btn"><i class="fas fa-plus"></i> Adicionar Registro</button>
-                    <div class="history-list">
-                        ${this.renderHistoryList(history)}
+            <div class="profile-accordion-container">
+                
+                <!-- Acordeão 1: Histórico de Serviços -->
+                <div class="accordion-item expanded">
+                    <div class="accordion-header">
+                        <h3><i class="fas fa-history"></i> Histórico de Serviços</h3>
+                        <i class="fas fa-chevron-up accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <button class="btn btn-primary btn-sm mb-3" id="add-history-btn"><i class="fas fa-plus"></i> Adicionar Registro</button>
+                        <div class="history-list">
+                            ${this.renderHistoryList(history)}
+                        </div>
                     </div>
                 </div>
                 
-                <div class="profile-section-card">
-                    <h3><i class="fas fa-notes-medical"></i> Observações e Dados</h3>
-                    <div class="data-grid">
-                        <div class="data-item"><span class="data-label">Peso:</span><span class="data-value">${animal.weight || 'N/A'}</span></div>
-                        <div class="data-item"><span class="data-label">Vacinação:</span><span class="data-value">${animal.vaccination_status || 'N/A'}</span></div>
-                        <div class="data-item"><span class="data-label">Alergias:</span><span class="data-value">${animal.allergies || 'N/A'}</span></div>
-                        <div class="data-item"><span class="data-label">Medicação:</span><span class="data-value">${animal.medication || 'N/A'}</span></div>
+                <!-- Acordeão 2: Observações e Dados -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3><i class="fas fa-notes-medical"></i> Observações e Dados</h3>
+                        <i class="fas fa-chevron-down accordion-icon"></i>
                     </div>
-                    <div class="data-item full-width mt-3">
-                        <span class="data-label">Observações Veterinárias:</span>
-                        <p class="data-value-long">${animal.vet_notes || 'Nenhuma observação registrada.'}</p>
+                    <div class="accordion-content">
+                        <div class="data-grid">
+                            <div class="data-item"><span class="data-label">Peso:</span><span class="data-value">${animal.weight || 'N/A'}</span></div>
+                            <div class="data-item"><span class="data-label">Vacinação:</span><span class="data-value">${animal.vaccination_status || 'N/A'}</span></div>
+                            <div class="data-item"><span class="data-label">Alergias:</span><span class="data-value">${animal.allergies || 'N/A'}</span></div>
+                            <div class="data-item"><span class="data-label">Medicação:</span><span class="data-value">${animal.medication || 'N/A'}</span></div>
+                        </div>
+                        <div class="data-item full-width mt-3">
+                            <span class="data-label">Observações Veterinárias:</span>
+                            <p class="data-value-long">${animal.vet_notes || 'Nenhuma observação registrada.'}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
+        
+        // Inicializa o primeiro painel expandido (Histórico)
+        const firstContent = container.querySelector('.accordion-item.expanded .accordion-content');
+        if (firstContent) {
+            firstContent.style.maxHeight = firstContent.scrollHeight + "px";
+        }
     }
 
     renderHistoryList(history) {

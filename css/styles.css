@@ -2906,7 +2906,6 @@ body[data-orientation*="landscape"] .portrait-only {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     margin-bottom: 0.5rem;
 }
 
@@ -3179,35 +3178,66 @@ table {
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-.profile-section-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
+/* Acordeão de Perfil */
+.profile-accordion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.profile-section-card {
+.accordion-item {
     background: white;
-    padding: 2rem;
     border-radius: 1.5rem;
     box-shadow: var(--shadow);
     border: 1px solid #f1f5f9;
+    overflow: hidden;
 }
 
-.profile-section-card h3 {
+.accordion-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #f8fafc;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.accordion-item.expanded .accordion-header {
+    border-bottom: 1px solid var(--border-color);
+    background: white;
+}
+
+.accordion-header h3 {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 1.5rem;
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+}
+
+.accordion-icon {
+    color: var(--secondary-color);
+    transition: transform 0.3s ease;
+}
+
+.accordion-content {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+}
+
+.accordion-item.expanded .accordion-content {
+    padding: 1.5rem;
 }
 
 /* Histórico */
 .history-list {
-    margin-top: 1.5rem;
+    margin-top: 0; /* Removido margin-top duplicado */
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -3304,4 +3334,61 @@ table {
     color: var(--text-primary);
     margin-top: 0.5rem;
     line-height: 1.4;
+}
+
+/* Ajustes de Responsividade para o Acordeão */
+@media (min-width: 1025px) {
+    /* Em desktop, voltamos ao layout de grid original */
+    .profile-accordion-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+    .accordion-item {
+        box-shadow: var(--shadow);
+        border: 1px solid #f1f5f9;
+        overflow: visible;
+    }
+    .accordion-header {
+        cursor: default;
+        background: white;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    .accordion-icon {
+        display: none !important;
+    }
+    .accordion-content {
+        max-height: none !important;
+        padding: 1.5rem !important;
+    }
+    .accordion-item.expanded {
+        /* Remove a classe expanded para desktop, pois não é mais um acordeão */
+        border-color: #f1f5f9;
+    }
+    .accordion-item:nth-child(1) {
+        grid-column: span 1;
+    }
+    .accordion-item:nth-child(2) {
+        grid-column: span 1;
+    }
+    .profile-header-card {
+        /* Mantém o layout flex horizontal */
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Em mobile, forçamos o layout de acordeão em coluna */
+    .profile-accordion-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .accordion-content {
+        padding: 0 1.5rem;
+    }
+    .accordion-item.expanded .accordion-content {
+        padding: 1.5rem;
+    }
 }

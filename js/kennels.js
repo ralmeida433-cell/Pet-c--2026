@@ -283,8 +283,14 @@ class KennelVisualization {
         const deleteBtn = document.getElementById('delete-kennel-btn');
         const saveBtn = document.getElementById('save-kennel-btn');
         
+        // Verificação de elementos mais robusta
         if (!modal || !typeDisplay || !typeInput || !numberInput || !deleteBtn || !saveBtn || !descriptionInput) {
-            // Este é o erro que estava ocorrendo. Agora ele será capturado e notificado.
+            // Se o erro ocorrer aqui, é porque o DOM não carregou totalmente.
+            // Vamos tentar novamente em 100ms se o app ainda não estiver visível.
+            if (!document.getElementById('app')?.classList.contains('visible')) {
+                setTimeout(() => this.openAddKennelModal(type, number, description), 100);
+                return;
+            }
             window.hotelPetApp.showNotification('Erro interno: Elementos do modal de canil não encontrados.', 'error');
             console.error('Erro: Elementos do modal de canil não encontrados.');
             return;
@@ -353,6 +359,13 @@ class KennelVisualization {
         }
 
         try {
+            // Verifica se o número já existe antes de tentar adicionar
+            const existingKennel = this.canis.find(c => c.type === type && c.number === number);
+            if (existingKennel) {
+                window.hotelPetApp.showNotification(`O alojamento ${type} ${number} já existe.`, 'error');
+                return;
+            }
+
             await window.db.addKennel(type, number, description);
             window.hotelPetApp.showNotification(`✅ ${type} ${number} adicionado com sucesso!`, 'success');
             this.closeAddKennelModal();

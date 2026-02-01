@@ -36,19 +36,34 @@ class AnimalsManager {
         const modal = document.getElementById('animal-modal');
 
         if (addBtn) addBtn.addEventListener('click', () => this.openAnimalModal());
+        
         if (animalForm) {
-            animalForm.addEventListener('submit', async e => {
+            // Remover listeners antigos para evitar duplicação
+            const newForm = animalForm.cloneNode(true);
+            animalForm.parentNode.replaceChild(newForm, animalForm);
+            
+            newForm.addEventListener('submit', async e => {
                 e.preventDefault();
+                console.log('Formulário enviado, iniciando saveAnimal...');
                 await this.saveAnimal();
             });
         }
-        if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeAnimalModal());
-        if (photoInput) photoInput.addEventListener('change', e => this.handlePhotoUpload(e));
-        if (searchInput) searchInput.addEventListener('input', this.debounce(() => this.applyFilters(), 300));
-        if (filterSelect) filterSelect.addEventListener('change', () => this.applyFilters());
         
-        if (modal) {
-            modal.addEventListener('click', e => {
+        const cancelBtnNew = document.getElementById('cancel-animal');
+        if (cancelBtnNew) cancelBtnNew.addEventListener('click', () => this.closeAnimalModal());
+        
+        const photoInputNew = document.getElementById('animal-photo');
+        if (photoInputNew) photoInputNew.addEventListener('change', e => this.handlePhotoUpload(e));
+        
+        const searchInputNew = document.getElementById('animal-search');
+        if (searchInputNew) searchInputNew.addEventListener('input', this.debounce(() => this.applyFilters(), 300));
+        
+        const filterSelectNew = document.getElementById('kennel-filter');
+        if (filterSelectNew) filterSelectNew.addEventListener('change', () => this.applyFilters());
+        
+        const modalNew = document.getElementById('animal-modal');
+        if (modalNew) {
+            modalNew.addEventListener('click', e => {
                 if (e.target === e.currentTarget) this.closeAnimalModal();
             });
         }
@@ -86,14 +101,12 @@ class AnimalsManager {
     }
 
     renderAnimalsTable(animals) {
-        // CORREÇÃO: Buscar o container específico da seção de animais para não conflitar com dashboard
         const animalsSection = document.getElementById('animals');
         if (!animalsSection) return;
 
         const tableContainer = animalsSection.querySelector('.table-container');
         if (!tableContainer) return;
 
-        // Limpar conteúdo anterior
         const existingList = tableContainer.querySelector('.animals-list-container');
         if (existingList) existingList.remove();
         
@@ -178,7 +191,7 @@ class AnimalsManager {
             if (permissions.camera !== 'granted') return;
 
             const image = await Camera.getPhoto({
-                quality: 80,
+                quality: 60, // Reduzido para economizar espaço
                 allowEditing: false,
                 resultType: CameraResultType.DataUrl,
                 source: CameraSource.Camera
@@ -303,14 +316,18 @@ class AnimalsManager {
         };
 
         try {
+            console.log('Dados preparados:', animalData.name);
             this.showLoading();
+            
+            let success = false;
             if (this.currentAnimalId) {
-                await db.updateAnimal(this.currentAnimalId, animalData);
+                success = await db.updateAnimal(this.currentAnimalId, animalData);
             } else {
-                await db.addAnimal(animalData);
+                success = await db.addAnimal(animalData);
             }
 
-            // Notificação de sucesso
+            console.log('Operação no banco finalizada:', success);
+
             if (window.hotelPetApp) {
                 window.hotelPetApp.showNotification('Animal salvo com sucesso!', 'success');
             }
@@ -323,9 +340,9 @@ class AnimalsManager {
             }
             this.hideLoading();
         } catch (error) {
-            console.error('Erro ao salvar:', error);
+            console.error('Erro ao salvar animal:', error);
             this.hideLoading();
-            alert('Erro ao salvar animal: ' + error.message);
+            alert('Erro ao salvar: ' + error.message);
         }
     }
 

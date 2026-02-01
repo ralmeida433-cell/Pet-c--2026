@@ -4,7 +4,10 @@ class AnimalsManager {
     bindEvents() {
         document.getElementById('add-animal-btn')?.addEventListener('click', () => this.openAnimalModal());
         const f = document.getElementById('animal-form');
-        if (f) f.onsubmit = async (e) => { e.preventDefault(); await this.saveAnimal(); };
+        if (f) {
+            f.onsubmit = null;
+            f.addEventListener('submit', async (e) => { e.preventDefault(); await this.saveAnimal(); });
+        }
         document.getElementById('animal-photo')?.addEventListener('change', e => this.handlePhotoUpload(e));
         document.getElementById('animal-search')?.addEventListener('input', () => this.applyFilters());
     }
@@ -17,7 +20,7 @@ class AnimalsManager {
         else {
             animals.forEach(a => {
                 h += `<div class="animal-list-item" onclick="this.classList.toggle('expanded')">
-                    <div class="animal-item-header"><div class="animal-basic-info"><strong>${a.name}</strong><span>${a.species}</span></div></div>
+                    <div class="animal-item-header"><strong>${a.name}</strong><i class="fas fa-chevron-down"></i></div>
                     <div class="animal-item-details"><p>Tutor: ${a.tutor_name}</p><button class="btn btn-sm btn-secondary" onclick="window.animalsManager.editAnimal(${a.id})">Editar</button></div>
                 </div>`;
             });

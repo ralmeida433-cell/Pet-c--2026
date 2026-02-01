@@ -6,197 +6,195 @@ class AnimalsManager {
 
     init() {
         this.bindEvents();
-        console.log('✅ Animals Manager inicializado');
+        console.log('Animals Manager: Iniciado');
     }
 
     bindEvents() {
-        // Botão Novo Animal
+        // Botão Novo Animal (na tela de listagem)
         const addBtn = document.getElementById('add-animal-btn');
         if (addBtn) {
-            addBtn.addEventListener('click', () => {
-                console.log('🔘 Botão Novo Animal clicado');
-                this.openAnimalModal();
-            });
+            addBtn.addEventListener('click', () => this.openAnimalModal());
         }
 
-        // Formulário - Listener mais robusto
+        // Formulário de Cadastro
         const form = document.getElementById('animal-form');
         if (form) {
+            // Removemos qualquer listener antigo para evitar duplicidade
+            form.onsubmit = null; 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                console.log('📝 Submit do formulário detectado');
+                console.log('Animals Manager: Botão Salvar clicado');
                 await this.saveAnimal();
             });
         }
-
-        // Upload foto
-        const photoInput = document.getElementById('animal-photo');
-        if (photoInput) {
-            photoInput.addEventListener('change', (e) => {
-                console.log('📸 Foto selecionada');
-                this.handlePhotoUpload(e);
-            });
-        }
-
-        // Busca
+        
+        // Foto
+        document.getElementById('animal-photo')?.addEventListener('change', e => this.handlePhotoUpload(e));
+        
+        // Filtro de busca
         document.getElementById('animal-search')?.addEventListener('input', () => this.applyFilters());
     }
 
-    async saveAnimal() {
-        console.log('🚀 Iniciando salvamento de animal...');
-        
+    async loadAnimals() {
+        if (!window.db || !window.db.isInitialized) return;
         try {
-            const name = document.getElementById('animal-name')?.value?.trim();
-            const species = document.getElementById('animal-species')?.value;
-            const tutor = document.getElementById('tutor-name')?.value?.trim();
-            const phone = document.getElementById('tutor-phone')?.value?.trim();
-
-            console.log('Dados coletados:', { name, species, tutor, phone });
-
-            if (!name || !tutor || !species) {
-                alert('❌ Erro: Nome, Tutor e Espécie são obrigatórios!');
-                console.error('Validação falhou');
-                return;
-            }
-
-            if (!window.db || !window.db.isInitialized) {
-                alert('❌ Banco de dados não inicializado!');
-                console.error('DB não pronto');
-                return;
-            }
-
-            // Processar foto
-            let finalPhotoUrl = this.currentPhotoBase64;
-            if (this.currentPhotoBase64 && this.currentPhotoBase64.startsWith('data:image') && window.storageService) {
-                console.log('💾 Salvando foto no dispositivo...');
-                finalPhotoUrl = await window.storageService.saveImage(this.currentPhotoBase64);
-            }
-
-            const animalData = {
-                name: name.toUpperCase(),
-                species: species,
-                tutor_name: tutor.toUpperCase(),
-                tutor_phone: phone,
-                photo_url: finalPhotoUrl || null
-            };
-
-            console.log('Dados finais para DB:', animalData);
-
-            if (this.currentAnimalId) {
-                console.log('✏️ Atualizando animal ID:', this.currentAnimalId);
-                await window.db.updateAnimal(this.currentAnimalId, animalData);
-                window.hotelPetApp?.showNotification('Animal atualizado com sucesso! 🐕', 'success');
-            } else {
-                console.log('➕ Adicionando novo animal');
-                await window.db.addAnimal(animalData);
-                window.hotelPetApp?.showNotification('Novo animal cadastrado! 🐶', 'success');
-            }
-
-            // Recarregar lista e fechar modal
-            await this.loadAnimals();
-            window.hotelPetApp?.closeAllModals();
-
-        } catch (error) {
-            console.error('❌ Erro completo no salvamento:', error);
-            alert('❌ Erro ao salvar animal: ' + error.message + '\nVerifique o console para detalhes.');
+            const animals = await db.getAnimals();
+            this.renderAnimalsTable(animals);
+        } catch (e) {
+            console.error('Erro ao carregar lista:', e);
         }
     }
 
-    // Resto dos métodos permanecem iguais...
+    renderAnimalsTable(animals) {
+        const container = document.querySelector('#animals .table-container');
+        if (!container) return;
+
+        if (!animals || animals.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhum pet cadastrado.</p>';
+            return;
+        }
+
+        let html = '<div class="animals-list-container">';
+        animals.forEach(a => {
+            html += `
+            <div class="animal-list-item">
+                <div class="animal-item-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <div class="animal-item-summary">
+                        <div class="animal-thumb">
+                            <img src="${a.photo_url || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 512 512\'><path fill=\'%23cbd5e0\' d=\'M256 160c12.9 0 24.7 3.9 34.2 10.5l5.8-14.8C311 118.6 285.2 96 256 96s-55 22.6-40 59.7l5.8 14.8c9.5-6.6 21.3-10.5 34.2-10.5zm-112 80c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm224 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zM256 320c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80z\'/></svg>'}" onerror="this.style.display='none'">
+                        </div>
+                        <div class="animal-basic-info">
+                            <strong class="animal-list-name">${a.name}</strong>
+                            <span class="animal-list-species">${a.species}</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="animal-item-details">
+                    <div class="detail-row"><span class="detail-label">Tutor:</span><span class="detail-value">${a.tutor_name}</span></div>
+                    <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${a.tutor_phone}</span></div>
+                    <div class="animal-item-actions">
+                        <button class="btn btn-secondary" onclick="window.animalsManager.editAnimal(${a.id})"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn btn-danger" onclick="window.animalsManager.deleteAnimal(${a.id})"><i class="fas fa-trash"></i> Excluir</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    async saveAnimal() {
+        try {
+            const name = document.getElementById('animal-name').value;
+            const species = document.getElementById('animal-species').value;
+            const tutor = document.getElementById('tutor-name').value;
+            const phone = document.getElementById('tutor-phone').value;
+
+            console.log('Animals Manager: Validando dados', { name, tutor });
+
+            if (!name || !tutor) {
+                window.hotelPetApp?.showNotification('Nome e Tutor são obrigatórios!', 'warning');
+                return;
+            }
+
+            window.hotelPetApp?.showLoading();
+
+            let finalPhotoUrl = this.currentPhotoBase64;
+            if (this.currentPhotoBase64 && this.currentPhotoBase64.startsWith('data:image') && window.storageService) {
+                finalPhotoUrl = await window.storageService.saveImage(this.currentPhotoBase64);
+            }
+
+            const data = {
+                name: name.toUpperCase().trim(),
+                species: species,
+                tutor_name: tutor.toUpperCase().trim(),
+                tutor_phone: phone.trim(),
+                photo_url: finalPhotoUrl
+            };
+
+            if (this.currentAnimalId) {
+                console.log('Animals Manager: Atualizando ID', this.currentAnimalId);
+                await db.updateAnimal(this.currentAnimalId, data);
+                window.hotelPetApp?.showNotification('Animal atualizado!', 'success');
+            } else {
+                console.log('Animals Manager: Inserindo novo');
+                await db.addAnimal(data);
+                window.hotelPetApp?.showNotification('Novo animal cadastrado!', 'success');
+            }
+
+            window.hotelPetApp?.closeAllModals();
+            await this.loadAnimals();
+
+        } catch (e) {
+            console.error('Animals Manager: Erro fatal no saveAnimal:', e);
+            window.hotelPetApp?.showNotification('Erro ao salvar: ' + e.message, 'error');
+        } finally {
+            window.hotelPetApp?.hideLoading();
+        }
+    }
+
     handlePhotoUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
-        console.log('📁 Lendo arquivo de foto...');
-        
         const reader = new FileReader();
         reader.onload = (event) => {
             this.currentPhotoBase64 = event.target.result;
             const preview = document.getElementById('photo-preview');
             const placeholder = document.getElementById('photo-placeholder');
-            if (preview) {
-                preview.src = this.currentPhotoBase64;
-                preview.style.display = 'block';
-            }
+            if (preview) { preview.src = this.currentPhotoBase64; preview.style.display = 'block'; }
             if (placeholder) placeholder.style.display = 'none';
-            console.log('✅ Preview da foto carregado');
         };
         reader.readAsDataURL(file);
     }
 
     openAnimalModal(id = null) {
-        console.log('🪟 Abrindo modal de animal (ID:', id, ')');
         this.currentAnimalId = id;
         this.currentPhotoBase64 = null;
         
         const modal = document.getElementById('animal-modal');
         const form = document.getElementById('animal-form');
         const title = document.getElementById('animal-modal-title');
-        const preview = document.getElementById('photo-preview');
-        const placeholder = document.getElementById('photo-placeholder');
 
         if (form) form.reset();
-        if (preview) preview.style.display = 'none';
-        if (placeholder) placeholder.style.display = 'flex';
         
         if (id) {
-            title.textContent = 'Editar Animal';
-            window.db.getAnimalById(id).then(a => {
-                if (!a) {
-                    alert('Animal não encontrado!');
-                    return;
-                }
+            if (title) title.textContent = 'Editar Animal';
+            db.getAnimalById(id).then(a => {
+                if (!a) return;
                 document.getElementById('animal-name').value = a.name;
                 document.getElementById('animal-species').value = a.species;
                 document.getElementById('tutor-name').value = a.tutor_name;
                 document.getElementById('tutor-phone').value = a.tutor_phone;
                 if (a.photo_url) {
-                    if (preview) {
-                        preview.src = a.photo_url;
-                        preview.style.display = 'block';
-                    }
-                    if (placeholder) placeholder.style.display = 'none';
+                    const preview = document.getElementById('photo-preview');
+                    if (preview) { preview.src = a.photo_url; preview.style.display = 'block'; }
+                    document.getElementById('photo-placeholder').style.display = 'none';
                     this.currentPhotoBase64 = a.photo_url;
                 }
             });
         } else {
-            title.textContent = 'Novo Animal';
+            if (title) title.textContent = 'Novo Animal';
+            document.getElementById('photo-preview').style.display = 'none';
+            document.getElementById('photo-placeholder').style.display = 'flex';
         }
         
-        modal.classList.add('active');
+        modal?.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
-    async loadAnimals() {
-        console.log('🔄 Recarregando lista de animais...');
-        if (!window.db || !window.db.isInitialized) return;
-        const animals = await window.db.getAnimals();
-        this.renderAnimalsTable(animals);
-    }
-
-    renderAnimalsTable(animals) {
-        // Implementação igual à anterior (mantida para brevidade)
-        const container = document.querySelector('#animals .table-container');
-        if (!container) return;
-        // ... resto do código de renderização
-    }
-
     async deleteAnimal(id) {
-        if (confirm('Excluir este animal?')) {
-            await window.db.deleteAnimal(id);
+        if (confirm('Deseja realmente excluir este animal?')) {
+            await db.deleteAnimal(id);
             await this.loadAnimals();
-            window.hotelPetApp?.showNotification('Animal excluído!', 'info');
+            window.hotelPetApp?.showNotification('Animal excluído', 'info');
         }
     }
 
-    editAnimal(id) {
-        this.openAnimalModal(id);
-    }
-
+    editAnimal(id) { this.openAnimalModal(id); }
     applyFilters() {
-        const search = document.getElementById('animal-search')?.value || '';
-        window.db.getAnimals(search).then(animals => this.renderAnimalsTable(animals));
+        const s = document.getElementById('animal-search')?.value || '';
+        db.getAnimals(s).then(res => this.renderAnimalsTable(res));
     }
 }
-
-// Tornar global para uso em onclicks inline
 window.AnimalsManager = AnimalsManager;

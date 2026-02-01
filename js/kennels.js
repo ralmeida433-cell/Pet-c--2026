@@ -287,6 +287,7 @@ class KennelVisualization {
                             <textarea id="new-kennel-description" rows="2"></textarea>
                         </div>
                         <div class="form-actions">
+                            <button type="button" class="btn btn-danger btn-sm" id="delete-kennel-btn" style="margin-right: auto; display: none;"><i class="fas fa-trash"></i> Excluir</button>
                             <button type="button" class="btn btn-secondary" id="cancel-add-kennel">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Adicionar Canil</button>
                         </div>
@@ -303,8 +304,9 @@ class KennelVisualization {
         const typeDisplay = document.getElementById('new-kennel-type-display');
         const typeInput = document.getElementById('new-kennel-type');
         const numberInput = document.getElementById('new-kennel-number');
+        const deleteBtn = document.getElementById('delete-kennel-btn');
         
-        if (!modal || !typeDisplay || !typeInput || !numberInput) {
+        if (!modal || !typeDisplay || !typeInput || !numberInput || !deleteBtn) {
             window.hotelPetApp.showNotification('Erro: Elementos do modal não encontrados.', 'error');
             return;
         }
@@ -317,6 +319,9 @@ class KennelVisualization {
             numberInput.value = nextNumber;
             
             title.textContent = `Adicionar ${typeDisplay.value}`;
+            
+            // Ocultar botão de exclusão ao adicionar novo
+            deleteBtn.style.display = 'none';
             
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -355,6 +360,38 @@ class KennelVisualization {
 
         } catch (e) {
             window.hotelPetApp.showNotification('Erro ao adicionar canil. Verifique se o número já existe.', 'error');
+            console.error(e);
+        }
+    }
+    
+    // NOVO: Método para excluir canil
+    async deleteKennel(type, number) {
+        const confirmation = confirm(`Tem certeza que deseja excluir o alojamento ${type} ${number}? Esta ação é irreversível.`);
+        
+        if (!confirmation) return;
+
+        try {
+            // 1. Verificar se há reservas ativas para este canil
+            const occupied = await window.db.getOccupiedKennels(new Date().toISOString().split('T')[0], '9999-12-31');
+            const hasActiveReservations = occupied.some(o => o.accommodation_type === type && o.kennel_number === number);
+
+            if (hasActiveReservations) {
+                window.hotelPetApp.showNotification(`❌ Não é possível excluir ${type} ${number}. Existem reservas ativas ou futuras associadas.`, 'error');
+                return;
+            }
+
+            // 2. Excluir do banco de dados
+            await window.db.deleteKennel(type, number);
+            window.hotelPetApp.showNotification(`🗑️ ${type} ${number} excluído com sucesso.`, 'success');
+            
+            // 3. Atualizar UI
+            await this.refresh();
+            if (window.reservationsManager) {
+                window.reservationsManager.updateAccommodationList();
+            }
+
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao excluir canil: ' + e.message, 'error');
             console.error(e);
         }
     }

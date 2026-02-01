@@ -213,6 +213,11 @@ class Database {
         await this.saveData();
     }
 
+    async deleteKennel(type, number) {
+        this.db.run(`DELETE FROM kennels WHERE type = ? AND number = ?`, [type, number]);
+        await this.saveData();
+    }
+
     async getNextKennelNumber(type) {
         const result = this.executeQuery(`SELECT MAX(number) as max_number FROM kennels WHERE type = ?`, [type]);
         return (result[0]?.max_number || 0) + 1;

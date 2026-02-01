@@ -310,8 +310,8 @@
             <form id="animal-form">
                 <div class="form-group animal-photo-group">
                     <label>Identificação do Animal</label>
-                    <div class="photo-selector-modern" onclick="document.getElementById('animal-photo').click()">
-                        <div class="photo-preview-box">
+                    <div class="photo-selector-modern">
+                        <div class="photo-preview-box" onclick="document.getElementById('animal-photo').click()">
                             <img id="photo-preview" src="" alt="Preview" style="display:none;">
                             <div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i><span>Adicionar Foto</span></div>
                         </div>
@@ -434,6 +434,7 @@
                     <textarea id="new-kennel-description" rows="2"></textarea>
                 </div>
                 <div class="form-actions">
+                    <button type="button" class="btn btn-danger btn-sm" id="delete-kennel-btn" style="margin-right: auto; display: none;"><i class="fas fa-trash"></i> Excluir</button>
                     <button type="button" class="btn btn-secondary" id="cancel-add-kennel">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Adicionar Canil</button>
                 </div>

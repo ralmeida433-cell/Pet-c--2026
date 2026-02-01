@@ -14,7 +14,7 @@ class Database {
         if (!this.db) return;
         const d = this.db.export();
         if (window.storageService && window.Capacitor?.isNativePlatform()) await window.storageService.saveDatabase(d);
-        if (d.length < 3000000) localStorage.setItem('hotelPetDB', JSON.stringify(Array.from(d)));
+        if (d.length < 5000000) localStorage.setItem('hotelPetDB', JSON.stringify(Array.from(d)));
     }
     async addAnimal(a) { this.db.run(`INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url) VALUES (?,?,?,?,?)`, [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url]); await this.saveData(); }
     async updateAnimal(id, a) { this.db.run(`UPDATE animals SET name=?, species=?, tutor_name=?, tutor_phone=?, photo_url=? WHERE id=?`, [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, id]); await this.saveData(); }

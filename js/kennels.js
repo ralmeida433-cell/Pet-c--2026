@@ -304,18 +304,26 @@ class KennelVisualization {
         const typeInput = document.getElementById('new-kennel-type');
         const numberInput = document.getElementById('new-kennel-number');
         
-        if (!modal || !typeDisplay || !typeInput || !numberInput) return;
+        if (!modal || !typeDisplay || !typeInput || !numberInput) {
+            window.hotelPetApp.showNotification('Erro: Elementos do modal não encontrados.', 'error');
+            return;
+        }
 
-        const nextNumber = await window.db.getNextKennelNumber(type);
-        
-        typeInput.value = type;
-        typeDisplay.value = type === 'GATIL' ? 'Gatil' : `Canil ${type.toLowerCase()}`;
-        numberInput.value = nextNumber;
-        
-        title.textContent = `Adicionar ${typeDisplay.value}`;
-        
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        try {
+            const nextNumber = await window.db.getNextKennelNumber(type);
+            
+            typeInput.value = type;
+            typeDisplay.value = type === 'GATIL' ? 'Gatil' : `Canil ${type.toLowerCase()}`;
+            numberInput.value = nextNumber;
+            
+            title.textContent = `Adicionar ${typeDisplay.value}`;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao carregar dados do canil: ' + e.message, 'error');
+            console.error(e);
+        }
     }
 
     closeAddKennelModal() {

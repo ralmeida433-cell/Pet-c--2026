@@ -190,12 +190,7 @@
                     </select>
                 </div>
                 <div class="table-container">
-                    <table id="animals-table">
-                        <thead>
-                            <tr><th>Foto</th><th>Animal</th><th>Espécie</th><th>Tutor</th><th>Telefone</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <!-- A lista de animais será renderizada aqui pelo AnimalsManager -->
                 </div>
             </section>
 
@@ -231,7 +226,7 @@
                         <div class="filter-pill" data-status="ATIVA">Ativas</div>
                         <div class="filter-pill" data-status="FINALIZADA">Finalizadas</div>
                     </div>
-                    <select id="status-filter">
+                    <select id="status-filter" style="display:none;">
                         <option value="">Todos Status</option>
                         <option value="ATIVA">Ativa</option>
                         <option value="FINALIZADA">Finalizada</option>
@@ -239,12 +234,7 @@
                     <input type="month" id="month-filter">
                 </div>
                 <div class="table-container">
-                    <table id="reservations-table">
-                        <thead>
-                            <tr><th>Animal</th><th>Alojamento</th><th>Período</th><th>Diárias</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <!-- A lista de cards de reservas será renderizada aqui pelo ReservationsManager -->
                 </div>
             </section>
 

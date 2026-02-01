@@ -1,6 +1,6 @@
-// SERVICE WORKER - HOTEL PET CÁ
-const CACHE_NAME = 'hotel-pet-v1.0.1';
-const RUNTIME_CACHE = 'hotel-pet-runtime';
+// SERVICE WORKER - HOTEL PET CÁ - V2.0.0
+const CACHE_NAME = 'hotel-pet-v2.0.0';
+const RUNTIME_CACHE = 'hotel-pet-runtime-v2';
 
 const ASSETS_TO_CACHE = [
     '/',
@@ -23,7 +23,6 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => cache.addAll(ASSETS_TO_CACHE))
-            .then(() => self.skipWaiting())
     );
 });
 

@@ -397,19 +397,28 @@
             }, 1000);
         });
 
-        // ===== PWA UPDATE LOGIC (FORCING REFRESH) =====
+        // ===== PWA ROBUST UPDATE LOGIC =====
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
-                const registration = await navigator.serviceWorker.register('/service-worker.js');
-                
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateNotification(newWorker);
-                        }
+                try {
+                    const registration = await navigator.serviceWorker.register('/service-worker.js');
+                    
+                    // Se já existir um worker esperando (waiting), mostrar notificação
+                    if (registration.waiting) {
+                        showUpdateNotification(registration.waiting);
+                    }
+
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showUpdateNotification(newWorker);
+                            }
+                        });
                     });
-                });
+                } catch (err) {
+                    console.error('SW registration failed:', err);
+                }
             });
 
             let refreshing = false;
@@ -421,6 +430,9 @@
         }
 
         function showUpdateNotification(worker) {
+            // Evitar duplicatas
+            if (document.querySelector('.update-notification')) return;
+
             const notification = document.createElement('div');
             notification.className = 'update-notification';
             notification.innerHTML = `

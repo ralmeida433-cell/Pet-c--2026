@@ -277,140 +277,126 @@ class KennelVisualization {
         const styles = document.createElement('style');
         styles.id = 'kennels-styles';
         styles.textContent = `
-            /* Estilos para Visualização de Canis - Otimizado para Zoom 67% */
+            /* Estilos para Visualização de Canis - Otimizado para APK Nativo */
             .kennels-overview {
                 padding: 0;
                 max-width: 100%;
+                overflow-x: hidden;
             }
 
             .kennels-stats {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 1.25rem;
-                margin-bottom: 2rem;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 0.75rem;
+                margin-bottom: 1.5rem;
+                width: 100%;
             }
 
             .stat-item {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                padding: 1.25rem;
-                border-radius: 0.875rem;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                background: white;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
                 display: flex;
                 align-items: center;
-                gap: 1rem;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-
-            .stat-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+                gap: 0.75rem;
+                min-width: 0; /* Permite encolher no grid */
             }
 
             .stat-icon {
-                width: 50px;
-                height: 50px;
-                border-radius: 0.875rem;
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                border-radius: 0.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.25rem;
+                font-size: 1rem;
                 color: white;
             }
 
-            .stat-icon.ocupados { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-            .stat-icon.disponiveis { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-            .stat-icon.total { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-            .stat-icon.taxa { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+            .stat-icon.ocupados { background: #ef4444; }
+            .stat-icon.disponiveis { background: #10b981; }
+            .stat-icon.total { background: #3b82f6; }
+            .stat-icon.taxa { background: #8b5cf6; }
 
             .stat-info h3 {
-                font-size: 1.75rem;
+                font-size: 1.25rem;
                 font-weight: 700;
                 color: #1e293b;
+                line-height: 1;
                 margin-bottom: 0.25rem;
             }
 
             .stat-info p {
                 color: #64748b;
-                font-size: 0.8rem;
+                font-size: 0.7rem;
                 font-weight: 500;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .kennel-section {
-                margin-bottom: 2.5rem;
+                margin-bottom: 2rem;
             }
 
             .section-title {
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
-                font-size: 1.25rem;
+                gap: 0.5rem;
+                font-size: 1.1rem;
                 font-weight: 600;
                 color: #1e293b;
-                margin-bottom: 1.25rem;
-                padding-bottom: 0.75rem;
-                border-bottom: 2px solid #e2e8f0;
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #e2e8f0;
             }
 
             .section-count {
                 background: #e2e8f0;
                 color: #64748b;
-                padding: 0.25rem 0.75rem;
+                padding: 0.15rem 0.5rem;
                 border-radius: 9999px;
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 font-weight: 500;
                 margin-left: auto;
             }
 
             .kennels-grid {
                 display: grid;
-                gap: 1.25rem;
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             }
 
             .kennel-card {
                 background: white;
-                border-radius: 0.875rem;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                border-radius: 0.75rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
                 overflow: hidden;
-                transition: all 0.3s ease;
-                border: 2px solid transparent;
-                min-height: 160px;
+                transition: all 0.2s ease;
+                border: 1px solid transparent;
+                min-height: 140px;
                 display: flex;
                 flex-direction: column;
             }
 
-            .kennel-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-            }
-
-            .kennel-card.ocupado {
-                border-color: #ef4444;
-            }
-
-            .kennel-card.disponivel {
-                border-color: #10b981;
-            }
+            .kennel-card.ocupado { border-color: #fee2e2; }
+            .kennel-card.disponivel { border-color: #dcfce7; }
 
             .kennel-header {
-                padding: 1rem 1.25rem;
+                padding: 0.75rem 1rem;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 1px solid #e2e8f0;
-                min-height: 50px;
+                border-bottom: 1px solid #f1f5f9;
             }
 
-            .kennel-card.ocupado .kennel-header {
-                background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            }
-
-            .kennel-card.disponivel .kennel-header {
-                background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            }
+            .kennel-card.ocupado .kennel-header { background: #fef2f2; }
+            .kennel-card.disponivel .kennel-header { background: #f0fdf4; }
 
             .kennel-number {
-                font-size: 1.3rem;
+                font-size: 1.1rem;
                 font-weight: 700;
                 color: #1e293b;
             }
@@ -418,25 +404,18 @@ class KennelVisualization {
             .kennel-status {
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                font-size: 0.8rem;
+                gap: 0.35rem;
+                font-size: 0.7rem;
                 font-weight: 600;
-                padding: 0.4rem 0.8rem;
+                padding: 0.25rem 0.6rem;
                 border-radius: 9999px;
             }
 
-            .kennel-card.ocupado .kennel-status {
-                background: #ef4444;
-                color: white;
-            }
-
-            .kennel-card.disponivel .kennel-status {
-                background: #10b981;
-                color: white;
-            }
+            .kennel-card.ocupado .kennel-status { background: #ef4444; color: white; }
+            .kennel-card.disponivel .kennel-status { background: #10b981; color: white; }
 
             .kennel-content {
-                padding: 1.25rem;
+                padding: 1rem;
                 display: flex;
                 flex-direction: column;
                 flex-grow: 1;
@@ -445,22 +424,22 @@ class KennelVisualization {
             .animal-info {
                 display: flex;
                 flex-direction: column;
-                gap: 0.75rem;
+                gap: 0.5rem;
             }
 
             .animal-name {
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                font-size: 1rem;
+                gap: 0.4rem;
+                font-size: 0.9rem;
                 font-weight: 600;
                 color: #1e293b;
             }
 
             .tutor-info, .periodo-info {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
                 color: #64748b;
-                line-height: 1.5;
+                line-height: 1.4;
             }
 
             .disponivel-info {
@@ -468,108 +447,43 @@ class KennelVisualization {
                 flex-direction: column;
                 height: 100%;
                 text-align: center;
+                justify-content: center;
             }
 
             .disponivel-info p {
-                color: #64748b;
+                color: #94a3b8;
+                font-size: 0.75rem;
                 margin-bottom: 0.75rem;
-                font-size: 0.8rem;
-                line-height: 1.4;
-                flex-grow: 1;
             }
 
-            /* Botão Reservar Pequeno e Centralizado */
             .btn-reservar-small {
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                background: #2563eb;
                 color: white;
                 border: none;
-                padding: 0.5rem 1rem;
+                padding: 0.4rem 0.75rem;
                 border-radius: 0.375rem;
-                font-weight: 500;
-                font-size: 0.75rem;
+                font-weight: 600;
+                font-size: 0.7rem;
                 cursor: pointer;
-                transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
-                gap: 0.375rem;
+                gap: 0.35rem;
                 justify-content: center;
-                min-width: 80px;
-                box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+                margin: 0 auto;
             }
 
-            .btn-reservar-small:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            }
-
-            .btn-reservar-small:active {
-                transform: translateY(0);
-                box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
-            }
-
-            .btn-reservar-small i {
-                font-size: 0.625rem;
-            }
-
-            /* Container do botão para centralização */
-            .button-container {
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-                margin-top: auto;
-                padding-top: 0.75rem;
-            }
-
-            /* Responsividade */
-            @media (max-width: 768px) {
+            /* Mobile Adjustments */
+            @media (max-width: 480px) {
                 .kennels-stats {
                     grid-template-columns: repeat(2, 1fr);
-                    gap: 1rem;
                 }
-
-                .stat-item {
-                    padding: 1rem;
-                }
-
-                .stat-icon {
-                    width: 45px;
-                    height: 45px;
-                    font-size: 1.125rem;
-                }
-
+                
                 .stat-info h3 {
-                    font-size: 1.5rem;
+                    font-size: 1.1rem;
                 }
 
                 .kennels-grid {
-                    grid-template-columns: 1fr;
-                    gap: 1rem;
-                }
-
-                .section-title {
-                    font-size: 1.125rem;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 0.5rem;
-                }
-
-                .section-count {
-                    margin-left: 0;
-                }
-
-                .btn-reservar-small {
-                    padding: 0.4rem 0.8rem;
-                    font-size: 0.7rem;
-                    min-width: 70px;
-                }
-                
-                .btn-reservar-small i {
-                    font-size: 0.6rem;
-                }
-                
-                .button-container {
-                    padding-top: 0.5rem;
+                    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 }
             }
         `;

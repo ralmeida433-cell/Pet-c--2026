@@ -174,8 +174,15 @@ class KennelVisualization {
             <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}">
                 <div class="kennel-header">
                     <div class="kennel-number">${canil.number}</div>
-                    <div class="kennel-status">
-                        <i class="fas fa-${isOcupado ? 'paw' : 'check'}"></i>
+                    <div class="kennel-actions">
+                        ${!isOcupado ? `
+                            <button class="action-btn delete-kennel-btn" onclick="kennelVisualization.deleteKennel(${canil.id}, '${canil.type} ${canil.number}')" title="Excluir Alojamento">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        ` : ''}
+                        <div class="kennel-status">
+                            <i class="fas fa-${isOcupado ? 'paw' : 'check'}"></i>
+                        </div>
                     </div>
                 </div>
                 
@@ -260,7 +267,33 @@ class KennelVisualization {
         }
     }
 
-    // --- NOVOS MÉTODOS PARA ADICIONAR CANIL ---
+    // --- NOVO MÉTODO DE EXCLUSÃO ---
+    async deleteKennel(id, name) {
+        const isOccupied = this.ocupacao.has(name.replace(' ', '-'));
+        
+        if (isOccupied) {
+            window.hotelPetApp.showNotification(`Não é possível excluir ${name}. O alojamento está ocupado por uma reserva ativa.`, 'error');
+            return;
+        }
+
+        if (confirm(`Tem certeza que deseja excluir o alojamento ${name}? Esta ação é irreversível.`)) {
+            try {
+                await window.db.deleteKennel(id);
+                window.hotelPetApp.showNotification(`🗑️ ${name} excluído com sucesso.`, 'success');
+                await this.refresh();
+                
+                // Atualiza o ReservationsManager para remover o canil do dropdown
+                if (window.reservationsManager) {
+                    window.reservationsManager.updateAccommodationList();
+                }
+            } catch (e) {
+                window.hotelPetApp.showNotification('Erro ao excluir alojamento.', 'error');
+                console.error(e);
+            }
+        }
+    }
+
+    // --- MÉTODOS PARA ADICIONAR CANIL ---
 
     createAddKennelModal() {
         if (document.getElementById('add-kennel-modal')) return;
@@ -485,6 +518,26 @@ class KennelVisualization {
                 font-size: 0.85rem;
                 font-weight: 700;
                 color: #1e293b;
+            }
+
+            .kennel-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+
+            .delete-kennel-btn {
+                background: none;
+                border: none;
+                color: #ef4444;
+                cursor: pointer;
+                padding: 0.2rem;
+                font-size: 0.7rem;
+                transition: transform 0.2s;
+            }
+
+            .delete-kennel-btn:hover {
+                transform: scale(1.2);
             }
 
             .kennel-status i {

@@ -1,5 +1,5 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.5 - Anti-Transbordamento e Ajuste de Grid */
+/* Versão 2.6 - Otimização de Gráficos e Transbordamento */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
@@ -8,7 +8,6 @@
 }
 
 @media screen and (max-width: 1024px) {
-    /* Forçar tudo a caber na largura da tela */
     * {
         max-width: 100%;
         box-sizing: border-box !important;
@@ -28,10 +27,24 @@
         overflow-x: hidden;
     }
 
-    /* Ajuste da seção de conteúdo para evitar margens internas largas */
     .content-section {
         padding: 0.5rem !important;
         width: 100% !important;
+    }
+
+    /* GRÁFICOS COMPACTOS */
+    .chart-wrapper {
+        height: 250px !important; /* Reduzido de 350px para caber melhor no mobile */
+    }
+
+    .chart-card {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .chart-card h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.75rem !important;
     }
 
     /* BARRA SUPERIOR COMPACTA */
@@ -40,7 +53,6 @@
         padding: var(--safe-area-top) 0.5rem 0 0.5rem;
     }
 
-    /* CABEÇALHO DE PÁGINA (O QUE ESTAVA VAZANDO NA IMAGEM) */
     .page-header {
         padding: 1rem !important;
         margin-bottom: 0.75rem !important;
@@ -48,19 +60,12 @@
         flex-direction: column !important;
         align-items: flex-start !important;
         width: 100% !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
     }
 
     .page-header-content h1 {
         font-size: 1.3rem !important;
-        line-height: 1.2 !important;
     }
 
-    .page-header-content p {
-        font-size: 0.8rem !important;
-    }
-
-    /* GRID DE DASHBOARD E ESTATÍSTICAS */
     .dashboard-grid, .kennels-stats {
         grid-template-columns: 1fr 1fr !important;
         gap: 0.5rem !important;
@@ -70,48 +75,29 @@
     .stat-card, .stat-item {
         padding: 0.6rem !important;
         gap: 0.5rem !important;
-        flex-direction: row !important; /* Mantém lado a lado */
+        flex-direction: row !important;
         align-items: center !important;
-        justify-content: flex-start !important;
     }
 
-    /* Reduzir ícones para não "roubarem" espaço do texto */
     .stat-icon {
         width: 35px !important;
         height: 35px !important;
         min-width: 35px !important;
         font-size: 1rem !important;
-        border-radius: 8px !important;
     }
 
     .stat-info h3 {
         font-size: 1.1rem !important;
-        margin: 0 !important;
     }
 
     .stat-info p {
         font-size: 0.6rem !important;
-        white-space: nowrap;
     }
 
-    /* TABELAS - GARANTIR QUE NÃO VAZEM */
     .table-container {
         width: 100% !important;
-        margin: 0 !important;
-        border-radius: 0.75rem !important;
     }
 
-    /* AJUSTE DO PERFIL DO PET */
-    .profile-minimal-header {
-        padding: 0.5rem !important;
-    }
-
-    .profile-header-card {
-        margin: 0.5rem 0 !important;
-        width: 100% !important;
-    }
-
-    /* CORREÇÃO DAS CASINHAS (VISUALIZAÇÃO DE CANIS) */
     .kennels-grid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
         gap: 0.75rem !important;

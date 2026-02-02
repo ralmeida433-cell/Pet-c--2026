@@ -440,11 +440,11 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE HISTÓRICO -->
+    <!-- MODAL DE HISTÓRICO PROFISSIONALIZADO -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="history-modal-title">Adicionar Histórico de Serviço</h3>
+                <h3>Novo Registro de Serviço</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <form id="history-form">
@@ -454,24 +454,49 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="history-type">Tipo de Serviço *</label>
+                        <label>Serviço *</label>
                         <select id="history-type" required>
-                            <option value="">Selecione</option>
-                            <option value="BANHO">Banho</option>
-                            <option value="TOSA">Tosa</option>
-                            <option value="VETERINÁRIO">Veterinário</option>
-                            <option value="MEDICAÇÃO">Medicação</option>
-                            <option value="OBSERVAÇÃO">Observação Geral</option>
+                            <option value="BANHO">🧼 Banho</option>
+                            <option value="TOSA">✂️ Tosa</option>
+                            <option value="VETERINÁRIO">🩺 Veterinário</option>
+                            <option value="MEDICAÇÃO">💊 Medicação</option>
+                            <option value="HOSPEDAGEM">🏨 Hospedagem</option>
+                            <option value="OUTRO">📝 Outro</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="history-date">Data *</label>
-                        <input type="date" id="history-date" required value="${new Date().toISOString().split('T')[0]}">
+                        <label>Data *</label>
+                        <input type="date" id="history-date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Responsável</label>
+                        <input type="text" id="history-professional" placeholder="Nome do profissional">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="history-value" step="0.01" placeholder="0,00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Peso (kg)</label>
+                        <input type="text" id="history-weight" placeholder="Ex: 12.5kg">
+                    </div>
+                    <div class="form-group">
+                        <label>Comportamento</label>
+                        <select id="history-behavior">
+                            <option value="Tranquilo">😊 Tranquilo</option>
+                            <option value="Agitado">⚡ Agitado</option>
+                            <option value="Assustado">😨 Assustado</option>
+                            <option value="Agressivo">😠 Agressivo</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="history-description">Descrição Detalhada *</label>
-                    <textarea id="history-description" rows="4" required></textarea>
+                    <label>Descrição Detalhada *</label>
+                    <textarea id="history-description" rows="3" required placeholder="Relate o serviço prestado, produtos usados, etc."></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button>

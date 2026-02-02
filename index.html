@@ -26,87 +26,35 @@
 <body>
     <div id="loading" class="loading-screen">
         <div class="loading-content">
-            <div class="pet-logo-animated">
-                <i class="fas fa-paw"></i>
-            </div>
+            <div class="pet-logo-animated"><i class="fas fa-paw"></i></div>
             <h2>Hotel Pet CÁ</h2>
             <p>Sistema Moderno de Gerenciamento</p>
-            <div class="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            <div class="loading-dots"><span></span><span></span><span></span></div>
         </div>
     </div>
 
     <header class="mobile-header">
         <div class="mobile-header-left">
-            <button class="header-menu-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button class="header-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <span class="mobile-header-title" id="mobile-page-title">Hotel Pet CÁ</span>
-        </div>
-        <div class="mobile-nav-controls">
-            <button class="nav-btn" id="nav-back-btn" onclick="window.hotelPetApp.goBack()" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="nav-btn" id="nav-forward-btn" onclick="window.hotelPetApp.goForward()" disabled>
-                <i class="fas fa-chevron-right"></i>
-            </button>
         </div>
     </header>
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="logo-fallback" style="display: none;">
-                    <i class="fas fa-paw"></i>
-                </div>
+                <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="logo-fallback" style="display: none;"><i class="fas fa-paw"></i></div>
             </div>
-            <button class="sidebar-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         </div>
-
         <ul class="sidebar-menu">
-            <li class="menu-item active" data-section="overview">
-                <a href="#" onclick="navigateToSection('overview')">
-                    <i class="fas fa-eye"></i>
-                    <span>Visão Geral</span>
-                </a>
-            </li>
-            <li class="menu-item" data-section="dashboard">
-                <a href="#" onclick="navigateToSection('dashboard')">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="menu-item" data-section="animals">
-                <a href="#" onclick="navigateToSection('animals')">
-                    <i class="fas fa-dog"></i>
-                    <span>Animais</span>
-                </a>
-            </li>
-            <li class="menu-item" data-section="reservations">
-                <a href="#" onclick="navigateToSection('reservations')">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Reservas</span>
-                </a>
-            </li>
-            <li class="menu-item" data-section="inventory">
-                <a href="#" onclick="navigateToSection('inventory')">
-                    <i class="fas fa-boxes"></i>
-                    <span>Controle de Estoque</span>
-                </a>
-            </li>
-            <li class="menu-item" data-section="reports">
-                <a href="#" onclick="navigateToSection('reports')">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Relatórios</span>
-                </a>
-            </li>
+            <li class="menu-item active" data-section="overview"><a href="#" onclick="navigateToSection('overview')"><i class="fas fa-eye"></i><span>Visão Geral</span></a></li>
+            <li class="menu-item" data-section="dashboard"><a href="#" onclick="navigateToSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+            <li class="menu-item" data-section="animals"><a href="#" onclick="navigateToSection('animals')"><i class="fas fa-dog"></i><span>Animais</span></a></li>
+            <li class="menu-item" data-section="reservations"><a href="#" onclick="navigateToSection('reservations')"><i class="fas fa-calendar-check"></i><span>Reservas</span></a></li>
+            <li class="menu-item" data-section="inventory"><a href="#" onclick="navigateToSection('inventory')"><i class="fas fa-boxes"></i><span>Estoque</span></a></li>
+            <li class="menu-item" data-section="reports"><a href="#" onclick="navigateToSection('reports')"><i class="fas fa-chart-bar"></i><span>Relatórios</span></a></li>
         </ul>
     </nav>
 
@@ -115,380 +63,168 @@
     <main class="main-content">
         <div id="app" class="app-container hidden">
             <section id="overview" class="content-section active">
-                <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Visão Geral</h1>
-                        <p>Status em tempo real das acomodações</p>
-                    </div>
-                </div>
+                <div class="page-header"><div class="page-header-content"><h1>Visão Geral</h1><p>Status das acomodações</p></div></div>
                 <div id="kennels-visualization" class="kennels-container"></div>
             </section>
 
             <section id="dashboard" class="content-section">
-                <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Dashboard</h1>
-                        <p>Visão geral completa do Hotel Pet CÁ</p>
-                    </div>
-                </div>
+                <div class="page-header"><div class="page-header-content"><h1>Dashboard</h1><p>Visão geral do sistema</p></div></div>
                 <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-paw"></i></div>
-                        <div class="stat-info"><h3 id="total-animals">0</h3><p>Animais Cadastrados</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                        <div class="stat-info"><h3 id="active-reservations">0</h3><p>Reservas Ativas</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                        <div class="stat-info"><h3 id="monthly-revenue">R$ 0,00</h3><p>Receita do Mês</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="stat-info"><h3 id="occupancy-rate">0%</h3><p>Taxa de Ocupação</p></div>
-                    </div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-paw"></i></div><div class="stat-info"><h3 id="total-animals">0</h3><p>Pets</p></div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-bed"></i></div><div class="stat-info"><h3 id="active-reservations">0</h3><p>Ativas</p></div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div class="stat-info"><h3 id="monthly-revenue">R$ 0</h3><p>Mês</p></div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-percentage"></i></div><div class="stat-info"><h3 id="occupancy-rate">0%</h3><p>Ocupação</p></div></div>
                 </div>
                 <div class="charts-container">
-                    <div class="chart-card"><h3>Reservas por Mês</h3><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
-                    <div class="chart-card"><h3>Ocupação Atual</h3><div class="chart-wrapper"><canvas id="kennel-chart"></canvas></div></div>
-                </div>
-                <div class="recent-reservations">
-                    <h3>Reservas Recentes</h3>
-                    <div id="recent-reservations-list" class="dashboard-res-list">
-                        <!-- JS populate here -->
-                    </div>
+                    <div class="chart-card"><h3>Mensal</h3><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
+                    <div class="chart-card"><h3>Ocupação</h3><div class="chart-wrapper"><canvas id="kennel-chart"></canvas></div></div>
                 </div>
             </section>
 
             <section id="animals" class="content-section">
                 <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Gerenciamento de Animais</h1>
-                        <p>Cadastro e controle de todos os pets</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <button class="btn btn-primary" id="add-animal-btn"><i class="fas fa-plus"></i> Novo Animal</button>
-                    </div>
+                    <div class="page-header-content"><h1>Pets</h1><p>Gestão de animais</p></div>
+                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-animal-btn"><i class="fas fa-plus"></i> Novo</button></div>
                 </div>
                 <div class="filters-container">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="animal-search" placeholder="Buscar animais...">
-                        <button class="voice-search-btn" onclick="startVoiceSearch('animal-search')"><i class="fas fa-microphone"></i></button>
-                    </div>
-                    <select id="kennel-filter">
-                        <option value="">Todos</option>
-                        <option value="CÃO">Cães</option>
-                        <option value="GATO">Gatos</option>
-                    </select>
+                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="animal-search" placeholder="Buscar..."><button class="voice-search-btn" onclick="startVoiceSearch('animal-search')"><i class="fas fa-microphone"></i></button></div>
                 </div>
-                <div class="table-container">
-                    <!-- A lista de animais será renderizada aqui pelo AnimalsManager -->
-                </div>
+                <div class="table-container"></div>
             </section>
 
             <section id="animal-profile" class="content-section">
-                <div class="page-header">
-                    <div class="page-header-content">
+                <div class="profile-minimal-header">
+                    <button class="back-link" onclick="navigateToSection('animals')"><i class="fas fa-chevron-left"></i> Voltar</button>
+                    <div class="profile-title-group">
                         <h1>Perfil do Pet</h1>
-                        <p>Histórico completo e dados de saúde</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <button class="btn btn-secondary" onclick="navigateToSection('animals')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                        <span>Histórico e saúde</span>
                     </div>
                 </div>
-                <div id="animal-profile-content">
-                    <!-- Conteúdo do perfil será injetado aqui -->
-                </div>
+                <div id="animal-profile-content"></div>
             </section>
 
             <section id="reservations" class="content-section">
                 <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Gerenciamento de Reservas</h1>
-                        <p>Controle completo de hospedagens</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <button class="btn btn-primary" id="add-reservation-btn"><i class="fas fa-plus"></i> Nova Reserva</button>
-                    </div>
+                    <div class="page-header-content"><h1>Reservas</h1><p>Hospedagens</p></div>
+                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-reservation-btn"><i class="fas fa-plus"></i> Nova</button></div>
                 </div>
                 <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="reservation-search" placeholder="Buscar reservas..."></div>
-                    <div class="quick-filters">
-                        <div class="filter-pill active" data-status="">Todas</div>
-                        <div class="filter-pill" data-status="ATIVA">Ativas</div>
-                        <div class="filter-pill" data-status="FINALIZADA">Finalizadas</div>
-                    </div>
-                    <select id="status-filter" style="display:none;">
-                        <option value="">Todos Status</option>
-                        <option value="ATIVA">Ativa</option>
-                        <option value="FINALIZADA">Finalizada</option>
-                    </select>
+                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="reservation-search" placeholder="Buscar..."></div>
                     <input type="month" id="month-filter" class="month-filter-modern">
                 </div>
-                <div class="table-container">
-                    <!-- A lista de cards de reservas será renderizada aqui pelo ReservationsManager -->
-                </div>
+                <div class="table-container"></div>
             </section>
 
             <section id="inventory" class="content-section">
-                <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Controle de Estoque</h1>
-                        <p>Gerenciamento completo de produtos</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <button class="btn btn-secondary" id="stock-report-btn"><i class="fas fa-file-alt"></i> Relatório</button>
-                        <button class="btn btn-primary" id="add-product-btn"><i class="fas fa-plus"></i> Novo Produto</button>
-                    </div>
-                </div>
-                <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
-                        <div class="stat-info"><h3 id="total-products">0</h3><p>Total de Produtos</p></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div class="stat-info"><h3 id="low-stock-products">0</h3><p>Estoque Baixo</p></div>
-                    </div>
-                </div>
-                <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="product-search" placeholder="Buscar produtos..."></div>
-                    <select id="category-filter"><option value="">Todas Categorias</option></select>
-                    <select id="animal-filter"><option value="">Todos Animais</option></select>
-                    <select id="stock-status-filter">
-                        <option value="">Todos Status</option>
-                        <option value="low">Estoque Baixo</option>
-                        <option value="expiring">Vencendo</option>
-                    </select>
-                </div>
-                <div class="table-container">
-                    <table id="products-table">
-                        <thead>
-                            <tr><th>Imagem</th><th>Produto</th><th>Categoria</th><th>Marca</th><th>Animal</th><th>Estoque</th><th>Preço</th><th>Status</th><th>Ações</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div class="page-header"><div class="page-header-content"><h1>Estoque</h1><p>Produtos</p></div><div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-product-btn"><i class="fas fa-plus"></i> Novo</button></div></div>
+                <div class="table-container"><table id="products-table"><thead><tr><th>Img</th><th>Nome</th><th>Cat</th><th>Est</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="reports" class="content-section">
-                <div class="page-header">
-                    <div class="page-header-content">
-                        <h1>Relatórios</h1>
-                        <p>Análises e estatísticas detalhadas</p>
-                    </div>
-                </div>
+                <div class="page-header"><div class="page-header-content"><h1>Relatórios</h1><p>Estatísticas</p></div></div>
                 <div class="reports-grid">
-                    <div class="report-card">
-                        <h3>Relatório Mensal</h3>
-                        <p>Análise detalhada de faturamento e ocupação mensal.</p>
-                        <select id="report-month"><option value="">Selecione o mês</option></select>
-                        <button class="btn btn-secondary" id="generate-monthly-report"><i class="fas fa-file-pdf"></i> Gerar Relatório</button>
-                    </div>
-                    <div class="report-card">
-                        <h3>Relatório Anual</h3>
-                        <p>Visão consolidada do desempenho ao longo do ano.</p>
-                        <select id="report-year"><option value="">Selecione o ano</option></select>
-                        <button class="btn btn-secondary" id="generate-yearly-report"><i class="fas fa-chart-line"></i> Gerar Relatório</button>
-                    </div>
+                    <div class="report-card"><h3>Mensal</h3><select id="report-month"></select><button class="btn btn-secondary btn-sm" id="generate-monthly-report">Gerar</button></div>
+                    <div class="report-card"><h3>Anual</h3><select id="report-year"></select><button class="btn btn-secondary btn-sm" id="generate-yearly-report">Gerar</button></div>
                 </div>
                 <div id="report-content" class="report-content"></div>
             </section>
         </div>
     </main>
 
-    <!-- Modais de Animais e Reservas -->
     <div id="animal-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="animal-modal-title">Novo Animal</h3>
-                <button class="close-modal">&times;</button>
-            </div>
+            <div class="modal-header"><h3 id="animal-modal-title">Novo Animal</h3><button class="close-modal">&times;</button></div>
             <form id="animal-form">
                 <div class="form-group animal-photo-group">
-                    <label>Identificação do Animal</label>
-                    <div class="photo-selector-modern">
-                        <div class="photo-preview-box" onclick="document.getElementById('animal-photo').click()">
-                            <img id="photo-preview" src="" alt="Preview" style="display:none;">
-                            <div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i><span>Adicionar Foto</span></div>
-                        </div>
-                        <div class="photo-actions-modern">
-                            <input type="file" id="animal-photo" accept="image/*" hidden>
-                            <button type="button" class="btn-icon-modern" id="start-camera-btn"><i class="fas fa-camera"></i></button>
-                        </div>
+                    <div class="photo-selector-modern" onclick="document.getElementById('animal-photo').click()">
+                        <div class="photo-preview-box"><img id="photo-preview" style="display:none;"><div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i></div></div>
+                        <input type="file" id="animal-photo" accept="image/*" hidden>
                     </div>
                 </div>
                 <div class="form-group"><label>Nome *</label><input type="text" id="animal-name" required></div>
                 <div class="form-group"><label>Tutor *</label><input type="text" id="tutor-name" required></div>
                 <div class="form-group"><label>Telefone *</label><input type="tel" id="tutor-phone" required></div>
                 <div class="form-group"><label>Espécie *</label><select id="animal-species" required><option value="CÃO">Cão</option><option value="GATO">Gato</option></select></div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-animal">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
             </form>
         </div>
     </div>
 
-    <div id="reservation-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="reservation-modal-title">Nova Reserva</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="reservation-form">
-                <div class="form-row">
-                    <div class="form-group"><label>Animal *</label><select id="reservation-animal" required></select></div>
-                    <div class="form-group"><label>Alojamento *</label><select id="reservation-accommodation-type" required></select></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Número *</label><select id="reservation-kennel-number" required disabled></select></div>
-                    <div class="form-group"><label>Diária *</label><input type="number" id="daily-rate" step="0.01" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Entrada *</label><input type="date" id="checkin-date" required></div>
-                    <div class="form-group"><label>Saída *</label><input type="date" id="checkout-date" required></div>
-                </div>
-                <div class="services-selection">
-                    <h4>Serviços Adicionais</h4>
-                    <div class="services-grid-modern">
-                        <label class="service-checkbox-card"><input type="checkbox" id="transport-service"><div class="service-card-content"><i class="fas fa-car"></i><span>Transporte</span><input type="number" id="transport-value" disabled class="mini-price-input"></div></label>
-                        <label class="service-checkbox-card"><input type="checkbox" id="bath-service"><div class="service-card-content"><i class="fas fa-shower"></i><span>Banho</span><input type="number" id="bath-value" disabled class="mini-price-input"></div></label>
-                        <label class="service-checkbox-card wa-service"><input type="checkbox" id="whatsapp-receipt"><div class="service-card-content"><i class="fab fa-whatsapp"></i><span>Recibo via WhatsApp</span></div></label>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Pagamento *</label><select id="payment-method" required><option value="PIX">PIX</option><option value="CREDITO">Crédito</option></select></div>
-                    <div class="form-group"><label>Total</label><input type="text" id="total-value" readonly></div>
-                </div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-reservation">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modais de Inventário -->
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="product-modal-title">Novo Produto</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="product-form">
-                <div class="form-group">
-                    <label>Imagem do Produto</label>
-                    <div class="image-upload-container">
-                        <div class="image-upload-area" id="image-upload-area">
-                            <div class="upload-placeholder"><i class="fas fa-camera"></i><p>Tirar Foto / Upload</p></div>
-                        </div>
-                        <div class="image-preview" id="image-preview" style="display:none;">
-                            <img id="preview-img" src="" alt="Preview">
-                            <button type="button" class="remove-image" id="remove-image">&times;</button>
-                        </div>
-                        <input type="file" id="product-image" accept="image/*" hidden>
-                    </div>
-                </div>
-                <div class="form-group"><label>Nome do Produto *</label><input type="text" id="product-name" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Marca</label><input type="text" id="product-brand"></div>
-                    <div class="form-group"><label>Categoria *</label><select id="product-category" required></select></div>
-                </div>
-                <div class="form-group"><label>Animais Indicados</label><select id="product-animals" multiple class="form-control"></select></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço Custo *</label><input type="number" id="product-cost-price" step="0.01" required></div>
-                    <div class="form-group"><label>Preço Venda *</label><input type="number" id="product-sale-price" step="0.01" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Estoque Atual *</label><input type="number" id="product-current-stock" required></div>
-                    <div class="form-group"><label>Estoque Mínimo *</label><input type="number" id="product-min-stock" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Peso (kg)</label><input type="number" id="product-weight" step="0.01"></div>
-                    <div class="form-group"><label>Data Vencimento</label><input type="date" id="product-expiry-date"></div>
-                </div>
-                <div class="form-group"><label>Fornecedor</label><input type="text" id="product-supplier"></div>
-                <div class="form-group"><label>Descrição</label><textarea id="product-description" rows="3"></textarea></div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-product">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- NOVO MODAL DE ADIÇÃO DE CANIL -->
-    <div id="add-kennel-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="add-kennel-modal-title">Adicionar Novo Alojamento</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="add-kennel-form">
-                <input type="hidden" id="new-kennel-type">
-                <div class="form-group">
-                    <label for="new-kennel-type-display">Tipo de Alojamento</label>
-                    <input type="text" id="new-kennel-type-display" readonly disabled>
-                </div>
-                <div class="form-group">
-                    <label for="new-kennel-number">Próximo Número</label>
-                    <input type="number" id="new-kennel-number" readonly disabled>
-                </div>
-                <div class="form-group">
-                    <label for="new-kennel-description">Descrição (Opcional)</label>
-                    <textarea id="new-kennel-description" rows="2"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-add-kennel">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Adicionar Canil</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- NOVO MODAL DE HISTÓRICO -->
+    <!-- MODAL DE HISTÓRICO ATUALIZADO COM VACINAÇÃO -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="history-modal-title">Adicionar Histórico de Serviço</h3>
-                <button class="close-modal">&times;</button>
-            </div>
+            <div class="modal-header"><h3>Adicionar Registro</h3><button class="close-modal">&times;</button></div>
             <form id="history-form">
-                <div class="form-group">
-                    <label>Animal</label>
-                    <input type="text" id="history-animal-name" readonly disabled>
-                </div>
+                <input type="hidden" id="history-animal-name">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="history-type">Tipo de Serviço *</label>
-                        <select id="history-type" required>
+                    <div class="form-group"><label>Tipo *</label>
+                        <select id="history-type" required onchange="window.animalProfileManager.onHistoryTypeChange(this.value)">
                             <option value="">Selecione</option>
+                            <option value="VACINAÇÃO">Vacinação 💉</option>
                             <option value="BANHO">Banho</option>
                             <option value="TOSA">Tosa</option>
                             <option value="VETERINÁRIO">Veterinário</option>
                             <option value="MEDICAÇÃO">Medicação</option>
+                            <option value="HOSPEDAGEM">Hospedagem</option>
                             <option value="OBSERVAÇÃO">Observação Geral</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="history-date">Data *</label>
-                        <input type="date" id="history-date" required value="${new Date().toISOString().split('T')[0]}">
+                    <div class="form-group"><label>Data Aplicação *</label><input type="date" id="history-date" required></div>
+                </div>
+
+                <!-- Campos de Vacinação Inteligentes -->
+                <div id="vaccine-fields" style="display: none; background: #f0f7ff; padding: 1.25rem; border-radius: 12px; border: 1px solid #dbeafe; margin: 0 1.5rem 1rem 1.5rem;">
+                    <div class="form-group" style="padding:0 0 1rem 0;">
+                        <label>Nome da Vacina *</label>
+                        <select id="vac-name" onchange="window.animalProfileManager.calculateBooster()">
+                            <optgroup label="Cães (Canina)">
+                                <option value="V8 (Polivalente)">V8 (Polivalente)</option>
+                                <option value="V10 (Polivalente)">V10 (Polivalente)</option>
+                                <option value="V11 (Polivalente)">V11 (Polivalente)</option>
+                                <option value="Antirrábica">Antirrábica</option>
+                                <option value="Gripe (Bronchi-Shield/Pneumodog)">Gripe (Bronchiguard/Pneumodog)</option>
+                                <option value="Giárdia">Giárdia</option>
+                                <option value="Leishmaniose">Leishmaniose</option>
+                            </optgroup>
+                            <optgroup label="Gatos (Felina)">
+                                <option value="V3 (Tríplice Felina)">V3 (Tríplice Felina)</option>
+                                <option value="V4 (Quádrupla Felina)">V4 (Quádrupla Felina)</option>
+                                <option value="V5 (Quíntupla Felina)">V5 (Quíntupla Felina)</option>
+                            </optgroup>
+                        </select>
                     </div>
+                    <div class="form-row" style="padding:0;">
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Dose *</label>
+                            <select id="vac-dose" onchange="window.animalProfileManager.calculateBooster()">
+                                <option value="1ª Dose">1ª Dose</option>
+                                <option value="2ª Dose">2ª Dose</option>
+                                <option value="3ª Dose">3ª Dose</option>
+                                <option value="Reforço Anual">Reforço Anual</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Próximo Reforço</label><input type="date" id="vac-next-date"></div>
+                    </div>
+                    <div class="form-row" style="padding:0;">
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Lote</label><input type="text" id="vac-lote" placeholder="Lote"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Fabricante</label><input type="text" id="vac-lab" placeholder="Fabricante"></div>
+                    </div>
+                    <div class="form-row" style="padding:0;">
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Peso (kg)</label><input type="text" id="vac-weight" placeholder="0.0"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Valor (R$)</label><input type="number" id="vac-price" step="0.01"></div>
+                    </div>
+                    <div class="form-group" style="padding:0;"><label>Veterinário</label><input type="text" id="vac-vet" placeholder="Nome/CRMV"></div>
                 </div>
-                <div class="form-group">
-                    <label for="history-description">Descrição Detalhada *</label>
-                    <textarea id="history-description" rows="4" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Registro</button>
-                </div>
+
+                <div class="form-group"><label>Descrição / Reações *</label><textarea id="history-description" rows="3" required></textarea></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Registro</button></div>
             </form>
         </div>
     </div>
 
     <div class="fab-container" id="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()">
-                <i class="fas fa-calendar-check"></i><span>Reserva</span>
-            </button>
-            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()">
-                <i class="fas fa-dog"></i><span>Animal</span>
-            </button>
+            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()"><i class="fas fa-calendar-check"></i><span>Reserva</span></button>
+            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()"><i class="fas fa-dog"></i><span>Animal</span></button>
         </div>
         <button class="fab-main" id="fab-main"><i class="fas fa-plus"></i></button>
     </div>
@@ -505,14 +241,13 @@
     <script src="js/inventory.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/features.js"></script>
-    <script src="js/animal-profile.js"></script> <!-- NOVO SCRIPT -->
+    <script src="js/animal-profile.js"></script>
     <script src="js/app.js"></script>
 
     <script>
         function navigateToSection(sectionName) { if (window.hotelPetApp) window.hotelPetApp.navigateToSection(sectionName); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); }
-
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loading').classList.add('fade-out');

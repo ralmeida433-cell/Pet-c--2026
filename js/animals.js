@@ -69,9 +69,9 @@ class AnimalsManager {
                             <span class="animal-list-species">${a.species}</span>
                         </div>
                     </div>
-                    <div class="animal-item-actions-summary">
-                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); window.animalsManager.editAnimal(${a.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); window.animalsManager.deleteAnimal(${a.id})"><i class="fas fa-trash"></i></button>
+                    <div class="animal-item-minimal-actions">
+                        <button class="action-btn-mini edit" onclick="event.stopPropagation(); window.animalsManager.editAnimal(${a.id})" title="Editar"><i class="fas fa-pen"></i></button>
+                        <button class="action-btn-mini delete" onclick="event.stopPropagation(); window.animalsManager.deleteAnimal(${a.id})" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 </div>
                 <div class="animal-item-details">
@@ -114,7 +114,6 @@ class AnimalsManager {
                 tutor_name: tutor.toUpperCase().trim(),
                 tutor_phone: phone.trim(),
                 photo_url: finalPhotoUrl,
-                // Novos campos (vazios por padrão, serão preenchidos no perfil)
                 weight: '',
                 vaccination_status: '',
                 allergies: '',
@@ -123,7 +122,6 @@ class AnimalsManager {
             };
 
             if (this.currentAnimalId) {
-                // Ao editar, mantemos os dados de histórico/observações existentes
                 const existing = await db.getAnimalById(this.currentAnimalId);
                 const updatedData = { ...existing, ...data };
                 await db.updateAnimal(this.currentAnimalId, updatedData);

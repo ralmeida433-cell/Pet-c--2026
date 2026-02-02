@@ -1,4 +1,6 @@
-/* Sincronização de mobile.css para a pasta www */
+/* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
+/* Versão 2.8 - Correção de Overflow em Modais e Layout de Formulários */
+
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -31,6 +33,7 @@
         width: 100% !important;
     }
 
+    /* AJUSTE DO PERFIL DO ANIMAL */
     .profile-header-card {
         flex-direction: column !important;
         text-align: center;
@@ -51,6 +54,7 @@
         word-break: break-all;
     }
 
+    /* CORREÇÃO DE MODAIS E FORMULÁRIOS (BUG DE COMPRESSÃO) */
     .modal-content {
         width: 92% !important;
         padding: 1rem !important;
@@ -65,7 +69,7 @@
 
     .form-row {
         display: flex !important;
-        flex-direction: column !important;
+        flex-direction: column !important; /* Empilha Tipo e Data */
         gap: 0 !important;
     }
 
@@ -75,7 +79,7 @@
     }
 
     .form-actions {
-        flex-direction: column-reverse !important;
+        flex-direction: column-reverse !important; /* Botão principal em cima, cancelar embaixo */
         gap: 0.75rem !important;
     }
 
@@ -85,6 +89,7 @@
         padding: 0.8rem !important;
     }
 
+    /* Ajustes Gerais de Grid */
     .dashboard-grid, .kennels-stats {
         grid-template-columns: 1fr 1fr !important;
         gap: 0.5rem !important;
@@ -97,5 +102,15 @@
     .kennels-grid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
         gap: 0.75rem !important;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .profile-info-main h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .data-grid {
+        grid-template-columns: 1fr !important;
     }
 }

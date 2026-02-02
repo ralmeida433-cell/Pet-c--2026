@@ -80,3 +80,254 @@ body {
 .notification { position: fixed; bottom: 20px; right: 20px; padding: 1rem 2rem; border-radius: 0.5rem; color: white; transform: translateY(100px); transition: 0.3s; z-index: 3000; }
 .notification.show { transform: translateY(0); }
 .notification-success { background: #10b981; }
+
+/* --- ESTILOS DE PERFIL DO ANIMAL --- */
+.profile-header-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-photo-area {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--primary-color);
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info-main {
+    flex-grow: 1;
+}
+
+.profile-info-main h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.species-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.species-cão {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.species-gato {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.tutor-contact-info p {
+    margin: 0.25rem 0;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.tutor-contact-info strong {
+    color: var(--text-primary);
+}
+
+/* Acordeão de Perfil */
+.profile-accordion-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.accordion-item {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+.accordion-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #f8fafc;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.accordion-item.expanded .accordion-header {
+    border-bottom: 1px solid var(--border-color);
+    background: white;
+}
+
+.accordion-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.accordion-icon {
+    color: var(--secondary-color);
+    transition: transform 0.3s ease;
+}
+
+.accordion-content {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+}
+
+.accordion-item.expanded .accordion-content {
+    padding: 1.5rem;
+}
+
+/* Histórico */
+.history-list {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.history-entry {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.history-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.history-icon.banho { background: #0ea5e9; }
+.history-icon.tosa { background: #f59e0b; }
+.history-icon.veterinário { background: #ef4444; }
+.history-icon.medicação { background: #8b5cf6; }
+.history-icon.hospedagem { background: #10b981; }
+.history-icon.observação { background: #64748b; }
+
+.history-details {
+    flex-grow: 1;
+}
+
+.history-type {
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+    font-size: 0.9rem;
+}
+
+.history-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.history-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Ajustes de Responsividade para o Acordeão */
+@media (min-width: 1025px) {
+    /* Em desktop, voltamos ao layout de grid original */
+    .profile-accordion-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+    .accordion-item {
+        box-shadow: var(--shadow);
+        border: 1px solid #f1f5f9;
+        overflow: visible;
+    }
+    .accordion-header {
+        cursor: default;
+        background: white;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+    .accordion-icon {
+        display: none !important;
+    }
+    .accordion-content {
+        max-height: none !important;
+        padding: 1.5rem !important;
+    }
+    .accordion-item.expanded {
+        /* Remove a classe expanded para desktop, pois não é mais um acordeão */
+        border-color: #f1f5f9;
+    }
+    .accordion-item:nth-child(1) {
+        grid-column: span 1;
+    }
+    .accordion-item:nth-child(2) {
+        grid-column: span 1;
+    }
+    .profile-header-card {
+        /* Mantém o layout flex horizontal */
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Em mobile, forçamos o layout de acordeão em coluna */
+    .profile-accordion-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .accordion-content {
+        padding: 0 1.5rem;
+    }
+    .accordion-item.expanded .accordion-content {
+        /* Ajuste o padding horizontal para 0 para que o botão ocupe 100% da largura do item */
+        padding: 1.5rem 0; 
+    }
+    
+    /* Garante que o botão dentro do accordion-content ocupe a largura total e respeite o padding da seção */
+    .accordion-item.expanded .accordion-content .btn {
+        width: calc(100% - 3rem); /* 100% menos o padding da seção (1.5rem de cada lado) */
+        margin: 0 1.5rem 1.5rem 1.5rem; /* Adiciona margem para simular o padding da seção */
+    }
+}

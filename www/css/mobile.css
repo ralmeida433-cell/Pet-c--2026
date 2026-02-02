@@ -1,8 +1,10 @@
-/* Sincronização de mobile.css para a pasta www */
+/* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
+/* Versão 2.9 - Correção de Espaçamento Topo e Cabeçalho Fixo */
+
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --header-height: 50px;
+    --header-height: 56px; /* Aumentado ligeiramente para melhor toque */
 }
 
 @media screen and (max-width: 1024px) {
@@ -13,10 +15,56 @@
     }
 
     body {
+        /* O padding do body agora é apenas a altura do cabeçalho + safe area top */
         padding-top: calc(var(--header-height) + var(--safe-area-top));
         overflow-x: hidden;
         width: 100%;
         position: relative;
+    }
+
+    /* Tornando o cabeçalho móvel fixo e estilizado */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: calc(var(--header-height) + var(--safe-area-top));
+        padding-top: var(--safe-area-top);
+        background: var(--surface-color);
+        box-shadow: var(--shadow);
+        z-index: 900;
+        display: flex;
+        align-items: center;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .mobile-header-left {
+        height: var(--header-height);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .mobile-header-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .header-menu-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .header-menu-btn:active {
+        background: #f1f5f9;
     }
 
     .main-content {
@@ -31,6 +79,23 @@
         width: 100% !important;
     }
 
+    /* Oculta o page-header padrão no mobile, pois o mobile-header o substitui */
+    .content-section:not(#animal-profile) .page-header {
+        display: none;
+    }
+    
+    /* Ajuste para o perfil do animal, que tem um cabeçalho minimalista */
+    #animal-profile .profile-minimal-header {
+        padding: 0.5rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-minimal-header .back-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* AJUSTE DO PERFIL DO ANIMAL */
     .profile-header-card {
         flex-direction: column !important;
         text-align: center;
@@ -51,6 +116,7 @@
         word-break: break-all;
     }
 
+    /* CORREÇÃO DE MODAIS E FORMULÁRIOS (BUG DE COMPRESSÃO) */
     .modal-content {
         width: 92% !important;
         padding: 1rem !important;
@@ -65,7 +131,7 @@
 
     .form-row {
         display: flex !important;
-        flex-direction: column !important;
+        flex-direction: column !important; /* Empilha Tipo e Data */
         gap: 0 !important;
     }
 
@@ -75,7 +141,7 @@
     }
 
     .form-actions {
-        flex-direction: column-reverse !important;
+        flex-direction: column-reverse !important; /* Botão principal em cima, cancelar embaixo */
         gap: 0.75rem !important;
     }
 
@@ -85,6 +151,7 @@
         padding: 0.8rem !important;
     }
 
+    /* Ajustes Gerais de Grid */
     .dashboard-grid, .kennels-stats {
         grid-template-columns: 1fr 1fr !important;
         gap: 0.5rem !important;
@@ -97,5 +164,15 @@
     .kennels-grid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
         gap: 0.75rem !important;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .profile-info-main h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .data-grid {
+        grid-template-columns: 1fr !important;
     }
 }

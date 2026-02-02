@@ -12,25 +12,23 @@ class StorageService {
     async init() {
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
             this.fs = window.Capacitor.Plugins.Filesystem;
-            // Alterado de Documents para Data (App Private Storage) para evitar problemas de permissão no Android
+            // Directory.Data é o local mais seguro e persistente para APKs sem pedir permissões
             this.directory = window.Capacitor.Plugins.Filesystem.Directory.Data;
 
             try {
-                // Tenta criar a pasta raiz no diretório privado do aplicativo
                 await this.fs.mkdir({
                     path: STORAGE_FOLDER,
                     directory: this.directory,
                     recursive: true
                 });
-                // Cria pasta para fotos separada
                 await this.fs.mkdir({
                     path: `${STORAGE_FOLDER}/${PHOTOS_FOLDER}`,
                     directory: this.directory,
                     recursive: true
                 });
-                console.log('✅ Estrutura de armazenamento persistente inicializada');
+                console.log('✅ Sistema de arquivos Android inicializado');
             } catch (e) {
-                console.log('Pasta já existente ou erro de inicialização local:', e);
+                console.log('Pastas já existem ou erro silencioso.');
             }
         }
     }
@@ -38,17 +36,25 @@ class StorageService {
     async saveDatabase(uint8Array) {
         if (!this.fs) return false;
         try {
-            const base64Data = this.uint8ToBase64(uint8Array);
+            // Conversão robusta para Base64 para evitar estouro de pilha
+            let binary = '';
+            const bytes = new Uint8Array(uint8Array);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            const base64Data = window.btoa(binary);
+
             await this.fs.writeFile({
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
                 data: base64Data,
-                directory: this.directory,
-                encoding: window.Capacitor.Plugins.Filesystem.Encoding.UTF8 // Para garantir compatibilidade com base64 string
+                directory: this.directory
+                // Removido Encoding para que o Capacitor trate como Base64 puro
             });
-            console.log('💾 Banco SQLite salvo no armazenamento interno do dispositivo');
+            console.log('💾 Banco SQLite persistido no hardware');
             return true;
         } catch (e) {
-            console.error('Erro ao gravar arquivo SQLite:', e);
+            console.error('Erro fatal ao salvar no hardware:', e);
             return false;
         }
     }
@@ -60,16 +66,23 @@ class StorageService {
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
                 directory: this.directory
             });
-            return this.base64ToUint8(result.data);
+            
+            // Conversão inversa robusta
+            const binary = window.atob(result.data);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
         } catch (e) {
-            console.log('Nenhum banco físico encontrado, iniciando limpo.');
+            console.log('Nenhum banco anterior no hardware, iniciando novo.');
             return null;
         }
     }
 
     async saveImage(base64Data) {
         if (!this.fs || !base64Data.startsWith('data:image')) return base64Data;
-        
         try {
             const fileName = `pet_${Date.now()}.jpg`;
             const path = `${STORAGE_FOLDER}/${PHOTOS_FOLDER}/${fileName}`;
@@ -81,29 +94,11 @@ class StorageService {
                 directory: this.directory
             });
             
-            const uri = await this.fs.getUri({
-                path: path,
-                directory: this.directory
-            });
-            
+            const uri = await this.fs.getUri({ path: path, directory: this.directory });
             return window.Capacitor.convertFileSrc(uri.uri);
         } catch (e) {
-            console.error('Erro ao salvar imagem no disco:', e);
             return base64Data;
         }
-    }
-
-    uint8ToBase64(u8) {
-        let b = "";
-        for (let i = 0; i < u8.length; i++) b += String.fromCharCode(u8[i]);
-        return btoa(b);
-    }
-
-    base64ToUint8(b64) {
-        const b = atob(b64);
-        const u = new Uint8Array(b.length);
-        for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
-        return u;
     }
 }
 

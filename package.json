@@ -6,12 +6,12 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "xcopy /E /Y js www\\js && xcopy /E /Y css www\\css",
-    "android:sync": "npx cap sync android",
-    "android:copy": "npx cap copy android",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:copy": "npm run build && npx cap copy android",
     "android:open": "npx cap open android",
     "android:build": "cd android && gradlew assembleDebug",
     "android:release": "cd android && gradlew assembleRelease",
-    "android:full-build": "npm run build && npm run android:sync && npm run android:build"
+    "android:full-build": "npm run android:sync && npm run android:build"
   },
   "keywords": [],
   "author": "",

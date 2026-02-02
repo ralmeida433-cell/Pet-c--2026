@@ -106,10 +106,11 @@ class HotelPetApp {
         this.currentSection = sectionName;
         await this.loadSectionData(sectionName);
 
-        if (window.innerWidth <= 1024) {
-            closeSidebar(); // Fecha menu mobile ao navegar
+        // Fecha o menu mobile automaticamente ao navegar
+        if (typeof closeSidebar === 'function' && window.innerWidth <= 1024) {
+            closeSidebar();
         }
-        
+
         window.scrollTo(0, 0);
 
         const mobileTitle = document.getElementById('mobile-page-title');
@@ -151,7 +152,6 @@ class HotelPetApp {
                 if (window.reportsManager) await window.reportsManager.loadReports(); 
                 break;
             case 'animal-profile': 
-                // O carregamento é feito via animalProfileManager.loadProfile(id)
                 break;
         }
     }

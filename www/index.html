@@ -1,54 +1,178 @@
-<script>
-    function navigateToSection(sectionName) { 
-        if (window.hotelPetApp) {
-            window.hotelPetApp.navigateToSection(sectionName);
-            // Fechar menu mobile ao navegar
-            if (window.innerWidth <= 1024) {
-                closeSidebar();
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hotel Pet CÁ</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen">
+        <div class="pet-logo-animated">
+            <i class="fas fa-paw"></i>
+        </div>
+        <h2 style="color: white; font-weight: 300; letter-spacing: 2px;">HOTEL PET CÁ</h2>
+    </div>
+
+    <!-- Sidebar Overlay (para mobile) -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="logo">
+            <img src="img/logo.png" alt="Hotel Pet CÁ" class="logo-image-only">
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item" data-section="overview">
+                <a href="javascript:void(0)" onclick="navigateToSection('overview')">
+                    <i class="fas fa-home"></i>
+                    <span>Visão Geral</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="dashboard">
+                <a href="javascript:void(0)" onclick="navigateToSection('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="animals">
+                <a href="javascript:void(0)" onclick="navigateToSection('animals')">
+                    <i class="fas fa-dog"></i>
+                    <span>Animais</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="reservations">
+                <a href="javascript:void(0)" onclick="navigateToSection('reservations')">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Reservas</span>
+                </a>
+            </li>
+            <li class="menu-item" data-section="reports">
+                <a href="javascript:void(0)" onclick="navigateToSection('reports')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Relatórios</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 id="mobile-page-title">Visão Geral</h1>
+            <div class="header-actions">
+                <button class="icon-btn"><i class="fas fa-bell"></i></button>
+                <button class="icon-btn"><i class="fas fa-user-circle"></i></button>
+            </div>
+        </header>
+
+        <!-- Content Sections -->
+        <div id="app" class="hidden">
+            <section id="overview" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #eff6ff; color: #2563eb; padding: 1rem; border-radius: 1rem;">
+                            <i class="fas fa-dog" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Animais Hospedados</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f0fdf4; color: #10b981; padding: 1rem; border-radius: 1rem;">
+                            <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Reservas Ativas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fff7ed; color: #f59e0b; padding: 1rem; border-radius: 1rem;">
+                            <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Check-ins Hoje</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dashboard" class="content-section">
+                <h2>Dashboard</h2>
+                <p>Conteúdo do dashboard em desenvolvimento.</p>
+            </section>
+
+            <section id="animals" class="content-section">
+                <h2>Animais</h2>
+                <p>Lista de animais cadastrados.</p>
+            </section>
+
+            <section id="reservations" class="content-section">
+                <h2>Reservas</h2>
+                <p>Gestão de reservas.</p>
+            </section>
+
+            <section id="reports" class="content-section">
+                <h2>Relatórios</h2>
+                <p>Relatórios e estatísticas.</p>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
+            
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+                body.classList.toggle('menu-open');
             }
         }
-    }
-    
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.querySelector('.sidebar-overlay');
-        const body = document.body;
-        
-        if (sidebar && overlay) {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-            body.classList.toggle('menu-open'); // Previne scroll
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const body = document.body;
+            
+            if (sidebar && overlay) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                body.classList.remove('menu-open');
+            }
         }
-    }
-    
-    function closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.querySelector('.sidebar-overlay');
-        const body = document.body;
-        
-        if (sidebar && overlay) {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-            body.classList.remove('menu-open'); // Restaura scroll
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+        });
+
+        function navigateToSection(sectionName) {
+            if (window.hotelPetApp) {
+                window.hotelPetApp.navigateToSection(sectionName);
+            }
         }
-    }
-    
-    // Fechar menu ao clicar no overlay
-    document.addEventListener('DOMContentLoaded', function() {
-        const overlay = document.querySelector('.sidebar-overlay');
-        if (overlay) {
-            overlay.addEventListener('click', closeSidebar);
-        }
-    });
-    
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            document.getElementById('loading').classList.add('fade-out');
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('app').classList.remove('hidden');
-                document.getElementById('app').classList.add('visible');
-            }, 800);
-        }, 1000);
-    });
-</script>
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 1024) {
+                closeSidebar();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,43 +1,43 @@
 class AnimalProfileManager {
     constructor() {
         this.currentAnimal = null;
-        this.init();
+        this.isInitialized = false;
     }
 
     init() {
+        if (this.isInitialized) return;
         this.bindEvents();
+        this.isInitialized = true;
         console.log('Animal Profile Manager initialized');
     }
 
     bindEvents() {
-        document.getElementById('add-history-btn')?.addEventListener('click', () => this.openHistoryModal());
-        document.getElementById('history-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveHistoryEntry();
-        });
-        document.getElementById('cancel-history')?.addEventListener('click', () => this.closeHistoryModal());
-        
-        // Novo: Evento para expandir/retrair painéis
         document.addEventListener('click', (e) => {
+            if (e.target.closest('#add-history-btn')) {
+                this.openHistoryModal();
+            }
             const header = e.target.closest('.accordion-header');
             if (header) {
                 this.toggleAccordion(header.closest('.accordion-item'));
             }
         });
+        document.getElementById('history-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveHistoryEntry();
+        });
+        document.getElementById('cancel-history')?.addEventListener('click', () => this.closeHistoryModal());
     }
 
     toggleAccordion(item) {
         if (!item) return;
         const content = item.querySelector('.accordion-content');
         const icon = item.querySelector('.accordion-icon');
-
         if (item.classList.contains('expanded')) {
             item.classList.remove('expanded');
             content.style.maxHeight = null;
             icon.classList.remove('fa-chevron-up');
             icon.classList.add('fa-chevron-down');
         } else {
-            // Fechar outros painéis (opcional, mas bom para mobile)
             document.querySelectorAll('#animal-profile-content .accordion-item.expanded').forEach(otherItem => {
                 if (otherItem !== item) {
                     otherItem.classList.remove('expanded');
@@ -46,7 +46,6 @@ class AnimalProfileManager {
                     otherItem.querySelector('.accordion-icon').classList.add('fa-chevron-down');
                 }
             });
-
             item.classList.add('expanded');
             content.style.maxHeight = content.scrollHeight + "px";
             icon.classList.remove('fa-chevron-down');
@@ -57,7 +56,6 @@ class AnimalProfileManager {
     async loadProfile(animalId) {
         if (!window.db) return;
         window.hotelPetApp.showLoading();
-        
         try {
             const animal = await window.db.getAnimalById(animalId);
             if (!animal) {
@@ -65,14 +63,11 @@ class AnimalProfileManager {
                 return;
             }
             this.currentAnimal = animal;
-            
             const history = await window.db.getAnimalHistory(animalId);
-            
             this.renderProfile(animal, history);
             window.hotelPetApp.hideLoading();
         } catch (e) {
             console.error('Erro ao carregar perfil:', e);
-            window.hotelPetApp.showNotification('Erro ao carregar perfil do animal.', 'error');
             window.hotelPetApp.hideLoading();
         }
     }
@@ -80,90 +75,50 @@ class AnimalProfileManager {
     renderProfile(animal, history) {
         const container = document.getElementById('animal-profile-content');
         if (!container) return;
-
         const cleanPhone = animal.tutor_phone ? animal.tutor_phone.replace(/\D/g, '') : '';
-        const waUrl = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${animal.tutor_name},%20estamos%20entrando%20em%20contato%20sobre%20o%20pet%20${animal.name}.` : '#';
-
+        const waUrl = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Olá ${animal.tutor_name}, estamos em contato sobre o pet ${animal.name}.` : '#';
         container.innerHTML = `
             <div class="profile-header-card">
-                <div class="profile-photo-area">
-                    <img src="${animal.photo_url || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 512 512\'><path fill=\'%23cbd5e0\' d=\'M256 160c12.9 0 24.7 3.9 34.2 10.5l5.8-14.8C311 118.6 285.2 96 256 96s-55 22.6-40 59.7l5.8 14.8c9.5-6.6 21.3-10.5 34.2-10.5zm-112 80c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm224 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zM256 320c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80z\'/></svg>'}" 
-                         alt="${animal.name}" class="profile-photo" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 512 512\'><path fill=\'%23cbd5e0\' d=\'M256 160c12.9 0 24.7 3.9 34.2 10.5l5.8-14.8C311 118.6 285.2 96 256 96s-55 22.6-40 59.7l5.8 14.8c9.5-6.6 21.3-10.5 34.2-10.5zm-112 80c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm224 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zM256 320c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80z\'/></svg>'}">
-                </div>
+                <div class="profile-photo-area"><img src="${animal.photo_url || ''}" class="profile-photo" onerror="this.style.display='none'"></div>
                 <div class="profile-info-main">
                     <h2>${animal.name}</h2>
                     <span class="species-tag ${animal.species.toLowerCase()}">${animal.species}</span>
-                    <div class="tutor-contact-info">
-                        <p>Tutor: <strong>${animal.tutor_name}</strong></p>
-                        <p>Telefone: ${animal.tutor_phone || 'Não informado'}</p>
-                    </div>
-                    <a href="${waUrl}" target="_blank" class="btn btn-success btn-sm mt-3 wa-contact-btn">
-                        <i class="fab fa-whatsapp"></i> Contatar Tutor
-                    </a>
+                    <div class="tutor-contact-info"><p>Tutor: <strong>${animal.tutor_name}</strong></p></div>
+                    <a href="${waUrl}" target="_blank" class="btn btn-success btn-sm mt-2 wa-contact-btn"><i class="fab fa-whatsapp"></i> Contatar</a>
                 </div>
             </div>
-
             <div class="profile-accordion-container">
-                
-                <!-- Acordeão 1: Histórico de Serviços -->
                 <div class="accordion-item expanded">
-                    <div class="accordion-header">
-                        <h3><i class="fas fa-history"></i> Histórico de Serviços</h3>
-                        <i class="fas fa-chevron-up accordion-icon"></i>
-                    </div>
+                    <div class="accordion-header"><h3><i class="fas fa-history"></i> Histórico</h3><i class="fas fa-chevron-up accordion-icon"></i></div>
                     <div class="accordion-content">
                         <button class="btn btn-primary btn-sm mb-3" id="add-history-btn"><i class="fas fa-plus"></i> Adicionar Registro</button>
-                        <div class="history-list">
-                            ${this.renderHistoryList(history)}
-                        </div>
+                        <div class="history-list">${this.renderHistoryList(history)}</div>
                     </div>
                 </div>
-                
-                <!-- Acordeão 2: Observações e Dados -->
                 <div class="accordion-item">
-                    <div class="accordion-header">
-                        <h3><i class="fas fa-notes-medical"></i> Observações e Dados</h3>
-                        <i class="fas fa-chevron-down accordion-icon"></i>
-                    </div>
+                    <div class="accordion-header"><h3><i class="fas fa-notes-medical"></i> Saúde</h3><i class="fas fa-chevron-down accordion-icon"></i></div>
                     <div class="accordion-content">
                         <div class="data-grid">
                             <div class="data-item"><span class="data-label">Peso:</span><span class="data-value">${animal.weight || 'N/A'}</span></div>
-                            <div class="data-item"><span class="data-label">Vacinação:</span><span class="data-value">${animal.vaccination_status || 'N/A'}</span></div>
-                            <div class="data-item"><span class="data-label">Alergias:</span><span class="data-value">${animal.allergies || 'N/A'}</span></div>
-                            <div class="data-item"><span class="data-label">Medicação:</span><span class="data-value">${animal.medication || 'N/A'}</span></div>
+                            <div class="data-item"><span class="data-label">Vacinas:</span><span class="data-value">${animal.vaccination_status || 'N/A'}</span></div>
                         </div>
-                        <div class="data-item full-width mt-3">
-                            <span class="data-label">Observações Veterinárias:</span>
-                            <p class="data-value-long">${animal.vet_notes || 'Nenhuma observação registrada.'}</p>
-                        </div>
+                        <div class="data-item full-width mt-2"><span class="data-label">Observações:</span><p class="data-value-long">${animal.vet_notes || 'Sem registro.'}</p></div>
                     </div>
                 </div>
             </div>
         `;
-        
-        // Inicializa o primeiro painel expandido (Histórico)
         const firstContent = container.querySelector('.accordion-item.expanded .accordion-content');
-        if (firstContent) {
-            firstContent.style.maxHeight = firstContent.scrollHeight + "px";
-        }
+        if (firstContent) { setTimeout(() => { firstContent.style.maxHeight = firstContent.scrollHeight + "px"; }, 100); }
     }
 
     renderHistoryList(history) {
-        if (!history || history.length === 0) {
-            return '<p class="text-center text-secondary" style="padding: 1rem;">Nenhum registro de histórico encontrado.</p>';
-        }
-
-        // Ordenar por data (mais recente primeiro)
-        const sortedHistory = history.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        return sortedHistory.map(entry => `
+        if (!history || history.length === 0) return '<p class="text-center text-secondary" style="padding:1rem; font-size:0.8rem;">Nenhum registro.</p>';
+        return history.sort((a, b) => new Date(b.date) - new Date(a.date)).map(entry => `
             <div class="history-entry">
-                <div class="history-icon ${entry.type.toLowerCase()}">
-                    <i class="fas fa-${this.getHistoryIcon(entry.type)}"></i>
-                </div>
+                <div class="history-icon ${entry.type.toLowerCase()}"><i class="fas fa-${this.getHistoryIcon(entry.type)}"></i></div>
                 <div class="history-details">
                     <span class="history-type">${entry.type}</span>
-                    <span class="history-date">${new Date(entry.date).toLocaleDateString('pt-BR')}</span>
+                    <span class="history-date">${new Date(entry.date + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                     <p class="history-description">${entry.description}</p>
                 </div>
                 <button class="action-btn delete-btn" onclick="window.animalProfileManager.deleteHistoryEntry(${entry.id})"><i class="fas fa-trash"></i></button>
@@ -186,54 +141,35 @@ class AnimalProfileManager {
         const modal = document.getElementById('history-modal');
         document.getElementById('history-form')?.reset();
         document.getElementById('history-animal-name').value = this.currentAnimal.name;
+        document.getElementById('history-date').valueAsDate = new Date();
         modal?.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
-    closeHistoryModal() {
-        document.getElementById('history-modal')?.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+    closeHistoryModal() { document.getElementById('history-modal')?.classList.remove('active'); document.body.style.overflow = ''; }
 
     async saveHistoryEntry() {
         const animalId = this.currentAnimal.id;
         const type = document.getElementById('history-type').value;
         const date = document.getElementById('history-date').value;
         const description = document.getElementById('history-description').value;
-
-        if (!type || !date || !description) {
-            window.hotelPetApp.showNotification('Preencha todos os campos do histórico.', 'warning');
-            return;
-        }
-
-        const entry = {
-            animal_id: animalId,
-            type: type,
-            date: date,
-            description: description
-        };
-
+        if (!type || !date || !description) { window.hotelPetApp.showNotification('Preencha os campos.', 'warning'); return; }
         try {
-            await window.db.addAnimalHistory(entry);
-            window.hotelPetApp.showNotification('Registro de histórico salvo!', 'success');
+            await window.db.addAnimalHistory({ animal_id: animalId, type, date, description });
+            window.hotelPetApp.showNotification('Salvo!', 'success');
             this.closeHistoryModal();
-            this.loadProfile(animalId); // Recarrega o perfil
-        } catch (e) {
-            window.hotelPetApp.showNotification('Erro ao salvar histórico.', 'error');
-        }
+            this.loadProfile(animalId);
+        } catch (e) { console.error(e); }
     }
 
     async deleteHistoryEntry(historyId) {
-        if (confirm('Deseja realmente excluir este registro de histórico?')) {
+        if (confirm('Excluir?')) {
             try {
                 await window.db.deleteAnimalHistory(historyId);
-                window.hotelPetApp.showNotification('Registro excluído.', 'success');
-                this.loadProfile(this.currentAnimal.id); // Recarrega o perfil
-            } catch (e) {
-                window.hotelPetApp.showNotification('Erro ao excluir registro.', 'error');
-            }
+                window.hotelPetApp.showNotification('Excluído.', 'success');
+                this.loadProfile(this.currentAnimal.id);
+            } catch (e) { console.error(e); }
         }
     }
 }
-
 window.animalProfileManager = new AnimalProfileManager();

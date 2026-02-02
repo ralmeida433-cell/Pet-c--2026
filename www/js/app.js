@@ -54,19 +54,21 @@ class HotelPetApp {
     }
 
     initializeManagers() {
+        // Criamos as instâncias e as tornamos globais
         window.animalsManager = new AnimalsManager();
         window.reservationsManager = new ReservationsManager();
         window.dashboardManager = new DashboardManager();
         window.reportsManager = new ReportsManager();
-        window.animalProfileManager = new AnimalProfileManager();
+        window.animalProfileManager = new AnimalProfileManager(); 
 
         if (typeof KennelVisualization !== 'undefined') {
             window.kennelVisualization = new KennelVisualization();
         }
 
+        // Chamamos o init de cada um para bindar eventos do DOM
         window.animalsManager.init();
         window.reservationsManager.init();
-        window.animalProfileManager.init();
+        window.animalProfileManager.init(); 
     }
 
     bindGlobalEvents() {
@@ -130,7 +132,7 @@ class HotelPetApp {
             case 'animals': if (window.animalsManager) await window.animalsManager.loadAnimals(); break;
             case 'reservations': if (window.reservationsManager) { await window.reservationsManager.loadReservations(); await window.reservationsManager.loadAnimalsDropdown(); } break;
             case 'reports': if (window.reportsManager) await window.reportsManager.loadReports(); break;
-            case 'animal-profile': break;
+            case 'animal-profile': /* O carregamento é feito via animalProfileManager.loadProfile(id) */ break;
         }
     }
 

@@ -1,5 +1,5 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.5 - Ultra Minimalista e Correção de Layout */
+/* Versão 2.4 - Minimalismo e Ajuste de Perfil */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
@@ -7,122 +7,154 @@
     --header-height: 50px;
 }
 
+/* ===== MEDIA QUERY PRINCIPAL ===== */
 @media screen and (max-width: 1024px) {
-    body { 
-        padding-top: calc(var(--header-height) + var(--safe-area-top)); 
-        overflow-x: hidden;
-    }
-    
-    .main-content { 
-        margin-left: 0; 
-        padding: 0.5rem; 
-        width: 100vw;
+
+    body {
+        padding-top: calc(var(--header-height) + var(--safe-area-top));
     }
 
-    /* CABEÇALHO DE PÁGINA MINIMALISTA */
-    .page-header {
-        padding: 0.75rem 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-        flex-direction: row !important; /* Lado a lado */
-        justify-content: space-between !important;
-        align-items: center !important;
-        border-bottom: 1px solid #f1f5f9 !important;
+    .main-content {
+        margin-left: 0;
+        padding: 0.5rem;
     }
 
-    .page-header-content h1 {
-        font-size: 1.1rem !important; /* Minimalista */
+    /* BARRA SUPERIOR COMPACTA */
+    .mobile-header {
+        height: calc(var(--header-height) + var(--safe-area-top));
+        padding: var(--safe-area-top) 0.5rem 0 0.5rem;
+    }
+
+    /* CABEÇALHO PERFIL MINIMALISTA */
+    .profile-minimal-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        background: transparent;
+    }
+
+    .back-link {
+        background: transparent;
+        border: none;
+        color: var(--secondary-color);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .profile-title-group h1 {
+        font-size: 1.1rem !important;
         margin: 0 !important;
-        font-weight: 700 !important;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
     }
 
-    .page-header-content p {
-        display: none; /* Esconde descrição no mobile para limpar a tela */
+    .profile-title-group span {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
     }
 
-    .btn-primary.btn-sm, #add-animal-btn {
-        padding: 0.4rem 0.8rem !important;
-        font-size: 0.75rem !important;
-        border-radius: 0.5rem !important;
-        height: fit-content !important;
-    }
-
-    /* BUSCA E FILTROS COMPACTOS */
-    .filters-container {
+    /* CARD DE PERFIL COMPACTO */
+    .profile-header-card {
+        padding: 1rem !important;
+        gap: 1rem !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        border-radius: 1rem !important;
         margin-bottom: 1rem !important;
+    }
+
+    .profile-photo-area {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .profile-info-main h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.1rem !important;
+    }
+
+    .species-tag {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .tutor-contact-info p {
+        font-size: 0.75rem !important;
+    }
+
+    .wa-contact-btn {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.7rem !important;
+        margin-top: 0.4rem !important;
+    }
+
+    /* ACORDEÕES */
+    .accordion-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .accordion-header h3 {
+        font-size: 0.9rem !important;
+    }
+
+    .accordion-content {
+        padding: 0 1rem 1rem 1rem !important;
+    }
+
+    /* BOTÃO ADICIONAR REGISTRO */
+    #add-history-btn {
+        width: 100%;
+        padding: 0.6rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* GRID DE DADOS */
+    .data-grid {
         gap: 0.5rem !important;
     }
 
-    .search-box {
-        min-width: 150px !important;
+    .data-item {
+        padding: 0.6rem !important;
     }
 
-    .search-box input {
-        padding: 0.5rem 0.5rem 0.5rem 2rem !important;
-        font-size: 0.85rem !important;
-        border-radius: 0.5rem !important;
-    }
-
-    /* CARDS DE ANIMAIS CORRIGIDOS (IMAGEM 1) */
-    .animal-list-item {
-        padding: 0.75rem !important;
-        margin-bottom: 0.5rem !important;
-        border-radius: 0.75rem !important;
-    }
-
-    .animal-item-header {
-        padding: 0 !important;
-        display: grid !important;
-        grid-template-columns: 45px 1fr 80px !important; /* Espaço fixo para foto, nome e botões */
-        align-items: center !important;
-        gap: 0.75rem !important;
-    }
-
-    .animal-thumb {
-        width: 40px !important;
-        height: 40px !important;
-    }
-
-    .animal-list-name {
-        font-size: 0.95rem !important;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 140px;
-    }
-
-    .animal-list-species {
+    .data-label {
         font-size: 0.7rem !important;
     }
 
-    /* BOTÕES DE AÇÃO LADO A LADO (CORREÇÃO IMAGEM 1) */
-    .animal-item-actions-summary {
-        display: flex !important;
-        gap: 0.4rem !important;
-        justify-content: flex-end !important;
+    .data-value {
+        font-size: 0.85rem !important;
     }
 
-    .animal-item-actions-summary .btn-sm {
-        width: 32px !important;
-        height: 32px !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+    /* HISTÓRICO */
+    .history-entry {
+        padding: 0.6rem !important;
+        grid-template-columns: 30px 1fr auto !important;
+        gap: 0.5rem !important;
+    }
+
+    .history-type {
         font-size: 0.8rem !important;
-        border-radius: 0.4rem !important;
-        box-shadow: none !important;
     }
 
-    /* PERFIL DO PET MINIMALISTA */
-    .profile-minimal-header {
-        padding: 0.25rem 0.5rem !important;
+    .history-date {
+        font-size: 0.7rem !important;
     }
 
-    .profile-header-card {
-        margin-bottom: 0.75rem !important;
+    .history-description {
+        font-size: 0.75rem !important;
     }
 
-    /* DASHBOARD EM COLUNA DUPLA */
+    /* DASHBOARD */
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 0.5rem !important;
@@ -130,9 +162,14 @@
 
     .stat-card {
         padding: 0.75rem !important;
+        border-radius: 0.75rem !important;
     }
 
     .stat-info h3 {
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
+    }
+
+    .stat-info p {
+        font-size: 0.7rem !important;
     }
 }

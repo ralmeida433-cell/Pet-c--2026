@@ -200,7 +200,12 @@ class ReservationsManager {
         document.getElementById('transport-value').disabled = true;
         document.getElementById('bath-value').disabled = true;
         document.getElementById('total-value').value = this.formatCurrency(0);
-        document.getElementById('reservation-modal-title').textContent = 'Nova Reserva';
+        
+        // Verifica se o elemento existe antes de tentar acessar textContent
+        const modalTitle = document.getElementById('reservation-modal-title');
+        if (modalTitle) {
+            modalTitle.textContent = 'Nova Reserva';
+        }
 
         const today = new Date();
         const tomorrow = new Date(today);
@@ -219,7 +224,12 @@ class ReservationsManager {
         if (!res) return;
         this.currentReservationId = id;
         const modal = document.getElementById('reservation-modal');
-        document.getElementById('reservation-modal-title').textContent = 'Editar Reserva';
+        
+        const modalTitle = document.getElementById('reservation-modal-title');
+        if (modalTitle) {
+            modalTitle.textContent = 'Editar Reserva';
+        }
+
         await this.loadAnimalsDropdown();
         document.getElementById('reservation-animal').value = res.animal_id;
         this.filterAccommodationBySpecies(res.animal_species);
@@ -228,12 +238,28 @@ class ReservationsManager {
         document.getElementById('checkin-date').value = res.checkin_date;
         document.getElementById('checkout-date').value = res.checkout_date;
         document.getElementById('payment-method').value = res.payment_method;
-        document.getElementById('transport-service').checked = res.transport_service;
-        document.getElementById('transport-value').value = res.transport_value || '';
-        document.getElementById('transport-value').disabled = !res.transport_service;
-        document.getElementById('bath-service').checked = res.bath_service;
-        document.getElementById('bath-value').value = res.bath_value || '';
-        document.getElementById('bath-value').disabled = !res.bath_service;
+        
+        // Verifica se os elementos de serviço existem antes de acessar
+        const transportService = document.getElementById('transport-service');
+        const transportValue = document.getElementById('transport-value');
+        const bathService = document.getElementById('bath-service');
+        const bathValue = document.getElementById('bath-value');
+
+        if (transportService) {
+            transportService.checked = res.transport_service;
+        }
+        if (transportValue) {
+            transportValue.value = res.transport_value || '';
+            transportValue.disabled = !res.transport_service;
+        }
+        if (bathService) {
+            bathService.checked = res.bath_service;
+        }
+        if (bathValue) {
+            bathValue.value = res.bath_value || '';
+            bathValue.disabled = !res.bath_service;
+        }
+
         await this.populateKennelNumbers(res.accommodation_type, res.kennel_number);
         document.getElementById('reservation-kennel-number').value = res.kennel_number;
         this.calculateTotalValue();
@@ -264,10 +290,10 @@ class ReservationsManager {
             checkin_date: checkinDate,
             checkout_date: checkoutDate,
             payment_method: paymentMethod,
-            transport_service: document.getElementById('transport-service').checked,
-            transport_value: parseFloat(document.getElementById('transport-value').value) || 0,
-            bath_service: document.getElementById('bath-service').checked,
-            bath_value: parseFloat(document.getElementById('bath-value').value) || 0,
+            transport_service: document.getElementById('transport-service')?.checked || false,
+            transport_value: parseFloat(document.getElementById('transport-value')?.value) || 0,
+            bath_service: document.getElementById('bath-service')?.checked || false,
+            bath_value: parseFloat(document.getElementById('bath-value')?.value) || 0,
             status: 'ATIVA'
         };
 
@@ -303,9 +329,19 @@ class ReservationsManager {
     }
 
     applyFilters() {
-        const s = document.getElementById('reservation-search').value.toLowerCase();
-        const status = document.getElementById('status-filter').value;
-        const filtered = this.reservations.filter(r => (r.animal_name?.toLowerCase().includes(s) || r.tutor_name?.toLowerCase().includes(s)) && (!status || r.status === status));
+        // Usando optional chaining e nullish coalescing para evitar erros se os elementos não existirem
+        const s = document.getElementById('reservation-search')?.value?.toLowerCase() || '';
+        const status = document.getElementById('status-filter')?.value || '';
+        const month = document.getElementById('month-filter')?.value || '';
+
+        const filtered = this.reservations.filter(r => {
+            const matchesSearch = r.animal_name?.toLowerCase().includes(s) || r.tutor_name?.toLowerCase().includes(s);
+            const matchesStatus = !status || r.status === status;
+            const matchesMonth = !month || r.checkin_date?.startsWith(month);
+            
+            return matchesSearch && matchesStatus && matchesMonth;
+        });
+        
         this.renderReservationsList(filtered);
     }
 
@@ -392,6 +428,7 @@ class ReservationsManager {
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
+        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');

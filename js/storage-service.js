@@ -12,10 +12,11 @@ class StorageService {
     async init() {
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
             this.fs = window.Capacitor.Plugins.Filesystem;
-            this.directory = window.Capacitor.Plugins.Filesystem.Directory.Documents;
+            // Alterado de Documents para Data (App Private Storage) para evitar problemas de permissão no Android
+            this.directory = window.Capacitor.Plugins.Filesystem.Directory.Data;
 
             try {
-                // Tenta criar a pasta raiz no diretório de Documentos do celular
+                // Tenta criar a pasta raiz no diretório privado do aplicativo
                 await this.fs.mkdir({
                     path: STORAGE_FOLDER,
                     directory: this.directory,
@@ -27,9 +28,9 @@ class StorageService {
                     directory: this.directory,
                     recursive: true
                 });
-                console.log('✅ Estrutura de pastas persistentes criada em Documentos/');
+                console.log('✅ Estrutura de armazenamento persistente inicializada');
             } catch (e) {
-                console.log('Pasta já existente ou erro de permissão local.');
+                console.log('Pasta já existente ou erro de inicialização local:', e);
             }
         }
     }
@@ -41,9 +42,10 @@ class StorageService {
             await this.fs.writeFile({
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
                 data: base64Data,
-                directory: this.directory
+                directory: this.directory,
+                encoding: window.Capacitor.Plugins.Filesystem.Encoding.UTF8 // Para garantir compatibilidade com base64 string
             });
-            console.log('💾 Banco SQLite salvo fisicamente no celular');
+            console.log('💾 Banco SQLite salvo no armazenamento interno do dispositivo');
             return true;
         } catch (e) {
             console.error('Erro ao gravar arquivo SQLite:', e);
@@ -84,7 +86,6 @@ class StorageService {
                 directory: this.directory
             });
             
-            // Retorna a URL interna do Capacitor para exibir a imagem do disco
             return window.Capacitor.convertFileSrc(uri.uri);
         } catch (e) {
             console.error('Erro ao salvar imagem no disco:', e);

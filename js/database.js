@@ -27,7 +27,6 @@ class Database {
                 await this.createTables();
                 await this.insertSampleData();
             } else {
-                // Garantir que as novas tabelas existam em bancos existentes
                 await this.createKennelsTableIfMissing();
                 await this.createAnimalHistoryTableIfMissing();
             }
@@ -46,6 +45,7 @@ class Database {
             if (window.storageService && window.Capacitor?.isNativePlatform()) {
                 await window.storageService.saveDatabase(data);
             }
+            // Fallback para localStorage (limitado a 5MB)
             if (data.length < 5000000) {
                 localStorage.setItem('hotelPetDB', JSON.stringify(Array.from(data)));
             }
@@ -126,9 +126,7 @@ class Database {
                 UNIQUE(type, number)
             )`);
             await this.saveData();
-        } catch (e) {
-            console.warn('Tabela kennels já existe ou erro ao criar:', e);
-        }
+        } catch (e) { console.warn(e); }
     }
 
     async createAnimalHistoryTableIfMissing() {
@@ -140,36 +138,27 @@ class Database {
                 date DATE,
                 description TEXT
             )`);
-            // Adicionar novas colunas à tabela animals se não existirem
             const animalColumns = this.executeQuery("PRAGMA table_info(animals)");
             const columnNames = animalColumns.map(c => c.name);
-            
             if (!columnNames.includes('weight')) this.db.run(`ALTER TABLE animals ADD COLUMN weight TEXT`);
             if (!columnNames.includes('vaccination_status')) this.db.run(`ALTER TABLE animals ADD COLUMN vaccination_status TEXT`);
             if (!columnNames.includes('allergies')) this.db.run(`ALTER TABLE animals ADD COLUMN allergies TEXT`);
             if (!columnNames.includes('medication')) this.db.run(`ALTER TABLE animals ADD COLUMN medication TEXT`);
             if (!columnNames.includes('vet_notes')) this.db.run(`ALTER TABLE animals ADD COLUMN vet_notes TEXT`);
-
             await this.saveData();
-        } catch (e) {
-            console.warn('Tabela animal_history já existe ou erro ao criar:', e);
-        }
+        } catch (e) { console.warn(e); }
     }
 
     async insertSampleData() {
         this.db.run(`INSERT OR IGNORE INTO animals (name, species, tutor_name, tutor_phone, weight, vaccination_status) 
                      VALUES ('PANQUECA', 'CÃO', 'MARISTELA', '31992089660', '12kg', 'Completa')`);
         
-        // Inserir histórico de exemplo
         const panqueca = this.executeQuery(`SELECT id FROM animals WHERE name = 'PANQUECA'`)[0];
         if (panqueca) {
             this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
                 [panqueca.id, 'BANHO', '2024-01-15', 'Banho completo com hidratação de coco.']);
-            this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
-                [panqueca.id, 'HOSPEDAGEM', '2024-01-10', 'Hospedagem de 5 dias no canil INTERNO 3.']);
         }
 
-        // Inserir canis padrão na nova tabela
         const defaultKennels = [
             { type: 'INTERNO', count: 5, description: 'Área coberta climatizada' },
             { type: 'EXTERNO', count: 6, description: 'Área externa com jardim' },
@@ -181,11 +170,9 @@ class Database {
                 this.db.run(`INSERT OR IGNORE INTO kennels (type, number, description) VALUES (?, ?, ?)`, [type, i, description]);
             }
         }
-
         await this.saveData();
     }
 
-    // --- MÉTODOS DE ANIMALS ---
     async addAnimal(a) { 
         this.db.run(`INSERT INTO animals (name, species, tutor_name, tutor_phone, photo_url, weight, vaccination_status, allergies, medication, vet_notes) VALUES (?,?,?,?,?,?,?,?,?,?)`, 
         [a.name, a.species, a.tutor_name, a.tutor_phone, a.photo_url, a.weight, a.vaccination_status, a.allergies, a.medication, a.vet_notes]); 
@@ -198,27 +185,20 @@ class Database {
     }
     async deleteAnimal(id) { 
         this.db.run('DELETE FROM animals WHERE id=?', [id]); 
-        this.db.run('DELETE FROM animal_history WHERE animal_id=?', [id]); // Deleta histórico
+        this.db.run('DELETE FROM animal_history WHERE animal_id=?', [id]); 
         await this.saveData(); 
     }
     async getAnimals(s = '') { return this.executeQuery(`SELECT * FROM animals WHERE name LIKE ? OR tutor_name LIKE ? ORDER BY name`, [`%${s}%`, `%${s}%`]); }
     async getAnimalById(id) { const r = this.executeQuery(`SELECT * FROM animals WHERE id=?`, [id]); return r[0]; }
 
-    // --- MÉTODOS DE HISTÓRICO ---
     async addAnimalHistory(h) {
         this.db.run(`INSERT INTO animal_history (animal_id, type, date, description) VALUES (?, ?, ?, ?)`, 
             [h.animal_id, h.type, h.date, h.description]);
         await this.saveData();
     }
-    async getAnimalHistory(animalId) {
-        return this.executeQuery(`SELECT * FROM animal_history WHERE animal_id = ? ORDER BY date DESC`, [animalId]);
-    }
-    async deleteAnimalHistory(id) {
-        this.db.run('DELETE FROM animal_history WHERE id=?', [id]);
-        await this.saveData();
-    }
+    async getAnimalHistory(animalId) { return this.executeQuery(`SELECT * FROM animal_history WHERE animal_id = ? ORDER BY date DESC`, [animalId]); }
+    async deleteAnimalHistory(id) { this.db.run('DELETE FROM animal_history WHERE id=?', [id]); await this.saveData(); }
 
-    // --- MÉTODOS DE RESERVAS ---
     async getReservations(search = '', status = '', month = '') {
         let q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.tutor_phone, a.photo_url 
                  FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id WHERE 1=1`;
@@ -251,40 +231,16 @@ class Database {
     }
 
     async deleteReservation(id) { this.db.run('DELETE FROM reservations WHERE id=?', [id]); await this.saveData(); }
-
-    // NOVO: Verificar canis ocupados
     async getOccupiedKennels(start, end) {
         const q = `SELECT accommodation_type, kennel_number FROM reservations 
                    WHERE status = 'ATIVA' 
-                   AND (
-                       (checkin_date BETWEEN ? AND ?) OR 
-                       (checkout_date BETWEEN ? AND ?) OR 
-                       (? BETWEEN checkin_date AND checkout_date)
-                   )`;
+                   AND ((checkin_date BETWEEN ? AND ?) OR (checkout_date BETWEEN ? AND ?) OR (? BETWEEN checkin_date AND checkout_date))`;
         return this.executeQuery(q, [start, end, start, end, start]);
     }
-
-    // --- MÉTODOS DE KENNELS ---
-    async getAllKennels() {
-        return this.executeQuery(`SELECT * FROM kennels ORDER BY type, number`);
-    }
-
-    async addKennel(type, number, description) {
-        this.db.run(`INSERT INTO kennels (type, number, description) VALUES (?, ?, ?)`, [type, number, description]);
-        await this.saveData();
-    }
-
-    async deleteKennel(id) {
-        this.db.run('DELETE FROM kennels WHERE id=?', [id]);
-        await this.saveData();
-    }
-
-    async getNextKennelNumber(type) {
-        const result = this.executeQuery(`SELECT MAX(number) as max_number FROM kennels WHERE type = ?`, [type]);
-        return (result[0]?.max_number || 0) + 1;
-    }
-
-    // --- MÉTODOS DE DASHBOARD E RELATÓRIOS ---
+    async getAllKennels() { return this.executeQuery(`SELECT * FROM kennels ORDER BY type, number`); }
+    async addKennel(type, number, description) { this.db.run(`INSERT INTO kennels (type, number, description) VALUES (?, ?, ?)`, [type, number, description]); await this.saveData(); }
+    async deleteKennel(id) { this.db.run('DELETE FROM kennels WHERE id=?', [id]); await this.saveData(); }
+    async getNextKennelNumber(type) { const result = this.executeQuery(`SELECT MAX(number) as max_number FROM kennels WHERE type = ?`, [type]); return (result[0]?.max_number || 0) + 1; }
     async getDashboardStats() {
         const totalAnimals = this.executeQuery('SELECT COUNT(*) as count FROM animals')[0]?.count || 0;
         const activeRes = this.executeQuery("SELECT COUNT(*) as count FROM reservations WHERE status = 'ATIVA'")[0]?.count || 0;
@@ -293,24 +249,13 @@ class Database {
         const occupancyRate = totalKennels > 0 ? Math.round((activeRes / totalKennels) * 100) : 0;
         return { totalAnimals, activeReservations: activeRes, monthlyRevenue: revenue, occupancyRate, totalKennels };
     }
-
     async getRecentReservations(limit = 5) {
         const q = `SELECT r.*, a.name as animal_name, a.species as animal_species, a.tutor_name, a.photo_url 
                    FROM reservations r LEFT JOIN animals a ON r.animal_id = a.id 
                    ORDER BY r.id DESC LIMIT ?`;
         return this.executeQuery(q, [limit]);
     }
-
-    async getMonthlyData() {
-        const q = `SELECT strftime('%Y-%m', checkin_date) as month, COUNT(*) as reservations, SUM(total_value) as revenue 
-                   FROM reservations GROUP BY month ORDER BY month DESC LIMIT 12`;
-        return this.executeQuery(q);
-    }
-
-    async getKennelTypeData() {
-        const q = `SELECT accommodation_type as kennel_type, COUNT(*) as count 
-                   FROM reservations WHERE status = 'ATIVA' GROUP BY kennel_type`;
-        return this.executeQuery(q);
-    }
+    async getMonthlyData() { return this.executeQuery(`SELECT strftime('%Y-%m', checkin_date) as month, COUNT(*) as reservations, SUM(total_value) as revenue FROM reservations GROUP BY month ORDER BY month DESC LIMIT 12`); }
+    async getKennelTypeData() { return this.executeQuery(`SELECT accommodation_type as kennel_type, COUNT(*) as count FROM reservations WHERE status = 'ATIVA' GROUP BY kennel_type`); }
 }
 window.db = new Database();

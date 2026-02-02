@@ -2,460 +2,164 @@ class ReservationsManager {
     constructor() {
         this.currentReservationId = null;
         this.reservations = [];
-        this.filteredReservations = [];
         this.animals = [];
         this.isInitialized = false;
-        this.accommodationTypes = {
-            'INTERNO': { species: 'CÃO' },
-            'EXTERNO': { species: 'CÃO' },
-            'GATIL': { species: 'GATO' }
-        };
+        this.accommodationTypes = { 'INTERNO': { species: 'CÃO' }, 'EXTERNO': { species: 'CÃO' }, 'GATIL': { species: 'GATO' } };
         this.allKennels = [];
     }
 
     init() {
         if (this.isInitialized) return;
         this.bindEvents();
-        this.createDetailModal();
         this.isInitialized = true;
-        console.log('Reservations Manager: Iniciado');
     }
 
     bindEvents() {
-        const addBtn = document.getElementById('add-reservation-btn');
-        if (addBtn) addBtn.onclick = () => this.openReservationModal();
-
-        const form = document.getElementById('reservation-form');
-        if (form) {
-            form.onsubmit = (e) => { 
-                e.preventDefault(); 
-                this.saveReservation(); 
-            };
-        }
-
-        document.getElementById('reservation-accommodation-type')?.addEventListener('change', (e) => {
-            this.populateKennelNumbers(e.target.value);
+        document.getElementById('add-reservation-btn')?.addEventListener('click', () => this.openReservationModal());
+        document.getElementById('reservation-form')?.addEventListener('submit', (e) => { e.preventDefault(); this.saveReservation(); });
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.res-card-header');
+            if (header) { this.toggleCardExpansion(header.closest('.reservation-expandable-card')); return; }
+            const actionBtn = e.target.closest('[data-action]');
+            if (actionBtn) { this.handleDetailAction(actionBtn.dataset.action, actionBtn.dataset.id); }
         });
-
+        document.getElementById('reservation-accommodation-type')?.addEventListener('change', (e) => { this.populateKennelNumbers(e.target.value); });
         document.getElementById('checkin-date')?.addEventListener('change', () => this.updateAvailability());
         document.getElementById('checkout-date')?.addEventListener('change', () => this.updateAvailability());
-        
         document.getElementById('daily-rate')?.addEventListener('input', () => this.calculateTotalValue());
-        
-        const transportService = document.getElementById('transport-service');
-        const transportValue = document.getElementById('transport-value');
-        const bathService = document.getElementById('bath-service');
-        const bathValue = document.getElementById('bath-value');
-
-        if (transportService && transportValue) {
-            transportService.addEventListener('change', () => {
-                transportValue.disabled = !transportService.checked;
-                if (!transportService.checked) transportValue.value = '';
-                this.calculateTotalValue();
-            });
-            transportValue.addEventListener('input', () => this.calculateTotalValue());
-        }
-
-        if (bathService && bathValue) {
-            bathService.addEventListener('change', () => {
-                bathValue.disabled = !bathService.checked;
-                if (!bathService.checked) bathValue.value = '';
-                this.calculateTotalValue();
-            });
-            bathValue.addEventListener('input', () => this.calculateTotalValue());
-        }
-
         document.getElementById('reservation-search')?.addEventListener('input', () => this.applyFilters());
-        document.getElementById('status-filter')?.addEventListener('change', () => this.applyFilters());
     }
 
-    updateAvailability() {
-        const type = document.getElementById('reservation-accommodation-type').value;
-        if (type) this.populateKennelNumbers(type);
-        this.calculateTotalDays();
+    toggleCardExpansion(card) {
+        if (!card) return;
+        const isExpanded = card.classList.contains('expanded');
+        document.querySelectorAll('.reservation-expandable-card.expanded').forEach(c => { if (c !== card) { c.classList.remove('expanded'); c.querySelector('.res-card-body').style.maxHeight = null; } });
+        const body = card.querySelector('.res-card-body');
+        if (isExpanded) { card.classList.remove('expanded'); body.style.maxHeight = null; } else { card.classList.add('expanded'); body.style.maxHeight = body.scrollHeight + "px"; }
     }
 
-    async loadReservations() {
-        if (!window.db || !window.db.isInitialized) return;
-        this.reservations = await db.getReservations();
-        this.applyFilters();
-    }
-    
-    async updateAccommodationList() {
-        if (!window.db || !window.db.isInitialized) return;
-        this.allKennels = await window.db.getAllKennels();
-    }
+    async loadReservations() { if (!window.db || !window.db.isInitialized) return; this.reservations = await db.getReservations(); this.applyFilters(); }
+    async updateAccommodationList() { if (!window.db || !window.db.isInitialized) return; this.allKennels = await window.db.getAllKennels(); }
 
     async loadAnimalsDropdown() {
         await this.updateAccommodationList();
         const animals = await db.getAnimals();
         const select = document.getElementById('reservation-animal');
         if (!select) return;
-        select.innerHTML = '<option value="">Selecione o animal</option>' + 
-            animals.map(a => `<option value="${a.id}" data-species="${a.species}">${a.name} (${a.tutor_name})</option>`).join('');
-        
-        select.onchange = (e) => {
-            const species = e.target.options[e.target.selectedIndex]?.dataset.species;
-            if (species) this.filterAccommodationBySpecies(species);
-        };
+        select.innerHTML = '<option value="">Selecione</option>' + animals.map(a => `<option value="${a.id}" data-species="${a.species}">${a.name}</option>`).join('');
+        select.onchange = (e) => { const species = e.target.options[e.target.selectedIndex]?.dataset.species; if (species) this.filterAccommodationBySpecies(species); };
     }
 
     filterAccommodationBySpecies(species) {
         const select = document.getElementById('reservation-accommodation-type');
         if (!select) return;
-        
-        const compatibleTypes = Object.entries(this.accommodationTypes)
-            .filter(([type, info]) => info.species === species)
-            .map(([type]) => type);
-
-        select.innerHTML = '<option value="">Selecione</option>';
-        compatibleTypes.forEach(type => {
-            select.innerHTML += `<option value="${type}">${type === 'GATIL' ? 'Gatil' : 'Canil ' + type.toLowerCase()}</option>`;
-        });
-        
-        document.getElementById('reservation-kennel-number').innerHTML = '<option value="">Escolha o número</option>';
-        document.getElementById('reservation-kennel-number').disabled = true;
+        const compatibleTypes = Object.entries(this.accommodationTypes).filter(([type, info]) => info.species === species).map(([type]) => type);
+        select.innerHTML = '<option value="">Selecione</option>' + compatibleTypes.map(type => `<option value="${type}">${type}</option>`).join('');
     }
 
-    async populateKennelNumbers(accommodationType, currentKennel = null) {
+    async populateKennelNumbers(type, current = null) {
         const kennelSelect = document.getElementById('reservation-kennel-number');
         const checkin = document.getElementById('checkin-date').value;
         const checkout = document.getElementById('checkout-date').value;
-
-        if (!accommodationType || !checkin || !checkout) {
-            kennelSelect.innerHTML = '<option value="">Defina datas e tipo primeiro</option>';
-            kennelSelect.disabled = true;
-            return;
-        }
-
+        if (!type || !checkin || !checkout) { kennelSelect.disabled = true; return; }
         try {
             const occupied = await db.getOccupiedKennels(checkin, checkout);
-            const occupiedNumbers = occupied
-                .filter(o => o.accommodation_type === accommodationType)
-                .map(o => o.kennel_number);
-
-            const availableKennels = this.allKennels.filter(k => k.type === accommodationType);
-            let options = '<option value="">Escolha o número</option>';
-            
-            availableKennels.forEach(kennel => {
-                const isOccupied = occupiedNumbers.includes(kennel.number);
-                const isCurrent = currentKennel && kennel.number == currentKennel && kennel.type === accommodationType;
-                options += `<option value="${kennel.number}" ${isOccupied && !isCurrent ? 'disabled' : ''} ${isCurrent ? 'selected' : ''}>
-                    ${accommodationType} ${kennel.number} ${isOccupied && !isCurrent ? '(Ocupado)' : '(Livre)'}
-                </option>`;
-            });
-
-            kennelSelect.innerHTML = options;
+            const occupiedNumbers = occupied.filter(o => o.accommodation_type === type).map(o => o.kennel_number);
+            const availableKennels = this.allKennels.filter(k => k.type === type);
+            kennelSelect.innerHTML = '<option value="">Escolha</option>' + availableKennels.map(k => {
+                const isOccupied = occupiedNumbers.includes(k.number);
+                return `<option value="${k.number}" ${isOccupied && k.number != current ? 'disabled' : ''} ${k.number == current ? 'selected' : ''}>${type} ${k.number}</option>`;
+            }).join('');
             kennelSelect.disabled = false;
         } catch (e) { console.error(e); }
-    }
-
-    calculateTotalDays() {
-        const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
-        const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
-        if (d1 && d2 && d2 > d1) {
-            this.calculateTotalValue();
-        }
     }
 
     calculateTotalValue() {
         const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
         const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
         const daily = parseFloat(document.getElementById('daily-rate')?.value) || 0;
-        
-        if (d1 && d2 && d2 > d1) {
-            const days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-            let total = days * daily;
-            
-            if (document.getElementById('transport-service')?.checked) total += parseFloat(document.getElementById('transport-value')?.value) || 0;
-            if (document.getElementById('bath-service')?.checked) total += parseFloat(document.getElementById('bath-value')?.value) || 0;
-
-            document.getElementById('total-value').value = this.formatCurrency(total);
-        } else {
-            document.getElementById('total-value').value = this.formatCurrency(0);
-        }
-    }
-    
-    formatCurrency(value) {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
-    }
-    
-    formatDate(dateStr) {
-        if (!dateStr) return '-';
-        try {
-            const date = new Date(dateStr + 'T00:00:00');
-            return date.toLocaleDateString('pt-BR');
-        } catch (error) { return dateStr; }
-    }
-
-    openReservationModal(data = null) {
-        const modal = document.getElementById('reservation-modal');
-        const form = document.getElementById('reservation-form');
-        if (!modal || !form) return;
-
-        form.reset();
-        this.currentReservationId = null;
-        this.loadAnimalsDropdown();
-
-        document.getElementById('transport-value').disabled = true;
-        document.getElementById('bath-value').disabled = true;
-        document.getElementById('total-value').value = this.formatCurrency(0);
-        document.getElementById('reservation-modal-title').textContent = 'Nova Reserva';
-
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        document.getElementById('checkin-date').valueAsDate = today;
-        document.getElementById('checkout-date').valueAsDate = tomorrow;
-        
-        this.calculateTotalValue();
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    async editReservation(id) {
-        const res = await db.getReservationById(id);
-        if (!res) return;
-        this.currentReservationId = id;
-        const modal = document.getElementById('reservation-modal');
-        document.getElementById('reservation-modal-title').textContent = 'Editar Reserva';
-        await this.loadAnimalsDropdown();
-        document.getElementById('reservation-animal').value = res.animal_id;
-        this.filterAccommodationBySpecies(res.animal_species);
-        document.getElementById('reservation-accommodation-type').value = res.accommodation_type;
-        document.getElementById('daily-rate').value = res.daily_rate;
-        document.getElementById('checkin-date').value = res.checkin_date;
-        document.getElementById('checkout-date').value = res.checkout_date;
-        document.getElementById('payment-method').value = res.payment_method;
-        document.getElementById('transport-service').checked = res.transport_service;
-        document.getElementById('transport-value').value = res.transport_value || '';
-        document.getElementById('transport-value').disabled = !res.transport_service;
-        document.getElementById('bath-service').checked = res.bath_service;
-        document.getElementById('bath-value').value = res.bath_value || '';
-        document.getElementById('bath-value').disabled = !res.bath_service;
-        await this.populateKennelNumbers(res.accommodation_type, res.kennel_number);
-        document.getElementById('reservation-kennel-number').value = res.kennel_number;
-        this.calculateTotalValue();
-        modal.classList.add('active');
-        this.closeDetailModal();
+        if (d1 && d2 && d2 > d1) { const days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)); document.getElementById('total-value').value = this.formatCurrency(days * daily); } else { document.getElementById('total-value').value = this.formatCurrency(0); }
     }
 
     async saveReservation() {
         const animalId = document.getElementById('reservation-animal').value;
-        const accommodationType = document.getElementById('reservation-accommodation-type').value;
-        const kennelNumber = document.getElementById('reservation-kennel-number').value;
-        const dailyRateStr = document.getElementById('daily-rate').value;
-        const checkinDate = document.getElementById('checkin-date').value;
-        const checkoutDate = document.getElementById('checkout-date').value;
-        const paymentMethod = document.getElementById('payment-method').value;
-
-        // Validação obrigatória
-        if (!animalId || !accommodationType || !kennelNumber || !dailyRateStr || !checkinDate || !checkoutDate || !paymentMethod) {
-            window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (*)', 'warning');
-            return;
-        }
-
-        const data = {
-            animal_id: animalId,
-            accommodation_type: accommodationType,
-            kennel_number: kennelNumber,
-            daily_rate: parseFloat(dailyRateStr),
-            checkin_date: checkinDate,
-            checkout_date: checkoutDate,
-            payment_method: paymentMethod,
-            transport_service: document.getElementById('transport-service').checked,
-            transport_value: parseFloat(document.getElementById('transport-value').value) || 0,
-            bath_service: document.getElementById('bath-service').checked,
-            bath_value: parseFloat(document.getElementById('bath-value').value) || 0,
-            status: 'ATIVA'
-        };
-
-        const d1 = new Date(data.checkin_date + 'T00:00:00');
-        const d2 = new Date(data.checkout_date + 'T00:00:00');
-        data.total_days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
-        data.total_value = (data.total_days * data.daily_rate) + data.transport_value + data.bath_value;
-
-        window.hotelPetApp.showLoading();
-        try {
-            if (this.currentReservationId) {
-                await db.updateReservation(this.currentReservationId, data);
-                window.hotelPetApp.showNotification('Reserva atualizada!', 'success');
-            } else {
-                await db.addReservation(data);
-                window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
-            }
-            
-            if (document.getElementById('whatsapp-receipt')?.checked) {
-                const reservations = await db.getReservations();
-                const targetRes = this.currentReservationId ? reservations.find(r => r.id == this.currentReservationId) : reservations[0];
-                if (targetRes) this.shareReceipt(targetRes.id);
-            }
-
-            window.hotelPetApp.closeAllModals();
-            await this.loadReservations();
-            if (window.kennelVisualization) window.kennelVisualization.refresh();
-        } catch (e) {
-            window.hotelPetApp.showNotification('Erro ao salvar: ' + e.message, 'error');
-        } finally {
-            window.hotelPetApp.hideLoading();
-        }
+        const type = document.getElementById('reservation-accommodation-type').value;
+        const number = document.getElementById('reservation-kennel-number').value;
+        const daily = parseFloat(document.getElementById('daily-rate').value);
+        const inDate = document.getElementById('checkin-date').value;
+        const outDate = document.getElementById('checkout-date').value;
+        if (!animalId || !type || !number) return;
+        const d1 = new Date(inDate + 'T00:00:00'); const d2 = new Date(outDate + 'T00:00:00');
+        const totalDays = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
+        const data = { animal_id: animalId, accommodation_type: type, kennel_number: number, daily_rate: daily, checkin_date: inDate, checkout_date: outDate, payment_method: document.getElementById('payment-method').value, total_days: totalDays, total_value: totalDays * daily, status: 'ATIVA' };
+        try { if (this.currentReservationId) await db.updateReservation(this.currentReservationId, data); else await db.addReservation(data); window.hotelPetApp.closeAllModals(); await this.loadReservations(); } catch (e) { console.error(e); }
     }
 
     applyFilters() {
-        const s = document.getElementById('reservation-search').value.toLowerCase();
-        const status = document.getElementById('status-filter').value;
-        const filtered = this.reservations.filter(r => (r.animal_name?.toLowerCase().includes(s) || r.tutor_name?.toLowerCase().includes(s)) && (!status || r.status === status));
+        const search = document.getElementById('reservation-search')?.value.toLowerCase() || '';
+        const filtered = this.reservations.filter(r => r.animal_name?.toLowerCase().includes(search) || r.tutor_name?.toLowerCase().includes(search));
         this.renderReservationsList(filtered);
     }
 
     renderReservationsList(data) {
         const container = document.querySelector('#reservations .table-container');
         if (!container) return;
-        container.innerHTML = `<div id="reservations-list-cards" class="reservations-list-cards"></div>`;
-        const listContainer = document.getElementById('reservations-list-cards');
-        if (data.length === 0) { listContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhuma reserva encontrada.</p>'; return; }
-        listContainer.innerHTML = data.map(r => `
-            <div class="reservation-card" onclick="window.reservationsManager.openDetailModal(${r.id})">
-                <div class="card-header">
-                    <div class="animal-info-summary">
-                        <div class="animal-thumb"><img src="${r.photo_url || ''}" onerror="this.style.display='none'"></div>
-                        <div class="text-info"><strong class="animal-name">${r.animal_name}</strong><span class="tutor-name">Tutor: ${r.tutor_name}</span></div>
+        if (data.length === 0) { container.innerHTML = '<p class="text-center p-4">Vazio.</p>'; return; }
+        container.innerHTML = data.map(r => `
+            <div class="reservation-expandable-card">
+                <div class="res-card-header">
+                    <div class="res-summary-left">
+                        <div class="res-pet-thumb"><img src="${r.photo_url || ''}" onerror="this.style.display='none'"><i class="fas fa-paw" style="${r.photo_url ? 'display:none' : ''}"></i></div>
+                        <div class="res-pet-info"><strong class="res-name">${r.animal_name}</strong><span class="res-period">${this.formatDateShort(r.checkin_date)} - ${this.formatDateShort(r.checkout_date)}</span></div>
                     </div>
-                    <div class="status-and-actions"><span class="status-badge ${r.status.toLowerCase()}">${r.status}</span></div>
+                    <div class="res-summary-right"><span class="status-badge-compact ${r.status.toLowerCase()}">${r.status}</span><i class="fas fa-chevron-down expansion-arrow"></i></div>
                 </div>
-                <div class="card-details">
-                    <div class="detail-item"><i class="fas fa-home"></i><span>${r.accommodation_type} ${r.kennel_number}</span></div>
-                    <div class="detail-item"><i class="fas fa-calendar-alt"></i><span>${this.formatDate(r.checkin_date)} - ${this.formatDate(r.checkout_date)}</span></div>
-                    <div class="detail-item"><i class="fas fa-dollar-sign"></i><strong>${this.formatCurrency(r.total_value)}</strong></div>
+                <div class="res-card-body">
+                    <div class="res-details-grid">
+                        <div class="res-detail-item"><label>Tutor</label><span>${r.tutor_name}</span></div>
+                        <div class="res-detail-item"><label>Local</label><span>${r.accommodation_type} ${r.kennel_number}</span></div>
+                        <div class="res-detail-item"><label>Check-in</label><span>${this.formatDate(r.checkin_date)}</span></div>
+                        <div class="res-detail-item"><label>Check-out</label><span>${this.formatDate(r.checkout_date)}</span></div>
+                        <div class="res-detail-item"><label>Total</label><strong class="res-total-val">${this.formatCurrency(r.total_value)}</strong></div>
+                    </div>
+                    <div class="res-card-actions">
+                        <button class="btn btn-sm btn-secondary" data-action="edit" data-id="${r.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-success" data-action="whatsapp" data-id="${r.id}"><i class="fab fa-whatsapp"></i></button>
+                        ${r.status === 'ATIVA' ? `<button class="btn btn-sm btn-primary" data-action="finalize" data-id="${r.id}">Finalizar</button>` : ''}
+                    </div>
                 </div>
             </div>
         `).join('');
     }
 
-    createDetailModal() {
-        if (document.getElementById('reservation-detail-modal')) return;
-        const modalHTML = `
-            <div id="reservation-detail-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header"><h3>Detalhes da Reserva</h3><button class="close-modal">&times;</button></div>
-                    <div id="detail-content" class="detail-content"></div>
-                    <div class="detail-actions">
-                        <button class="btn btn-secondary" id="detail-edit-btn"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn btn-success" id="detail-whatsapp-btn"><i class="fab fa-whatsapp"></i> Compartilhar Recibo</button>
-                        <button class="btn btn-danger" id="detail-finalize-btn"><i class="fas fa-check-circle"></i> Finalizar Reserva</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        document.getElementById('detail-edit-btn')?.addEventListener('click', () => this.handleDetailAction('edit'));
-        document.getElementById('detail-whatsapp-btn')?.addEventListener('click', () => this.handleDetailAction('whatsapp'));
-        document.getElementById('detail-finalize-btn')?.addEventListener('click', () => this.handleDetailAction('finalize'));
+    async handleDetailAction(action, id) {
+        if (action === 'edit') await this.editReservation(id); else if (action === 'finalize') await this.finalizeReservation(id); else if (action === 'whatsapp') await this.shareReceipt(id);
     }
 
-    async openDetailModal(id) {
-        const res = await db.getReservationById(id);
+    async editReservation(id) {
+        const res = this.reservations.find(r => r.id == id);
         if (!res) return;
         this.currentReservationId = id;
-        const content = document.getElementById('detail-content');
-        content.innerHTML = `
-            <div class="detail-profile-summary">
-                <div class="detail-photo-area"><img src="${res.photo_url || ''}" class="detail-photo" onerror="this.style.display='none'"></div>
-                <div class="detail-info-main"><h3>${res.animal_name}</h3><p>Tutor: <strong>${res.tutor_name}</strong></p><span class="status-badge ${res.status.toLowerCase()}">${res.status}</span></div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-item"><span class="label">Entrada:</span><span class="value">${this.formatDate(res.checkin_date)}</span></div>
-                <div class="detail-item"><span class="label">Saída Prevista:</span><span class="value">${this.formatDate(res.checkout_date)}</span></div>
-                <div class="detail-item"><span class="label">Diárias:</span><span class="value">${res.total_days}</span></div>
-                <div class="detail-item"><span class="label">Alojamento:</span><span class="value">${res.accommodation_type} ${res.kennel_number}</span></div>
-                <div class="detail-item"><span class="label">Diária:</span><span class="value">${this.formatCurrency(res.daily_rate)}</span></div>
-                <div class="detail-item"><span class="label">Pagamento:</span><span class="value">${res.payment_method}</span></div>
-            </div>
-            <div class="detail-total"><span class="label">VALOR TOTAL:</span><span class="value">${this.formatCurrency(res.total_value)}</span></div>
-        `;
-        document.getElementById('detail-finalize-btn').style.display = res.status === 'ATIVA' ? 'inline-flex' : 'none';
-        document.getElementById('reservation-detail-modal').classList.add('active');
+        this.openReservationModal();
+        setTimeout(async () => {
+            document.getElementById('reservation-animal').value = res.animal_id;
+            this.filterAccommodationBySpecies(res.animal_species);
+            document.getElementById('reservation-accommodation-type').value = res.accommodation_type;
+            document.getElementById('daily-rate').value = res.daily_rate;
+            document.getElementById('checkin-date').value = res.checkin_date;
+            document.getElementById('checkout-date').value = res.checkout_date;
+            await this.populateKennelNumbers(res.accommodation_type, res.kennel_number);
+            document.getElementById('reservation-kennel-number').value = res.kennel_number;
+            this.calculateTotalValue();
+        }, 300);
     }
 
-    closeDetailModal() { document.getElementById('reservation-detail-modal')?.classList.remove('active'); }
-
-    handleDetailAction(action) {
-        if (action === 'edit') this.editReservation(this.currentReservationId);
-        else if (action === 'finalize') this.finalizeReservation(this.currentReservationId);
-        else if (action === 'whatsapp') this.shareReceipt(this.currentReservationId);
-    }
-
-    async finalizeReservation(id) {
-        const res = await db.getReservationById(id);
-        const today = new Date().toISOString().split('T')[0];
-        let infoMessage = 'Deseja finalizar esta reserva?';
-        let updatedRes = { ...res };
-
-        // Lógica de Encerramento Antecipado
-        if (today < res.checkout_date && today >= res.checkin_date) {
-            const d1 = new Date(res.checkin_date + 'T00:00:00');
-            const d2 = new Date(today + 'T00:00:00');
-            const actualDays = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
-            const newValue = (actualDays * res.daily_rate) + (res.transport_service ? res.transport_value : 0) + (res.bath_service ? res.bath_value : 0);
-            
-            infoMessage = `ENCERRAMENTO ANTECIPADO DETECTADO!\n\n` +
-                          `Original: ${res.total_days} dias (${this.formatCurrency(res.total_value)})\n` +
-                          `Realizado: ${actualDays} dias\n` +
-                          `Novo Total: ${this.formatCurrency(newValue)}\n\n` +
-                          `Confirmar desconto e finalizar?`;
-            
-            updatedRes.total_days = actualDays;
-            updatedRes.checkout_date = today;
-            updatedRes.total_value = newValue;
-        }
-
-        if (confirm(infoMessage)) {
-            window.hotelPetApp.showLoading();
-            updatedRes.status = 'FINALIZADA';
-            try {
-                await db.updateReservation(id, updatedRes);
-                await db.addAnimalHistory({
-                    animal_id: res.animal_id,
-                    type: 'HOSPEDAGEM',
-                    date: today,
-                    description: `Reserva finalizada. Dias: ${updatedRes.total_days}. Valor: ${this.formatCurrency(updatedRes.total_value)}.`
-                });
-                window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
-                this.closeDetailModal();
-                await this.loadReservations();
-                if (window.kennelVisualization) window.kennelVisualization.refresh();
-            } catch(e) {
-                window.hotelPetApp.showNotification('Erro ao finalizar.', 'error');
-            } finally {
-                window.hotelPetApp.hideLoading();
-            }
-        }
-    }
-
-    async shareReceipt(id) {
-        const res = await db.getReservationById(id);
-        if (!res) return;
-
-        // Abrir diálogo de impressão (Salvar PDF)
-        if (window.printReceipt) window.printReceipt(id);
-
-        const cleanPhone = res.tutor_phone ? res.tutor_phone.replace(/\D/g, '') : '';
-        const message = encodeURIComponent(
-            `*RECIBO - HOTEL PET CÁ*\n` +
-            `Aqui seu pet é bem cuidado.\n\n` +
-            `🐾 *Pet:* ${res.animal_name}\n` +
-            `👤 *Tutor:* ${res.tutor_name}\n` +
-            `🏠 *Alojamento:* ${res.accommodation_type} ${res.kennel_number}\n` +
-            `📅 *Período:* ${this.formatDate(res.checkin_date)} até ${this.formatDate(res.checkout_date)}\n` +
-            `⏳ *Dias:* ${res.total_days}\n` +
-            `💰 *Total:* ${this.formatCurrency(res.total_value)}\n` +
-            `💳 *Pgto:* ${res.payment_method}\n\n` +
-            `*Status:* ${res.status === 'FINALIZADA' ? '✅ PAGO' : '⏳ ATIVO'}`
-        );
-
-        if (cleanPhone) window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
-        else window.hotelPetApp.showNotification('Tutor sem telefone cadastrado.', 'info');
-    }
+    async finalizeReservation(id) { if (confirm('Finalizar?')) { await db.updateReservation(id, { status: 'FINALIZADA' }); await this.loadReservations(); } }
+    async shareReceipt(id) { const res = this.reservations.find(r => r.id == id); const text = encodeURIComponent(`Recibo Pet: ${res.animal_name}\nTotal: ${this.formatCurrency(res.total_value)}`); window.open(`https://wa.me/55${res.tutor_phone.replace(/\D/g,'')}?text=${text}`, '_blank'); }
+    openReservationModal() { this.currentReservationId = null; document.getElementById('reservation-form')?.reset(); this.loadAnimalsDropdown(); document.getElementById('reservation-modal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    formatDate(d) { return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR'); }
+    formatDateShort(d) { return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }); }
+    formatCurrency(v) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v); }
+    updateAvailability() { this.calculateTotalValue(); }
 }
 window.ReservationsManager = ReservationsManager;

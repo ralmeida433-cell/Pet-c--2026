@@ -42,7 +42,6 @@ class AnimalProfileManager {
         let daysToAdd = 365; // Padrão anual
 
         if (dose !== 'Reforço Anual') {
-            // Protocolo filhotes/iniciais
             if (vacName.includes('V8') || vacName.includes('V10') || vacName.includes('V11')) daysToAdd = 25;
             else if (vacName.includes('Gripe')) daysToAdd = 21;
             else if (vacName.includes('Giárdia')) daysToAdd = 21;
@@ -85,13 +84,22 @@ class AnimalProfileManager {
     renderProfile(animal, history) {
         const container = document.getElementById('animal-profile-content');
         if (!container) return;
+
+        const cleanPhone = animal.tutor_phone ? animal.tutor_phone.replace(/\D/g, '') : '';
+        const waUrl = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Olá ${animal.tutor_name}, estamos entrando em contato sobre o pet ${animal.name}.` : '#';
+
         container.innerHTML = `
             <div class="profile-header-card">
                 <div class="profile-photo-area"><img src="${animal.photo_url || ''}" class="profile-photo" onerror="this.style.display='none'"></div>
                 <div class="profile-info-main">
                     <h2>${animal.name}</h2>
                     <span class="species-tag ${animal.species.toLowerCase()}">${animal.species}</span>
-                    <div class="tutor-contact-info"><p>Tutor: <strong>${animal.tutor_name}</strong></p></div>
+                    <div class="tutor-contact-info">
+                        <p>Tutor: <strong>${animal.tutor_name}</strong></p>
+                        <a href="${waUrl}" target="_blank" class="btn btn-success btn-sm mt-2" style="background:#25d366; border:none; display:inline-flex; align-items:center; gap:8px;">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="profile-accordion-container">

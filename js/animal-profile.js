@@ -103,8 +103,8 @@ class AnimalProfileManager {
                 </div>
             </div>
             <div class="profile-accordion-container">
-                <div class="accordion-item expanded">
-                    <div class="accordion-header"><h3><i class="fas fa-syringe"></i> Vacinas e Reforços</h3><i class="fas fa-chevron-up accordion-icon"></i></div>
+                <div class="accordion-item">
+                    <div class="accordion-header"><h3><i class="fas fa-syringe"></i> Vacinas e Reforços</h3><i class="fas fa-chevron-down accordion-icon"></i></div>
                     <div class="accordion-content">
                         <button class="btn btn-primary btn-sm mb-3" id="add-history-btn"><i class="fas fa-plus"></i> Adicionar Registro</button>
                         <div class="history-list">${this.renderHistoryList(history, true)}</div>

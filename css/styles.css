@@ -786,6 +786,149 @@ body {
     color: var(--primary-color);
 }
 
+/* --- DASHBOARD RECENT RESERVATIONS LIST (ACCORDION) --- */
+.dashboard-res-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dashboard-res-item {
+    background: #f8fafc;
+    border-radius: 1rem;
+    border: 1px solid #eef2f6;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dashboard-res-item:hover {
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dashboard-res-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.res-pet-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.res-pet-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--primary-color);
+    background: white;
+}
+
+.res-pet-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.res-pet-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.res-pet-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.res-pet-text strong {
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.res-pet-text span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.res-status-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.status-pill.ativa { background: #dcfce7; color: #15803d; }
+.status-pill.finalizada { background: #e0e7ff; color: #4338ca; }
+
+.res-expand-icon {
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+}
+
+.dashboard-res-item.expanded .res-expand-icon {
+    transform: rotate(180deg);
+}
+
+.dashboard-res-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    padding: 0 1rem;
+}
+
+.dashboard-res-item.expanded .dashboard-res-details {
+    max-height: 300px;
+    padding: 1rem;
+    border-top: 1px dashed #eef2f6;
+}
+
+.res-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.res-detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.res-detail-row .label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.res-detail-row .value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.res-detail-row .value.highlight {
+    color: var(--success-color);
+    font-weight: 700;
+}
+
 /* Buttons Modernos */
 .btn {
     display: inline-flex;
@@ -2850,7 +2993,7 @@ table {
     font-size: 0.9rem;
 }
 
-.history-date {
+.history-details .history-date {
     font-size: 0.75rem;
     color: var(--text-secondary);
     display: block;

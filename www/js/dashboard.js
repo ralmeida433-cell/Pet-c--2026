@@ -20,6 +20,14 @@ class DashboardManager {
 
         this.bindStatCardEvents();
 
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.dashboard-res-header');
+            if (header) {
+                const item = header.parentElement;
+                item.classList.toggle('expanded');
+            }
+        });
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 this.refreshChartsOnVisible();
@@ -242,21 +250,52 @@ class DashboardManager {
     }
 
     renderRecentReservations(reservations) {
-        const tbody = document.querySelector('#recent-reservations-table tbody');
-        if (!tbody) return;
+        const container = document.getElementById('recent-reservations-list');
+        if (!container) return;
+        
         if (!Array.isArray(reservations) || reservations.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhuma reserva.</td></tr>';
+            container.innerHTML = '<p class="text-center text-secondary py-4">Nenhuma reserva recente.</p>';
             return;
         }
-        tbody.innerHTML = reservations.map(r => `
-            <tr>
-                <td><strong>${r.animal_name}</strong></td>
-                <td>${r.tutor_name}</td>
-                <td>${this.formatDate(r.checkin_date)}</td>
-                <td>${this.formatDate(r.checkout_date)}</td>
-                <td>${this.formatCurrency(r.total_value)}</td>
-                <td><span class="status-badge ${r.status.toLowerCase()}">${r.status}</span></td>
-            </tr>
+
+        container.innerHTML = reservations.map(r => `
+            <div class="dashboard-res-item">
+                <div class="dashboard-res-header">
+                    <div class="res-pet-info">
+                        <div class="res-pet-avatar">
+                            <img src="${r.photo_url || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="res-pet-fallback" style="display: none;"><i class="fas fa-paw"></i></div>
+                        </div>
+                        <div class="res-pet-text">
+                            <strong>${r.animal_name}</strong>
+                            <span>${this.formatDate(r.checkin_date)}</span>
+                        </div>
+                    </div>
+                    <div class="res-status-group">
+                        <span class="status-pill ${r.status.toLowerCase()}">${r.status}</span>
+                        <i class="fas fa-chevron-down res-expand-icon"></i>
+                    </div>
+                </div>
+                <div class="dashboard-res-details">
+                    <div class="res-detail-grid">
+                        <div class="res-detail-row">
+                            <span class="label">Tutor:</span>
+                            <span class="value">${r.tutor_name}</span>
+                        </div>
+                        <div class="res-detail-row">
+                            <span class="label">Check-out:</span>
+                            <span class="value">${this.formatDate(r.checkout_date)}</span>
+                        </div>
+                        <div class="res-detail-row">
+                            <span class="label">Total:</span>
+                            <span class="value highlight">${this.formatCurrency(r.total_value)}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm w-100 mt-2" onclick="window.hotelPetApp.navigateToSection('reservations')">
+                        <i class="fas fa-external-link-alt"></i> Ver Detalhes
+                    </button>
+                </div>
+            </div>
         `).join('');
     }
 

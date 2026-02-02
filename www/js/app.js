@@ -39,6 +39,8 @@ class HotelPetApp {
             App.addListener('backButton', () => {
                 if (document.querySelectorAll('.modal.active').length > 0) {
                     this.closeAllModals();
+                } else if (this.isSidebarOpen()) {
+                    this.closeSidebar();
                 } else if (this.currentSection !== 'overview') {
                     this.navigateToSection('overview');
                 } else {
@@ -82,7 +84,35 @@ class HotelPetApp {
             }
         });
 
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sidebar-overlay')) {
+                this.closeSidebar();
+            }
+        });
+
         this.initFabMenu();
+    }
+
+    isSidebarOpen() {
+        return document.getElementById('sidebar')?.classList.contains('open');
+    }
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
     }
 
     closeAllModals() {
@@ -96,6 +126,10 @@ class HotelPetApp {
     async navigateToSection(sectionName, addToHistory = true) {
         if (!this.isInitialized) return;
         
+        if (window.innerWidth <= 1024) {
+            this.closeSidebar();
+        }
+
         document.querySelector('.menu-item.active')?.classList.remove('active');
         document.querySelector('.content-section.active')?.classList.remove('active');
 
@@ -106,15 +140,18 @@ class HotelPetApp {
         this.currentSection = sectionName;
         await this.loadSectionData(sectionName);
 
-        if (window.innerWidth <= 1024) {
-            document.getElementById('sidebar').classList.remove('open');
-            document.querySelector('.sidebar-overlay').classList.remove('active');
-        }
         window.scrollTo(0, 0);
 
         const mobileTitle = document.getElementById('mobile-page-title');
         if (mobileTitle) {
-            const titles = { overview: 'Visão Geral', dashboard: 'Dashboard', animals: 'Animais', reservations: 'Reservas', reports: 'Relatórios', 'animal-profile': 'Perfil do Pet' };
+            const titles = { 
+                overview: 'Visão Geral', 
+                dashboard: 'Dashboard', 
+                animals: 'Animais', 
+                reservations: 'Reservas', 
+                reports: 'Relatórios', 
+                'animal-profile': 'Perfil do Pet' 
+            };
             mobileTitle.textContent = titles[sectionName] || 'Hotel Pet CÁ';
         }
     }
@@ -125,12 +162,26 @@ class HotelPetApp {
 
     async loadSectionData(sectionName) {
         switch (sectionName) {
-            case 'overview': if (window.kennelVisualization) await window.kennelVisualization.refresh(); break;
-            case 'dashboard': if (window.dashboardManager) await window.dashboardManager.loadDashboard(); break;
-            case 'animals': if (window.animalsManager) await window.animalsManager.loadAnimals(); break;
-            case 'reservations': if (window.reservationsManager) { await window.reservationsManager.loadReservations(); await window.reservationsManager.loadAnimalsDropdown(); } break;
-            case 'reports': if (window.reportsManager) await window.reportsManager.loadReports(); break;
-            case 'animal-profile': break;
+            case 'overview': 
+                if (window.kennelVisualization) await window.kennelVisualization.refresh(); 
+                break;
+            case 'dashboard': 
+                if (window.dashboardManager) await window.dashboardManager.loadDashboard(); 
+                break;
+            case 'animals': 
+                if (window.animalsManager) await window.animalsManager.loadAnimals(); 
+                break;
+            case 'reservations': 
+                if (window.reservationsManager) { 
+                    await window.reservationsManager.loadReservations(); 
+                    await window.reservationsManager.loadAnimalsDropdown(); 
+                } 
+                break;
+            case 'reports': 
+                if (window.reportsManager) await window.reportsManager.loadReports(); 
+                break;
+            case 'animal-profile': 
+                break;
         }
     }
 
@@ -151,8 +202,15 @@ class HotelPetApp {
         }, duration);
     }
 
-    showLoading() { document.getElementById('loading').style.display = 'flex'; }
-    hideLoading() { document.getElementById('loading').style.display = 'none'; }
+    showLoading() { 
+        const loading = document.getElementById('loading');
+        if (loading) loading.style.display = 'flex'; 
+    }
+    
+    hideLoading() { 
+        const loading = document.getElementById('loading');
+        if (loading) loading.style.display = 'none'; 
+    }
     
     initFabMenu() {
         const fabMain = document.getElementById('fab-main');
@@ -163,5 +221,17 @@ class HotelPetApp {
     goBack() {}
     goForward() {}
 }
+
+window.toggleSidebar = function() {
+    window.hotelPetApp.toggleSidebar();
+};
+
+window.closeSidebar = function() {
+    window.hotelPetApp.closeSidebar();
+};
+
+window.navigateToSection = function(sectionName) { 
+    if (window.hotelPetApp) window.hotelPetApp.navigateToSection(sectionName); 
+};
 
 window.hotelPetApp = new HotelPetApp();

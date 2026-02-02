@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "build": "cp -r js/* www/js/ && cp -r css/* www/css/",
     "android:sync": "npx cap sync android",
     "android:copy": "npx cap copy android",
     "android:open": "npx cap open android",

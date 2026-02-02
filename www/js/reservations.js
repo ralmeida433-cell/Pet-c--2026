@@ -68,6 +68,7 @@ class ReservationsManager {
         document.getElementById('reservation-search')?.addEventListener('input', () => this.applyFilters());
         document.getElementById('status-filter')?.addEventListener('change', () => this.applyFilters());
         
+        // Novo evento para expandir/retrair o card de reserva
         document.addEventListener('click', (e) => {
             const header = e.target.closest('.reservation-card-header');
             if (header) {
@@ -209,6 +210,7 @@ class ReservationsManager {
         document.getElementById('bath-value').disabled = true;
         document.getElementById('total-value').value = this.formatCurrency(0);
         
+        // Verifica se o elemento existe antes de tentar acessar textContent
         const modalTitle = document.getElementById('reservation-modal-title');
         if (modalTitle) {
             modalTitle.textContent = 'Nova Reserva';
@@ -246,6 +248,7 @@ class ReservationsManager {
         document.getElementById('checkout-date').value = res.checkout_date;
         document.getElementById('payment-method').value = res.payment_method;
         
+        // Verifica se os elementos de serviço existem antes de acessar
         const transportService = document.getElementById('transport-service');
         const transportValue = document.getElementById('transport-value');
         const bathService = document.getElementById('bath-service');
@@ -282,6 +285,7 @@ class ReservationsManager {
         const checkoutDate = document.getElementById('checkout-date').value;
         const paymentMethod = document.getElementById('payment-method').value;
 
+        // Validação obrigatória
         if (!animalId || !accommodationType || !kennelNumber || !dailyRateStr || !checkinDate || !checkoutDate || !paymentMethod) {
             window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (*)', 'warning');
             return;
@@ -317,6 +321,12 @@ class ReservationsManager {
                 window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
             }
             
+            if (document.getElementById('whatsapp-receipt')?.checked) {
+                const reservations = await db.getReservations();
+                const targetRes = this.currentReservationId ? reservations.find(r => r.id == this.currentReservationId) : reservations[0];
+                if (targetRes) this.shareReceipt(targetRes.id);
+            }
+
             window.hotelPetApp.closeAllModals();
             await this.loadReservations();
             if (window.kennelVisualization) window.kennelVisualization.refresh();
@@ -328,6 +338,7 @@ class ReservationsManager {
     }
 
     applyFilters() {
+        // Usando optional chaining e nullish coalescing para evitar erros se os elementos não existirem
         const s = document.getElementById('reservation-search')?.value?.toLowerCase() || '';
         const status = document.getElementById('status-filter')?.value || '';
         const month = document.getElementById('month-filter')?.value || '';
@@ -347,6 +358,7 @@ class ReservationsManager {
         const container = document.querySelector('#reservations .table-container');
         if (!container) return;
         
+        // Substitui a tabela por um container de cards
         container.innerHTML = `<div id="reservations-list-cards" class="reservations-list-cards"></div>`;
         const listContainer = document.getElementById('reservations-list-cards');
         
@@ -414,6 +426,14 @@ class ReservationsManager {
         document.getElementById('detail-finalize-btn')?.addEventListener('click', () => this.handleDetailAction('finalize'));
     }
 
+    async openDetailModal(id) {
+        // Este modal de detalhes não será mais usado, pois a expansão é inline no card.
+        // Mantendo a função para compatibilidade, mas o renderReservationsList agora usa a expansão direta.
+        // Se o usuário clicar no card, ele expande/retrai.
+        const card = document.querySelector(`.reservation-card[data-reservation-id="${id}"]`);
+        if (card) card.classList.toggle('expanded');
+    }
+
     closeDetailModal() { document.getElementById('reservation-detail-modal')?.classList.remove('active'); }
 
     handleDetailAction(action) {
@@ -428,6 +448,7 @@ class ReservationsManager {
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
+        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');
@@ -472,6 +493,7 @@ class ReservationsManager {
         const res = await db.getReservationById(id);
         if (!res) return;
 
+        // Abrir diálogo de impressão (Salvar PDF)
         if (window.printReceipt) window.printReceipt(id);
 
         const cleanPhone = res.tutor_phone ? res.tutor_phone.replace(/\D/g, '') : '';

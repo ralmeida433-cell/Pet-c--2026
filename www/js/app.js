@@ -59,7 +59,7 @@ class HotelPetApp {
         window.reservationsManager = new ReservationsManager();
         window.dashboardManager = new DashboardManager();
         window.reportsManager = new ReportsManager();
-        window.animalProfileManager = new AnimalProfileManager(); 
+        window.animalProfileManager = new AnimalProfileManager(); // NOVO MANAGER
 
         if (typeof KennelVisualization !== 'undefined') {
             window.kennelVisualization = new KennelVisualization();
@@ -68,16 +68,19 @@ class HotelPetApp {
         // Chamamos o init de cada um para bindar eventos do DOM
         window.animalsManager.init();
         window.reservationsManager.init();
-        window.animalProfileManager.init(); 
+        window.animalProfileManager.init(); // Inicializa o novo manager
+        // Dashboard, Reports e Inventory gerenciam seus inits internamente ou via DOM
     }
 
     bindGlobalEvents() {
+        // CORREÇÃO: Listener Global para botões de fechar "X"
         document.addEventListener('click', (e) => {
             if (e.target.closest('.close-modal')) {
                 this.closeAllModals();
             }
         });
 
+        // Fechar modal ao clicar no fundo escuro
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 this.closeAllModals();

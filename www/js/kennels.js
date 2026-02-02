@@ -46,6 +46,7 @@ class KennelVisualization {
                             entrada: reserva.checkin_date,
                             saida: reserva.checkout_date,
                             tipo_animal: reserva.animal_species || 'CÃO',
+                            animal_id: reserva.animal_id // Adicionando ID do animal
                         });
                     });
                 }
@@ -146,9 +147,13 @@ class KennelVisualization {
         const isOcupado = !!ocupacao;
         const statusClass = isOcupado ? 'ocupado' : 'disponivel';
         const tipoClass = canil.type.toLowerCase();
+        
+        const clickAction = isOcupado 
+            ? `kennelVisualization.viewAnimalProfile(${ocupacao.animal_id})` 
+            : `kennelVisualization.reservarCanil('${canilId}')`;
 
         return `
-            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}">
+            <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}" onclick="${clickAction}">
                 <div class="kennel-roof"></div>
                 <div class="kennel-header">
                     <span class="kennel-number">${canil.number}</span>
@@ -168,7 +173,7 @@ class KennelVisualization {
                             <div class="tutor-info">${ocupacao.tutor}</div>
                         </div>
                     ` : `
-                        <button class="btn-reservar-icon" onclick="kennelVisualization.reservarCanil('${canilId}')">
+                        <button class="btn-reservar-icon" onclick="event.stopPropagation(); kennelVisualization.reservarCanil('${canilId}')">
                             <i class="fas fa-plus"></i>
                         </button>
                     `}
@@ -222,6 +227,13 @@ class KennelVisualization {
                     window.reservationsManager.openReservationModal({ tipo, numero });
                 }
             }, 500);
+        }
+    }
+    
+    viewAnimalProfile(animalId) {
+        if (window.hotelPetApp && window.animalProfileManager) {
+            window.hotelPetApp.navigateToSection('animal-profile');
+            window.animalProfileManager.loadProfile(animalId);
         }
     }
 

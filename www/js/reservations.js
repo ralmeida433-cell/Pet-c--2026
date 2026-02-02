@@ -67,6 +67,14 @@ class ReservationsManager {
 
         document.getElementById('reservation-search')?.addEventListener('input', () => this.applyFilters());
         document.getElementById('status-filter')?.addEventListener('change', () => this.applyFilters());
+        
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.reservation-card-header');
+            if (header) {
+                const card = header.closest('.reservation-card');
+                card.classList.toggle('expanded');
+            }
+        });
     }
 
     updateAvailability() {
@@ -201,7 +209,6 @@ class ReservationsManager {
         document.getElementById('bath-value').disabled = true;
         document.getElementById('total-value').value = this.formatCurrency(0);
         
-        // Verifica se o elemento existe antes de tentar acessar textContent
         const modalTitle = document.getElementById('reservation-modal-title');
         if (modalTitle) {
             modalTitle.textContent = 'Nova Reserva';
@@ -239,7 +246,6 @@ class ReservationsManager {
         document.getElementById('checkout-date').value = res.checkout_date;
         document.getElementById('payment-method').value = res.payment_method;
         
-        // Verifica se os elementos de serviço existem antes de acessar
         const transportService = document.getElementById('transport-service');
         const transportValue = document.getElementById('transport-value');
         const bathService = document.getElementById('bath-service');
@@ -276,7 +282,6 @@ class ReservationsManager {
         const checkoutDate = document.getElementById('checkout-date').value;
         const paymentMethod = document.getElementById('payment-method').value;
 
-        // Validação obrigatória
         if (!animalId || !accommodationType || !kennelNumber || !dailyRateStr || !checkinDate || !checkoutDate || !paymentMethod) {
             window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (*)', 'warning');
             return;
@@ -312,12 +317,6 @@ class ReservationsManager {
                 window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
             }
             
-            if (document.getElementById('whatsapp-receipt')?.checked) {
-                const reservations = await db.getReservations();
-                const targetRes = this.currentReservationId ? reservations.find(r => r.id == this.currentReservationId) : reservations[0];
-                if (targetRes) this.shareReceipt(targetRes.id);
-            }
-
             window.hotelPetApp.closeAllModals();
             await this.loadReservations();
             if (window.kennelVisualization) window.kennelVisualization.refresh();
@@ -329,7 +328,6 @@ class ReservationsManager {
     }
 
     applyFilters() {
-        // Usando optional chaining e nullish coalescing para evitar erros se os elementos não existirem
         const s = document.getElementById('reservation-search')?.value?.toLowerCase() || '';
         const status = document.getElementById('status-filter')?.value || '';
         const month = document.getElementById('month-filter')?.value || '';
@@ -348,22 +346,48 @@ class ReservationsManager {
     renderReservationsList(data) {
         const container = document.querySelector('#reservations .table-container');
         if (!container) return;
+        
         container.innerHTML = `<div id="reservations-list-cards" class="reservations-list-cards"></div>`;
         const listContainer = document.getElementById('reservations-list-cards');
-        if (data.length === 0) { listContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhuma reserva encontrada.</p>'; return; }
+        
+        if (data.length === 0) { 
+            listContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhuma reserva encontrada.</p>'; 
+            return; 
+        }
+        
         listContainer.innerHTML = data.map(r => `
-            <div class="reservation-card" onclick="window.reservationsManager.openDetailModal(${r.id})">
-                <div class="card-header">
-                    <div class="animal-info-summary">
-                        <div class="animal-thumb"><img src="${r.photo_url || ''}" onerror="this.style.display='none'"></div>
-                        <div class="text-info"><strong class="animal-name">${r.animal_name}</strong><span class="tutor-name">Tutor: ${r.tutor_name}</span></div>
+            <div class="reservation-card ${r.status.toLowerCase()}">
+                <div class="reservation-card-header">
+                    <div class="res-pet-info">
+                        <div class="res-pet-avatar">
+                            <img src="${r.photo_url || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="res-pet-fallback" style="display: none;"><i class="fas fa-paw"></i></div>
+                        </div>
+                        <div class="res-pet-text">
+                            <strong>${r.animal_name}</strong>
+                            <span class="tutor-name">Tutor: ${r.tutor_name}</span>
+                        </div>
                     </div>
-                    <div class="status-and-actions"><span class="status-badge ${r.status.toLowerCase()}">${r.status}</span></div>
+                    <div class="res-status-group">
+                        <span class="status-badge ${r.status.toLowerCase()}">${r.status}</span>
+                        <i class="fas fa-chevron-down res-expand-icon"></i>
+                    </div>
                 </div>
-                <div class="card-details">
-                    <div class="detail-item"><i class="fas fa-home"></i><span>${r.accommodation_type} ${r.kennel_number}</span></div>
-                    <div class="detail-item"><i class="fas fa-calendar-alt"></i><span>${this.formatDate(r.checkin_date)} - ${this.formatDate(r.checkout_date)}</span></div>
-                    <div class="detail-item"><i class="fas fa-dollar-sign"></i><strong>${this.formatCurrency(r.total_value)}</strong></div>
+                <div class="reservation-card-details">
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="label"><i class="fas fa-home"></i> Alojamento:</span><span class="value">${r.accommodation_type} ${r.kennel_number}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-calendar-alt"></i> Check-in:</span><span class="value">${this.formatDate(r.checkin_date)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-calendar-alt"></i> Check-out:</span><span class="value">${this.formatDate(r.checkout_date)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-clock"></i> Diárias:</span><span class="value">${r.total_days}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-money-bill-wave"></i> Diária:</span><span class="value">${this.formatCurrency(r.daily_rate)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-credit-card"></i> Pagamento:</span><span class="value">${r.payment_method}</span></div>
+                        <div class="detail-item total-row"><span class="label">TOTAL:</span><span class="value highlight">${this.formatCurrency(r.total_value)}</span></div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); window.reservationsManager.editReservation(${r.id})"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); window.reservationsManager.shareReceipt(${r.id})"><i class="fab fa-whatsapp"></i> Recibo</button>
+                        ${r.status === 'ATIVA' ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); window.reservationsManager.finalizeReservation(${r.id})"><i class="fas fa-check-circle"></i> Finalizar</button>` : ''}
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -390,30 +414,6 @@ class ReservationsManager {
         document.getElementById('detail-finalize-btn')?.addEventListener('click', () => this.handleDetailAction('finalize'));
     }
 
-    async openDetailModal(id) {
-        const res = await db.getReservationById(id);
-        if (!res) return;
-        this.currentReservationId = id;
-        const content = document.getElementById('detail-content');
-        content.innerHTML = `
-            <div class="detail-profile-summary">
-                <div class="detail-photo-area"><img src="${res.photo_url || ''}" class="detail-photo" onerror="this.style.display='none'"></div>
-                <div class="detail-info-main"><h3>${res.animal_name}</h3><p>Tutor: <strong>${res.tutor_name}</strong></p><span class="status-badge ${res.status.toLowerCase()}">${res.status}</span></div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-item"><span class="label">Entrada:</span><span class="value">${this.formatDate(res.checkin_date)}</span></div>
-                <div class="detail-item"><span class="label">Saída Prevista:</span><span class="value">${this.formatDate(res.checkout_date)}</span></div>
-                <div class="detail-item"><span class="label">Diárias:</span><span class="value">${res.total_days}</span></div>
-                <div class="detail-item"><span class="label">Alojamento:</span><span class="value">${res.accommodation_type} ${res.kennel_number}</span></div>
-                <div class="detail-item"><span class="label">Diária:</span><span class="value">${this.formatCurrency(res.daily_rate)}</span></div>
-                <div class="detail-item"><span class="label">Pagamento:</span><span class="value">${res.payment_method}</span></div>
-            </div>
-            <div class="detail-total"><span class="label">VALOR TOTAL:</span><span class="value">${this.formatCurrency(res.total_value)}</span></div>
-        `;
-        document.getElementById('detail-finalize-btn').style.display = res.status === 'ATIVA' ? 'inline-flex' : 'none';
-        document.getElementById('reservation-detail-modal').classList.add('active');
-    }
-
     closeDetailModal() { document.getElementById('reservation-detail-modal')?.classList.remove('active'); }
 
     handleDetailAction(action) {
@@ -428,7 +428,6 @@ class ReservationsManager {
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
-        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');
@@ -473,7 +472,6 @@ class ReservationsManager {
         const res = await db.getReservationById(id);
         if (!res) return;
 
-        // Abrir diálogo de impressão (Salvar PDF)
         if (window.printReceipt) window.printReceipt(id);
 
         const cleanPhone = res.tutor_phone ? res.tutor_phone.replace(/\D/g, '') : '';

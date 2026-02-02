@@ -67,6 +67,15 @@ class ReservationsManager {
 
         document.getElementById('reservation-search')?.addEventListener('input', () => this.applyFilters());
         document.getElementById('status-filter')?.addEventListener('change', () => this.applyFilters());
+        
+        // Novo evento para expandir/retrair o card de reserva
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.reservation-card-header');
+            if (header) {
+                const card = header.closest('.reservation-card');
+                card.classList.toggle('expanded');
+            }
+        });
     }
 
     updateAvailability() {
@@ -348,22 +357,49 @@ class ReservationsManager {
     renderReservationsList(data) {
         const container = document.querySelector('#reservations .table-container');
         if (!container) return;
+        
+        // Substitui a tabela por um container de cards
         container.innerHTML = `<div id="reservations-list-cards" class="reservations-list-cards"></div>`;
         const listContainer = document.getElementById('reservations-list-cards');
-        if (data.length === 0) { listContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhuma reserva encontrada.</p>'; return; }
+        
+        if (data.length === 0) { 
+            listContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:#64748b;">Nenhuma reserva encontrada.</p>'; 
+            return; 
+        }
+        
         listContainer.innerHTML = data.map(r => `
-            <div class="reservation-card" onclick="window.reservationsManager.openDetailModal(${r.id})">
-                <div class="card-header">
-                    <div class="animal-info-summary">
-                        <div class="animal-thumb"><img src="${r.photo_url || ''}" onerror="this.style.display='none'"></div>
-                        <div class="text-info"><strong class="animal-name">${r.animal_name}</strong><span class="tutor-name">Tutor: ${r.tutor_name}</span></div>
+            <div class="reservation-card ${r.status.toLowerCase()}">
+                <div class="reservation-card-header">
+                    <div class="res-pet-info">
+                        <div class="res-pet-avatar">
+                            <img src="${r.photo_url || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="res-pet-fallback" style="display: none;"><i class="fas fa-paw"></i></div>
+                        </div>
+                        <div class="res-pet-text">
+                            <strong>${r.animal_name}</strong>
+                            <span class="tutor-name">Tutor: ${r.tutor_name}</span>
+                        </div>
                     </div>
-                    <div class="status-and-actions"><span class="status-badge ${r.status.toLowerCase()}">${r.status}</span></div>
+                    <div class="res-status-group">
+                        <span class="status-badge ${r.status.toLowerCase()}">${r.status}</span>
+                        <i class="fas fa-chevron-down res-expand-icon"></i>
+                    </div>
                 </div>
-                <div class="card-details">
-                    <div class="detail-item"><i class="fas fa-home"></i><span>${r.accommodation_type} ${r.kennel_number}</span></div>
-                    <div class="detail-item"><i class="fas fa-calendar-alt"></i><span>${this.formatDate(r.checkin_date)} - ${this.formatDate(r.checkout_date)}</span></div>
-                    <div class="detail-item"><i class="fas fa-dollar-sign"></i><strong>${this.formatCurrency(r.total_value)}</strong></div>
+                <div class="reservation-card-details">
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="label"><i class="fas fa-home"></i> Alojamento:</span><span class="value">${r.accommodation_type} ${r.kennel_number}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-calendar-alt"></i> Check-in:</span><span class="value">${this.formatDate(r.checkin_date)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-calendar-alt"></i> Check-out:</span><span class="value">${this.formatDate(r.checkout_date)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-clock"></i> Diárias:</span><span class="value">${r.total_days}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-money-bill-wave"></i> Diária:</span><span class="value">${this.formatCurrency(r.daily_rate)}</span></div>
+                        <div class="detail-item"><span class="label"><i class="fas fa-credit-card"></i> Pagamento:</span><span class="value">${r.payment_method}</span></div>
+                        <div class="detail-item total-row"><span class="label">TOTAL:</span><span class="value highlight">${this.formatCurrency(r.total_value)}</span></div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); window.reservationsManager.editReservation(${r.id})"><i class="fas fa-pen"></i> Editar</button>
+                        <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); window.reservationsManager.shareReceipt(${r.id})"><i class="fab fa-whatsapp"></i> Recibo</button>
+                        ${r.status === 'ATIVA' ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); window.reservationsManager.finalizeReservation(${r.id})"><i class="fas fa-check-circle"></i> Finalizar</button>` : ''}
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -391,27 +427,11 @@ class ReservationsManager {
     }
 
     async openDetailModal(id) {
-        const res = await db.getReservationById(id);
-        if (!res) return;
-        this.currentReservationId = id;
-        const content = document.getElementById('detail-content');
-        content.innerHTML = `
-            <div class="detail-profile-summary">
-                <div class="detail-photo-area"><img src="${res.photo_url || ''}" class="detail-photo" onerror="this.style.display='none'"></div>
-                <div class="detail-info-main"><h3>${res.animal_name}</h3><p>Tutor: <strong>${res.tutor_name}</strong></p><span class="status-badge ${res.status.toLowerCase()}">${res.status}</span></div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-item"><span class="label">Entrada:</span><span class="value">${this.formatDate(res.checkin_date)}</span></div>
-                <div class="detail-item"><span class="label">Saída Prevista:</span><span class="value">${this.formatDate(res.checkout_date)}</span></div>
-                <div class="detail-item"><span class="label">Diárias:</span><span class="value">${res.total_days}</span></div>
-                <div class="detail-item"><span class="label">Alojamento:</span><span class="value">${res.accommodation_type} ${res.kennel_number}</span></div>
-                <div class="detail-item"><span class="label">Diária:</span><span class="value">${this.formatCurrency(res.daily_rate)}</span></div>
-                <div class="detail-item"><span class="label">Pagamento:</span><span class="value">${res.payment_method}</span></div>
-            </div>
-            <div class="detail-total"><span class="label">VALOR TOTAL:</span><span class="value">${this.formatCurrency(res.total_value)}</span></div>
-        `;
-        document.getElementById('detail-finalize-btn').style.display = res.status === 'ATIVA' ? 'inline-flex' : 'none';
-        document.getElementById('reservation-detail-modal').classList.add('active');
+        // Este modal de detalhes não será mais usado, pois a expansão é inline no card.
+        // Mantendo a função para compatibilidade, mas o renderReservationsList agora usa a expansão direta.
+        // Se o usuário clicar no card, ele expande/retrai.
+        const card = document.querySelector(`.reservation-card[data-reservation-id="${id}"]`);
+        if (card) card.classList.toggle('expanded');
     }
 
     closeDetailModal() { document.getElementById('reservation-detail-modal')?.classList.remove('active'); }

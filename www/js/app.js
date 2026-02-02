@@ -54,36 +54,28 @@ class HotelPetApp {
     }
 
     initializeManagers() {
-        // Criamos as instâncias e as tornamos globais
         window.animalsManager = new AnimalsManager();
         window.reservationsManager = new ReservationsManager();
         window.dashboardManager = new DashboardManager();
         window.reportsManager = new ReportsManager();
-        window.animalProfileManager = new AnimalProfileManager(); // NOVO MANAGER
+        window.animalProfileManager = new AnimalProfileManager();
 
-        if (typeof InventoryManager !== 'undefined') {
-            window.inventoryManager = new InventoryManager();
-        }
         if (typeof KennelVisualization !== 'undefined') {
             window.kennelVisualization = new KennelVisualization();
         }
 
-        // Chamamos o init de cada um para bindar eventos do DOM
         window.animalsManager.init();
         window.reservationsManager.init();
-        window.animalProfileManager.init(); // Inicializa o novo manager
-        // Dashboard, Reports e Inventory gerenciam seus inits internamente ou via DOM
+        window.animalProfileManager.init();
     }
 
     bindGlobalEvents() {
-        // CORREÇÃO: Listener Global para botões de fechar "X"
         document.addEventListener('click', (e) => {
             if (e.target.closest('.close-modal')) {
                 this.closeAllModals();
             }
         });
 
-        // Fechar modal ao clicar no fundo escuro
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 this.closeAllModals();
@@ -122,7 +114,7 @@ class HotelPetApp {
 
         const mobileTitle = document.getElementById('mobile-page-title');
         if (mobileTitle) {
-            const titles = { overview: 'Visão Geral', dashboard: 'Dashboard', animals: 'Animais', reservations: 'Reservas', inventory: 'Estoque', reports: 'Relatórios', 'animal-profile': 'Perfil do Pet' };
+            const titles = { overview: 'Visão Geral', dashboard: 'Dashboard', animals: 'Animais', reservations: 'Reservas', reports: 'Relatórios', 'animal-profile': 'Perfil do Pet' };
             mobileTitle.textContent = titles[sectionName] || 'Hotel Pet CÁ';
         }
     }
@@ -137,9 +129,8 @@ class HotelPetApp {
             case 'dashboard': if (window.dashboardManager) await window.dashboardManager.loadDashboard(); break;
             case 'animals': if (window.animalsManager) await window.animalsManager.loadAnimals(); break;
             case 'reservations': if (window.reservationsManager) { await window.reservationsManager.loadReservations(); await window.reservationsManager.loadAnimalsDropdown(); } break;
-            case 'inventory': if (window.inventoryManager) await window.inventoryManager.loadInventory(); break;
             case 'reports': if (window.reportsManager) await window.reportsManager.loadReports(); break;
-            case 'animal-profile': /* O carregamento é feito via animalProfileManager.loadProfile(id) */ break;
+            case 'animal-profile': break;
         }
     }
 

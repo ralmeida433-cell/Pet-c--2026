@@ -33,6 +33,14 @@
         width: 100% !important;
     }
 
+    /* CORREÇÃO: Garante que o sidebar no mobile tenha altura máxima e rolagem */
+    .sidebar {
+        height: calc(100vh - var(--safe-area-top)) !important; /* Altura total menos a área segura superior */
+        top: var(--safe-area-top) !important;
+        overflow-y: auto !important;
+        padding-bottom: var(--safe-area-bottom);
+    }
+
     /* AJUSTE DO PERFIL DO ANIMAL */
     .profile-header-card {
         flex-direction: column !important;
@@ -69,7 +77,7 @@
 
     .form-row {
         display: flex !important;
-        flex-direction: column !important;
+        flex-direction: column !important; /* Empilha Tipo e Data */
         gap: 0 !important;
     }
 
@@ -79,7 +87,7 @@
     }
 
     .form-actions {
-        flex-direction: column-reverse !important;
+        flex-direction: column-reverse !important; /* Botão principal em cima, cancelar embaixo */
         gap: 0.75rem !important;
     }
 

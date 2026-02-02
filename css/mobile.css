@@ -1,10 +1,10 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.2 - Ultra Compacta para Telas Pequenas */
+/* Versão 2.3 - Ultra Compacta e Ajuste de Perfil */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --header-height: 50px; /* Reduzido de 60px */
+    --header-height: 50px;
 }
 
 /* ===== MEDIA QUERY PRINCIPAL ===== */
@@ -19,97 +19,124 @@
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding: 0.4rem; /* Reduzido de 0.75rem */
-        overflow-x: hidden;
+        padding: 0.5rem;
     }
 
-    .content-section {
-        padding: 0.2rem 0;
-        width: 100%;
-    }
-
-    /* BARRA SUPERIOR MAIS FINA */
+    /* BARRA SUPERIOR COMPACTA */
     .mobile-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
         height: calc(var(--header-height) + var(--safe-area-top));
-        padding: var(--safe-area-top) 0.75rem 0 0.75rem;
-        background: white;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-        z-index: 900;
-        border-bottom: 1px solid #e2e8f0;
+        padding: var(--safe-area-top) 0.5rem 0 0.5rem;
     }
 
     .mobile-header-title {
-        font-size: 0.9rem;
-        font-weight: 700;
+        font-size: 0.85rem;
     }
 
-    .nav-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 0.7rem;
+    .page-header {
+        padding: 1rem 0.5rem !important;
+        margin-bottom: 1rem;
     }
 
-    /* GRIDS DE ESTATÍSTICAS DO DASHBOARD */
+    .page-header-content h1 {
+        font-size: 1.5rem !important;
+    }
+
+    /* AJUSTE DO PERFIL DO PET (SOLICITADO) */
+    .profile-header-card {
+        padding: 1rem !important;
+        gap: 1rem !important;
+        flex-direction: row !important; /* Mantém lado a lado mas menor */
+        align-items: center !important;
+        border-radius: 1rem !important;
+    }
+
+    .profile-photo-area {
+        width: 80px !important; /* Reduzido de 150px */
+        height: 80px !important;
+        border-width: 2px !important;
+    }
+
+    .profile-info-main h2 {
+        font-size: 1.4rem !important; /* Reduzido de 2.5rem */
+        margin-bottom: 0.2rem !important;
+    }
+
+    .species-tag {
+        font-size: 0.7rem !important;
+        padding: 2px 8px !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .tutor-contact-info p {
+        font-size: 0.8rem !important;
+        margin: 0 !important;
+    }
+
+    .wa-contact-btn {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.75rem !important;
+        margin-top: 0.5rem !important;
+        width: 100%;
+    }
+
+    /* ACORDEÕES E HISTÓRICO */
+    .accordion-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .accordion-header h3 {
+        font-size: 0.95rem !important;
+    }
+
+    .accordion-content {
+        padding: 0.75rem !important;
+    }
+
+    .history-entry {
+        padding: 0.75rem !important;
+        grid-template-columns: 30px 1fr auto !important;
+        gap: 0.5rem !important;
+    }
+
+    .history-type {
+        font-size: 0.8rem !important;
+    }
+
+    .history-description {
+        font-size: 0.75rem !important;
+    }
+
+    /* GRID DE DASHBOARD */
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.5rem !important; /* Espaçamento mínimo */
+        gap: 0.5rem !important;
     }
 
     .stat-card {
         padding: 0.75rem !important;
-        gap: 0.5rem !important;
         border-radius: 0.75rem !important;
-        flex-direction: row !important; /* Ícone ao lado do texto */
-        align-items: center !important;
-        text-align: left !important;
-    }
-
-    .stat-icon {
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        font-size: 1rem !important;
-        border-radius: 0.5rem !important;
     }
 
     .stat-info h3 {
-        font-size: 1.1rem !important; /* Fonte menor */
-        margin-bottom: 0 !important;
+        font-size: 1.2rem !important;
     }
 
-    .stat-info p {
-        font-size: 0.65rem !important;
-        line-height: 1 !important;
-    }
-
-    /* Tabelas em Cards Compactos */
+    /* TABELAS EM MODO CARD */
     table tr {
         padding: 0.75rem !important;
-        border-radius: 0.75rem !important;
         margin-bottom: 0.75rem !important;
     }
 
     table td {
         padding: 0.4rem 0 !important;
-        font-size: 0.85rem !important;
-    }
-    
-    table td::before {
-        font-size: 0.7rem !important;
+        font-size: 0.8rem !important;
     }
 
-    /* Botão Flutuante Menor */
+    /* BOTÃO FLUTUANTE */
     .fab-main {
         width: 50px !important;
         height: 50px !important;
-        bottom: 1rem !important;
+        bottom: 1.5rem !important;
         right: 1rem !important;
     }
 }

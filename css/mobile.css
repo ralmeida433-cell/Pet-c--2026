@@ -25,6 +25,7 @@
         margin-left: 0 !important;
         width: 100% !important;
         padding: 0.5rem !important;
+        padding-bottom: 120px !important; /* Aumentado para não cortar no final da rolagem */
         overflow-x: hidden;
     }
 
@@ -69,7 +70,7 @@
 
     .form-row {
         display: flex !important;
-        flex-direction: column !important; /* Empilha Tipo e Data */
+        flex-direction: column !important;
         gap: 0 !important;
     }
 
@@ -79,7 +80,7 @@
     }
 
     .form-actions {
-        flex-direction: column-reverse !important; /* Botão principal em cima, cancelar embaixo */
+        flex-direction: column-reverse !important;
         gap: 0.75rem !important;
     }
 

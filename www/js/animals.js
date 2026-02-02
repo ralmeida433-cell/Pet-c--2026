@@ -10,7 +10,6 @@ class AnimalsManager {
     }
 
     bindEvents() {
-        // Máscara de Telefone Automática
         const phoneInput = document.getElementById('tutor-phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', (e) => {

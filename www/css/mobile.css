@@ -1,133 +1,127 @@
-/* ===== CSS RESPONSIVO PARA MOBILE UI/UX - HOTEL PET CÁ ===== */
-/* Versão 3.0 - Design Minimalista & Espaçamento Premium */
+/* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
+/* Versão 2.5 - Ultra Minimalista e Correção de Layout */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --header-height: 60px;
+    --header-height: 50px;
 }
 
 @media screen and (max-width: 1024px) {
     body { 
         padding-top: calc(var(--header-height) + var(--safe-area-top)); 
-        background-color: #fcfcfd; 
+        overflow-x: hidden;
     }
+    
     .main-content { 
-        margin-left: 0 !important; 
-        padding: 1rem !important; 
-        width: 100%;
+        margin-left: 0; 
+        padding: 0.5rem; 
+        width: 100vw;
     }
+
+    /* CABEÇALHO DE PÁGINA MINIMALISTA */
     .page-header {
-        padding: 1rem 0 !important;
-        margin-bottom: 1.5rem !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        display: flex !important;
+        padding: 0.75rem 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
+        border-bottom: 1px solid #f1f5f9 !important;
     }
+
     .page-header-content h1 {
-        font-size: 1.4rem !important;
-        font-weight: 800 !important;
-        color: #1a202c !important;
-        letter-spacing: -0.5px;
-    }
-    #add-animal-btn {
-        padding: 0.6rem 1.2rem !important;
-        font-size: 0.85rem !important;
-        border-radius: 2rem !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-    }
-    .filters-container {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 1rem !important;
-        margin-bottom: 2rem !important;
-    }
-    .search-box input {
-        height: 48px !important;
-        padding: 0 1rem 0 3rem !important;
-        font-size: 1rem !important;
-        border-radius: 12px !important;
-        border: 1.5px solid #e2e8f0 !important;
-        background: #fff !important;
-    }
-    .search-box i {
-        left: 1rem !important;
         font-size: 1.1rem !important;
-        color: #a0aec0 !important;
-    }
-    #kennel-filter {
-        height: 44px !important;
-        width: 100% !important;
-        border-radius: 12px !important;
-        border: 1.5px solid #e2e8f0 !important;
-        font-weight: 500 !important;
-    }
-    .animal-list-item {
-        background: #fff !important;
-        margin-bottom: 1rem !important;
-        padding: 1rem !important;
-        border-radius: 16px !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
-        border: 1px solid #f1f5f9 !important;
-    }
-    .animal-item-header {
-        display: grid !important;
-        grid-template-columns: 56px 1fr 85px !important;
-        align-items: center !important;
-        gap: 1rem !important;
-    }
-    .animal-thumb {
-        width: 56px !important;
-        height: 56px !important;
-        border-radius: 50% !important;
-        border: 2px solid #edf2f7 !important;
-        aspect-ratio: 1/1 !important;
-    }
-    .animal-thumb img {
-        width: 100% !important;
-        height: 100% !important;
-        border-radius: 50% !important;
-        object-fit: cover !important;
-    }
-    .animal-list-name {
-        font-size: 1.1rem !important;
+        margin: 0 !important;
         font-weight: 700 !important;
-        color: #1a202c !important;
     }
-    .animal-list-species {
-        font-size: 0.8rem !important;
-        color: #718096 !important;
+
+    .page-header-content p {
+        display: none;
     }
-    .animal-item-actions-summary {
-        display: flex !important;
+
+    .btn-primary.btn-sm, #add-animal-btn {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.75rem !important;
+        border-radius: 0.5rem !important;
+        height: fit-content !important;
+    }
+
+    /* BUSCA E FILTROS COMPACTOS */
+    .filters-container {
+        margin-bottom: 1rem !important;
         gap: 0.5rem !important;
     }
+
+    .search-box {
+        min-width: 150px !important;
+    }
+
+    .search-box input {
+        padding: 0.5rem 0.5rem 0.5rem 2rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 0.5rem !important;
+    }
+
+    /* CARDS DE ANIMAIS CORRIGIDOS */
+    .animal-list-item {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .animal-item-header {
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: 45px 1fr 80px !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .animal-thumb {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .animal-list-name {
+        font-size: 0.95rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+    }
+
+    .animal-list-species {
+        font-size: 0.7rem !important;
+    }
+
+    .animal-item-actions-summary {
+        display: flex !important;
+        gap: 0.4rem !important;
+        justify-content: flex-end !important;
+    }
+
     .animal-item-actions-summary .btn-sm {
-        width: 38px !important;
-        height: 38px !important;
-        border-radius: 10px !important;
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        font-size: 0.8rem !important;
+        border-radius: 0.4rem !important;
+        box-shadow: none !important;
     }
-    .animal-item-actions-summary .btn-danger {
-        color: #e53e3e !important;
-        background: #fff5f5 !important;
-        border-color: #feb2b2 !important;
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
     }
-    .animal-item-details {
-        display: none !important;
+
+    .stat-card {
+        padding: 0.75rem !important;
     }
-    .fab-main {
-        width: 60px !important;
-        height: 60px !important;
-        bottom: 1.5rem !important;
-        right: 1.5rem !important;
+
+    .stat-info h3 {
+        font-size: 1rem !important;
     }
 }

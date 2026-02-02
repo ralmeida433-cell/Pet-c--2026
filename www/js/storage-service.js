@@ -1,3 +1,4 @@
+// Serviço de Armazenamento Nativo - Hotel Pet CÁ
 const STORAGE_FOLDER = 'HotelPet_Data';
 const DB_FILENAME = 'database.sqlite';
 const PHOTOS_FOLDER = 'photos';
@@ -12,10 +13,22 @@ class StorageService {
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
             this.fs = window.Capacitor.Plugins.Filesystem;
             this.directory = window.Capacitor.Plugins.Filesystem.Directory.Data;
+
             try {
-                await this.fs.mkdir({ path: STORAGE_FOLDER, directory: this.directory, recursive: true });
-                await this.fs.mkdir({ path: `${STORAGE_FOLDER}/${PHOTOS_FOLDER}`, directory: this.directory, recursive: true });
-            } catch (e) {}
+                await this.fs.mkdir({
+                    path: STORAGE_FOLDER,
+                    directory: this.directory,
+                    recursive: true
+                });
+                await this.fs.mkdir({
+                    path: `${STORAGE_FOLDER}/${PHOTOS_FOLDER}`,
+                    directory: this.directory,
+                    recursive: true
+                });
+                console.log('✅ Estrutura de armazenamento persistente inicializada');
+            } catch (e) {
+                console.log('Pasta já existente ou erro de inicialização local:', e);
+            }
         }
     }
 
@@ -28,29 +41,52 @@ class StorageService {
                 data: base64Data,
                 directory: this.directory
             });
+            console.log('💾 Banco SQLite salvo no armazenamento interno do dispositivo');
             return true;
-        } catch (e) { return false; }
+        } catch (e) {
+            console.error('Erro ao gravar arquivo SQLite:', e);
+            return false;
+        }
     }
 
     async loadDatabase() {
         if (!this.fs) return null;
         try {
-            const result = await this.fs.readFile({ path: `${STORAGE_FOLDER}/${DB_FILENAME}`, directory: this.directory });
-            if (result && result.data) return this.base64ToUint8(result.data);
+            const result = await this.fs.readFile({
+                path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
+                directory: this.directory
+            });
+            return this.base64ToUint8(result.data);
+        } catch (e) {
+            console.log('Nenhum banco físico encontrado, iniciando limpo.');
             return null;
-        } catch (e) { return null; }
+        }
     }
 
     async saveImage(base64Data) {
         if (!this.fs || !base64Data.startsWith('data:image')) return base64Data;
+        
         try {
             const fileName = `pet_${Date.now()}.jpg`;
             const path = `${STORAGE_FOLDER}/${PHOTOS_FOLDER}/${fileName}`;
             const cleanData = base64Data.split(',')[1];
-            await this.fs.writeFile({ path: path, data: cleanData, directory: this.directory });
-            const uri = await this.fs.getUri({ path, directory: this.directory });
+
+            await this.fs.writeFile({
+                path: path,
+                data: cleanData,
+                directory: this.directory
+            });
+            
+            const uri = await this.fs.getUri({
+                path: path,
+                directory: this.directory
+            });
+            
             return window.Capacitor.convertFileSrc(uri.uri);
-        } catch (e) { return base64Data; }
+        } catch (e) {
+            console.error('Erro ao salvar imagem no disco:', e);
+            return base64Data;
+        }
     }
 
     uint8ToBase64(u8) {

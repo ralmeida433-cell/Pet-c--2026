@@ -12,22 +12,25 @@ class StorageService {
     async init() {
         if (window.Capacitor && window.Capacitor.isNativePlatform()) {
             this.fs = window.Capacitor.Plugins.Filesystem;
+            // Alterado de Documents para Data (App Private Storage) para evitar problemas de permissão no Android
             this.directory = window.Capacitor.Plugins.Filesystem.Directory.Data;
 
             try {
+                // Tenta criar a pasta raiz no diretório privado do aplicativo
                 await this.fs.mkdir({
                     path: STORAGE_FOLDER,
                     directory: this.directory,
                     recursive: true
                 });
+                // Cria pasta para fotos separada
                 await this.fs.mkdir({
                     path: `${STORAGE_FOLDER}/${PHOTOS_FOLDER}`,
                     directory: this.directory,
                     recursive: true
                 });
-                console.log('✅ Estrutura de armazenamento inicializada');
+                console.log('✅ Estrutura de armazenamento persistente inicializada');
             } catch (e) {
-                console.log('Pasta já existe');
+                console.log('Pasta já existente ou erro de inicialização local:', e);
             }
         }
     }
@@ -39,13 +42,13 @@ class StorageService {
             await this.fs.writeFile({
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
                 data: base64Data,
-                directory: this.directory
-                // Removido Encoding.UTF8 para Base64 puro
+                directory: this.directory,
+                encoding: window.Capacitor.Plugins.Filesystem.Encoding.UTF8 // Para garantir compatibilidade com base64 string
             });
-            console.log('💾 Banco salvo no dispositivo');
+            console.log('💾 Banco SQLite salvo no armazenamento interno do dispositivo');
             return true;
         } catch (e) {
-            console.error('Erro ao salvar banco:', e);
+            console.error('Erro ao gravar arquivo SQLite:', e);
             return false;
         }
     }
@@ -57,18 +60,16 @@ class StorageService {
                 path: `${STORAGE_FOLDER}/${DB_FILENAME}`,
                 directory: this.directory
             });
-            if (result && result.data) {
-                return this.base64ToUint8(result.data);
-            }
-            return null;
+            return this.base64ToUint8(result.data);
         } catch (e) {
-            console.log('Nenhum banco encontrado');
+            console.log('Nenhum banco físico encontrado, iniciando limpo.');
             return null;
         }
     }
 
     async saveImage(base64Data) {
         if (!this.fs || !base64Data.startsWith('data:image')) return base64Data;
+        
         try {
             const fileName = `pet_${Date.now()}.jpg`;
             const path = `${STORAGE_FOLDER}/${PHOTOS_FOLDER}/${fileName}`;
@@ -79,9 +80,15 @@ class StorageService {
                 data: cleanData,
                 directory: this.directory
             });
-            const uri = await this.fs.getUri({ path, directory: this.directory });
+            
+            const uri = await this.fs.getUri({
+                path: path,
+                directory: this.directory
+            });
+            
             return window.Capacitor.convertFileSrc(uri.uri);
         } catch (e) {
+            console.error('Erro ao salvar imagem no disco:', e);
             return base64Data;
         }
     }

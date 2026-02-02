@@ -1,116 +1,51 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.8 - Correção de Overflow em Modais e Layout de Formulários */
-
-:root {
-    --safe-area-top: env(safe-area-inset-top, 0px);
-    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --header-height: 50px;
-}
 
 @media screen and (max-width: 1024px) {
-    * {
-        max-width: 100%;
-        box-sizing: border-box !important;
-        overflow-wrap: break-word;
-    }
-
-    body {
-        padding-top: calc(var(--header-height) + var(--safe-area-top));
-        overflow-x: hidden;
-        width: 100%;
-        position: relative;
-    }
-
-    .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-        padding: 0.5rem !important;
-        overflow-x: hidden;
-    }
-
-    .content-section {
-        padding: 0.5rem !important;
-        width: 100% !important;
-    }
-
-    /* AJUSTE DO PERFIL DO ANIMAL */
     .profile-header-card {
-        flex-direction: column !important;
+        flex-direction: column;
         text-align: center;
-        padding: 1.5rem !important;
-        gap: 1rem !important;
-        width: 100% !important;
+        padding: 1.5rem;
     }
 
     .profile-photo-area {
-        width: 120px !important;
-        height: 120px !important;
-        margin: 0 auto;
+        width: 120px;
+        height: 120px;
     }
 
-    .profile-info-main h2 {
-        font-size: 1.8rem !important;
-        margin-bottom: 0.5rem;
-        word-break: break-all;
+    .profile-classic-grid {
+        grid-template-columns: 1fr;
     }
 
-    /* CORREÇÃO DE MODAIS E FORMULÁRIOS (BUG DE COMPRESSÃO) */
+    .vac-main {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .vac-dates {
+        text-align: right;
+    }
+
+    /* Ajuste para o Modal não transbordar */
     .modal-content {
-        width: 92% !important;
-        padding: 1rem !important;
-        margin: 10px auto !important;
-        max-height: 85vh !important;
-    }
-
-    .modal-header h3 {
-        font-size: 1.1rem !important;
-        max-width: 80%;
+        width: 94% !important;
+        max-width: 450px !important;
+        margin: 10px auto;
     }
 
     .form-row {
-        display: flex !important;
-        flex-direction: column !important; /* Empilha Tipo e Data */
-        gap: 0 !important;
-    }
-
-    .form-group {
-        width: 100% !important;
-        margin-bottom: 1rem !important;
-    }
-
-    .form-actions {
-        flex-direction: column-reverse !important; /* Botão principal em cima, cancelar embaixo */
-        gap: 0.75rem !important;
-    }
-
-    .form-actions .btn {
-        width: 100% !important;
-        justify-content: center !important;
-        padding: 0.8rem !important;
-    }
-
-    /* Ajustes Gerais de Grid */
-    .dashboard-grid, .kennels-stats {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 0.5rem !important;
-    }
-
-    .stat-card, .stat-item {
-        padding: 0.6rem !important;
-    }
-
-    .kennels-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
-        gap: 0.75rem !important;
+        grid-template-columns: 1fr !important;
+        gap: 0;
     }
 }
 
 @media screen and (max-width: 380px) {
-    .profile-info-main h2 {
-        font-size: 1.5rem !important;
+    .vac-main {
+        flex-direction: column;
+        text-align: left;
     }
     
-    .data-grid {
-        grid-template-columns: 1fr !important;
+    .vac-dates {
+        text-align: left;
+        margin-top: 5px;
     }
 }

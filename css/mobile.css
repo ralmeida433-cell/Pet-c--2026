@@ -1,5 +1,5 @@
 /* ===== CSS RESPONSIVO PARA MOBILE - HOTEL PET CÁ ===== */
-/* Versão 2.6 - Otimização de Gráficos e Transbordamento */
+/* Versão 2.7 - Correção de Overflow no Perfil e Ajustes de Viewport */
 
 :root {
     --safe-area-top: env(safe-area-inset-top, 0px);
@@ -11,6 +11,7 @@
     * {
         max-width: 100%;
         box-sizing: border-box !important;
+        overflow-wrap: break-word; /* Força quebra de palavras longas */
     }
 
     body {
@@ -32,49 +33,56 @@
         width: 100% !important;
     }
 
-    /* GRÁFICOS COMPACTOS */
-    .chart-wrapper {
-        height: 250px !important; /* Reduzido de 350px para caber melhor no mobile */
-    }
-
-    .chart-card {
-        padding: 1rem !important;
-        border-radius: 1rem !important;
-    }
-
-    .chart-card h3 {
-        font-size: 1rem !important;
-        margin-bottom: 0.75rem !important;
-    }
-
-    /* BARRA SUPERIOR COMPACTA */
-    .mobile-header {
-        height: calc(var(--header-height) + var(--safe-area-top));
-        padding: var(--safe-area-top) 0.5rem 0 0.5rem;
-    }
-
-    .page-header {
-        padding: 1rem !important;
-        margin-bottom: 0.75rem !important;
-        border-radius: 0.75rem !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
+    /* AJUSTE DO PERFIL DO ANIMAL (CORREÇÃO DE OVERFLOW) */
+    .profile-header-card {
+        flex-direction: column !important; /* Foto em cima, texto embaixo no mobile */
+        text-align: center;
+        padding: 1.5rem !important;
+        gap: 1rem !important;
         width: 100% !important;
     }
 
-    .page-header-content h1 {
-        font-size: 1.3rem !important;
+    .profile-photo-area {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 auto;
+    }
+
+    .profile-info-main h2 {
+        font-size: 1.8rem !important; /* Reduzindo título para caber */
+        margin-bottom: 0.5rem;
+        word-break: break-all;
+    }
+
+    .profile-info-main .species-tag {
+        margin: 0 auto 1rem auto;
+    }
+
+    .profile-info-main .tutor-contact-info p {
+        font-size: 0.9rem !important;
+    }
+
+    /* Ajuste de Accordion no Perfil */
+    .accordion-header {
+        padding: 1rem !important;
+    }
+
+    .accordion-header h3 {
+        font-size: 1rem !important;
+    }
+
+    /* AJUSTES GERAIS DE DASHBOARD */
+    .chart-wrapper {
+        height: 250px !important;
     }
 
     .dashboard-grid, .kennels-stats {
         grid-template-columns: 1fr 1fr !important;
         gap: 0.5rem !important;
-        width: 100% !important;
     }
 
     .stat-card, .stat-item {
         padding: 0.6rem !important;
-        gap: 0.5rem !important;
         flex-direction: row !important;
         align-items: center !important;
     }
@@ -90,16 +98,23 @@
         font-size: 1.1rem !important;
     }
 
-    .stat-info p {
-        font-size: 0.6rem !important;
-    }
-
-    .table-container {
-        width: 100% !important;
-    }
-
     .kennels-grid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
         gap: 0.75rem !important;
+    }
+}
+
+/* Ajustes extras para celulares muito pequenos (iPhone SE/antigos) */
+@media screen and (max-width: 380px) {
+    .profile-info-main h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .data-grid {
+        grid-template-columns: 1fr !important; /* Força uma coluna nos dados de saúde */
+    }
+    
+    .data-item.full-width {
+        grid-column: span 1;
     }
 }

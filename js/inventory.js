@@ -83,7 +83,6 @@ class InventoryManager {
     }
 
     bindEvents() {
-        // Usando encadeamento opcional para evitar erros se elementos não existirem
         document.getElementById('add-product-btn')?.addEventListener('click', () => this.openProductModal());
         document.getElementById('stock-report-btn')?.addEventListener('click', () => this.generateStockReport());
         document.getElementById('sell-product-btn')?.addEventListener('click', () => this.openSaleModal());
@@ -106,16 +105,32 @@ class InventoryManager {
             this.saveProduct();
         });
 
-        document.getElementById('sale-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.processSale();
-        });
-
         const debounceSearch = this.debounce(() => this.applyFilters(), 300);
         document.getElementById('product-search')?.addEventListener('input', debounceSearch);
         document.getElementById('category-filter')?.addEventListener('change', () => this.applyFilters());
         document.getElementById('animal-filter')?.addEventListener('change', () => this.applyFilters());
         document.getElementById('stock-status-filter')?.addEventListener('change', () => this.applyFilters());
+    }
+
+    // Função que estava faltando
+    generateStockReport() {
+        if (!this.products || this.products.length === 0) {
+            window.hotelPetApp.showNotification('Nenhum produto em estoque para gerar relatório.', 'info');
+            return;
+        }
+
+        const lowStock = this.products.filter(p => p.currentStock <= p.minStock);
+        const totalValue = this.products.reduce((acc, p) => acc + (p.salePrice * p.currentStock), 0);
+
+        const report = `RELATÓRIO DE ESTOQUE - HOTEL PET CÁ\n` +
+            `Total de Itens: ${this.products.length}\n` +
+            `Itens em Alerta: ${lowStock.length}\n` +
+            `Valor Total em Venda: R$ ${totalValue.toFixed(2)}\n\n` +
+            `Verifique o console do navegador para detalhes completos.`;
+
+        console.table(this.products);
+        window.hotelPetApp.showNotification('Relatório gerado no console do sistema.', 'success');
+        alert(report);
     }
 
     setupImageUpload() {
@@ -246,7 +261,6 @@ class InventoryManager {
     }
 
     async saveProduct() {
-        // Implementar salvamento via DB
         this.closeProductModal();
         await this.loadInventory();
     }

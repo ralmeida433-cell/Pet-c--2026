@@ -440,11 +440,11 @@
         </div>
     </div>
 
-    <!-- NOVO MODAL DE HISTÓRICO -->
+    <!-- NOVO MODAL DE HISTÓRICO ATUALIZADO COM VACINAÇÃO -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="history-modal-title">Adicionar Histórico de Serviço</h3>
+                <h3 id="history-modal-title">Adicionar Registro de Serviço</h3>
                 <button class="close-modal">&times;</button>
             </div>
             <form id="history-form">
@@ -457,6 +457,7 @@
                         <label for="history-type">Tipo de Serviço *</label>
                         <select id="history-type" required>
                             <option value="">Selecione</option>
+                            <option value="VACINAÇÃO">Vacinação 💉</option>
                             <option value="BANHO">Banho</option>
                             <option value="TOSA">Tosa</option>
                             <option value="VETERINÁRIO">Veterinário</option>
@@ -465,13 +466,62 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="history-date">Data *</label>
-                        <input type="date" id="history-date" required value="${new Date().toISOString().split('T')[0]}">
+                        <label for="history-date">Data da Aplicação *</label>
+                        <input type="date" id="history-date" required>
                     </div>
                 </div>
+
+                <!-- Campos Específicos de Vacinação (Ocultos por padrão) -->
+                <div id="vaccination-fields" style="display: none; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; background: #f8fafc;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Vacina *</label>
+                            <select id="vac-name">
+                                <option value="V8">V8</option>
+                                <option value="V10">V10</option>
+                                <option value="ANTIRRÁBICA">Antirrábica</option>
+                                <option value="GIÁRDIA">Giárdia</option>
+                                <option value="GRIPE">Gripe</option>
+                                <option value="LEISHMANIOSE">Leishmaniose</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dose *</label>
+                            <select id="vac-dose">
+                                <option value="1ª Dose">1ª Dose</option>
+                                <option value="2ª Dose">2ª Dose</option>
+                                <option value="3ª Dose">3ª Dose</option>
+                                <option value="Reforço Anual">Reforço Anual</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Lote</label><input type="text" id="vac-lote"></div>
+                        <div class="form-group"><label>Fabricante</label><input type="text" id="vac-lab"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Vet Responsável</label><input type="text" id="vac-vet"></div>
+                        <div class="form-group"><label>Peso (kg)</label><input type="number" id="vac-weight" step="0.1"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Próximo Reforço (Calculado)</label>
+                            <input type="date" id="vac-next-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
+                            <input type="number" id="vac-price" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reações Adversas (Se houver)</label>
+                        <textarea id="vac-reactions" rows="2"></textarea>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="history-description">Descrição Detalhada *</label>
-                    <textarea id="history-description" rows="4" required></textarea>
+                    <textarea id="history-description" rows="3" required></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button>
@@ -505,7 +555,7 @@
     <script src="js/inventory.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/features.js"></script>
-    <script src="js/animal-profile.js"></script> <!-- NOVO SCRIPT -->
+    <script src="js/animal-profile.js"></script>
     <script src="js/app.js"></script>
 
     <script>

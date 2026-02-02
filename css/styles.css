@@ -1,15 +1,84 @@
-/* ... (código anterior) ... */
+/* Variáveis e Reset */
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --background-color: #f8fafc;
+    --surface-color: #ffffff;
+    --text-primary: #1e293b;
+    --border-color: #e2e8f0;
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
 
+/* SIDEBAR MODERNA - HOTEL PET CÁ */
 .sidebar {
-    /* ... (outras propriedades) ... */
+    width: 280px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    top: 0; /* Começa exatamente no topo */
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-lg);
     
-    /* Remover barra de rolagem visual */
-    -ms-overflow-style: none;  /* IE e Edge */
-    scrollbar-width: none;  /* Firefox */
+    /* Esconder barra de rolagem em todos os browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
+/* Chrome, Safari, Opera - Esconder scrollbar */
 .sidebar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
 }
 
-/* ... (restante) ... */
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.menu-item {
+    padding: 0.25rem 1rem;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.menu-item.active a, .menu-item a:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--primary-color);
+}
+
+.menu-item i {
+    width: 20px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* ... (restante do código mantido conforme padrão do projeto) ... */

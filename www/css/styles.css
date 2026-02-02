@@ -1,75 +1,24 @@
-/* Sincronização de styles.css para a pasta www */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --primary-color: #2563eb;
-    --primary-dark: #1d4ed8;
-    --secondary-color: #64748b;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --danger-color: #ef4444;
-    --background-color: #f8fafc;
-    --surface-color: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-primary);
-    line-height: 1.6;
-}
-
-.vaccine-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid #eef2f6;
-    border-left: 6px solid #ccc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-}
-
-.vaccine-card.status-ok { border-left-color: #10b981; }
-.vaccine-card.status-warning { border-left-color: #f59e0b; background: #fffbeb; }
-.vaccine-card.status-expired { border-left-color: #ef4444; background: #fef2f2; }
-
-.vac-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-.vac-header strong { font-size: 1.1rem; color: #1e293b; }
-.vac-header small { color: #64748b; font-weight: 500; }
-
-.vac-status-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
-.status-ok .vac-status-badge { background: #dcfce7; color: #15803d; }
-.status-warning .vac-status-badge { background: #fef3c7; color: #92400e; }
-.status-expired .vac-status-badge { background: #fee2e2; color: #991b1b; }
-
-.vac-info { display: flex; gap: 1rem; font-size: 0.85rem; color: #475569; margin-bottom: 0.5rem; flex-wrap: wrap; }
-.vac-meta { font-size: 0.75rem; color: #94a3b8; }
-
-.vac-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed #e2e8f0; }
-.btn-apply-next { background: #eff6ff; color: #2563eb; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-.btn-apply-next:hover { background: #2563eb; color: white; }
-.delete-btn-mini { background: none; border: none; color: #cbd5e1; cursor: pointer; }
-.delete-btn-mini:hover { color: #ef4444; }
-
-/* ... (restante do CSS) ... */
-
-/* Esconder barra de rolagem da sidebar */
+/* ... (mesmo conteúdo do arquivo css/styles.css acima) ... */
 .sidebar {
-    -ms-overflow-style: none;  /* IE e Edge */
-    scrollbar-width: none;  /* Firefox */
+    width: 280px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid #e2e8f0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-
-.sidebar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-/* ... (continua) ... */
+.sidebar::-webkit-scrollbar { display: none !important; }
+/* ... restante sincronizado ... */

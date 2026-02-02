@@ -43,12 +43,12 @@ class AnimalProfileManager {
         if (!appDateVal || !vacName) return;
 
         let appDate = new Date(appDateVal + 'T12:00:00');
-        let daysToAdd = 365;
+        let daysToAdd = 365; // Padrão anual
 
         if (dose !== 'Reforço Anual') {
-            if (vacName === 'V8' || vacName === 'V10' || vacName === 'GRIPE' || vacName === 'GIÁRDIA') {
-                daysToAdd = 21;
-            }
+            if (vacName === 'V8' || vacName === 'V10') daysToAdd = 21;
+            if (vacName === 'GRIPE') daysToAdd = 21;
+            if (vacName === 'GIÁRDIA') daysToAdd = 21;
         }
 
         appDate.setDate(appDate.getDate() + daysToAdd);
@@ -62,11 +62,13 @@ class AnimalProfileManager {
         if (item.classList.contains('expanded')) {
             item.classList.remove('expanded');
             content.style.maxHeight = null;
-            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
         } else {
             item.classList.add('expanded');
             content.style.maxHeight = content.scrollHeight + "px";
-            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
         }
     }
 
@@ -96,23 +98,17 @@ class AnimalProfileManager {
                     <div class="tutor-contact-info"><p>Tutor: <strong>${animal.tutor_name}</strong></p></div>
                 </div>
             </div>
-            
-            <div class="profile-classic-grid">
-                <!-- Coluna de Vacinas (Reforços) -->
-                <div class="profile-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-syringe"></i> Vacinação & Reforços</h3>
-                        <button class="btn btn-primary btn-xs" id="add-history-btn"><i class="fas fa-plus"></i> Novo</button>
-                    </div>
-                    <div class="card-body">
-                        <div class="vaccine-list">${this.renderHistoryList(history, true)}</div>
+            <div class="profile-accordion-container">
+                <div class="accordion-item expanded">
+                    <div class="accordion-header"><h3><i class="fas fa-syringe"></i> Vacinação & Reforços</h3><i class="fas fa-chevron-up accordion-icon"></i></div>
+                    <div class="accordion-content">
+                        <button class="btn btn-primary btn-sm mb-3" id="add-history-btn"><i class="fas fa-plus"></i> Novo Registro</button>
+                        <div class="history-list">${this.renderHistoryList(history, true)}</div>
                     </div>
                 </div>
-
-                <!-- Coluna de Saúde e Outros -->
-                <div class="profile-card">
-                    <div class="card-header"><h3><i class="fas fa-history"></i> Outros Registros</h3></div>
-                    <div class="card-body">
+                <div class="accordion-item">
+                    <div class="accordion-header"><h3><i class="fas fa-history"></i> Outros Serviços</h3><i class="fas fa-chevron-down accordion-icon"></i></div>
+                    <div class="accordion-content">
                         <div class="history-list">${this.renderHistoryList(history, false)}</div>
                     </div>
                 </div>
@@ -122,19 +118,20 @@ class AnimalProfileManager {
 
     renderHistoryList(history, isVaccineOnly) {
         const items = history.filter(h => isVaccineOnly ? h.type === 'VACINAÇÃO' : h.type !== 'VACINAÇÃO');
-        if (items.length === 0) return '<p class="empty-msg">Nenhum registro.</p>';
+        if (items.length === 0) return '<p class="text-center text-secondary py-3">Nenhum registro.</p>';
 
         return items.sort((a, b) => new Date(b.date) - new Date(a.date)).map(entry => {
             if (entry.type === 'VACINAÇÃO') return this.renderVaccineCard(entry);
             
             return `
-            <div class="history-entry-classic">
-                <div class="entry-icon ${entry.type.toLowerCase()}"><i class="fas fa-${this.getHistoryIcon(entry.type)}"></i></div>
-                <div class="entry-details">
-                    <span class="entry-type">${entry.type} - ${new Date(entry.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
-                    <p class="entry-desc">${entry.description}</p>
+            <div class="history-entry">
+                <div class="history-icon ${entry.type.toLowerCase()}"><i class="fas fa-${this.getHistoryIcon(entry.type)}"></i></div>
+                <div class="history-details">
+                    <span class="history-type">${entry.type}</span>
+                    <span class="history-date">${new Date(entry.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                    <p class="history-description">${entry.description}</p>
                 </div>
-                <button class="entry-del" onclick="window.animalProfileManager.deleteHistoryEntry(${entry.id})">&times;</button>
+                <button class="action-btn delete-btn" onclick="window.animalProfileManager.deleteHistoryEntry(${entry.id})"><i class="fas fa-trash"></i></button>
             </div>`;
         }).join('');
     }
@@ -147,25 +144,35 @@ class AnimalProfileManager {
         const today = new Date();
         const diffDays = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));
         
-        let status = 'status-ok';
-        if (diffDays < 0) status = 'status-expired';
-        else if (diffDays <= 7) status = 'status-warning';
+        let statusClass = 'status-ok';
+        let statusText = 'Em dia';
+        if (diffDays < 0) { statusClass = 'status-expired'; statusText = 'Atrasada'; }
+        else if (diffDays <= 7) { statusClass = 'status-warning'; statusText = 'Vence em breve'; }
 
         return `
-        <div class="vaccine-item-card ${status}">
-            <div class="vac-main">
-                <div class="vac-info">
+        <div class="vaccine-card ${statusClass}">
+            <div class="vac-header">
+                <div class="vac-title">
                     <strong>${meta.name}</strong>
-                    <small>${meta.dose}</small>
+                    <span>${meta.dose}</span>
                 </div>
-                <div class="vac-dates">
-                    <span>Aplicada: ${new Date(entry.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
-                    <span class="next-date">Reforço: ${nextDate.toLocaleDateString('pt-BR')}</span>
+                <span class="vac-status-badge">${statusText}</span>
+            </div>
+            <div class="vac-body">
+                <div class="vac-info-row">
+                    <span><i class="fas fa-calendar-check"></i> Aplicada: ${new Date(entry.date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                    <span><i class="fas fa-redo"></i> Reforço: ${nextDate.toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div class="vac-info-row secondary">
+                    <span>Lote: ${meta.lote || '-'}</span>
+                    <span>Vet: ${meta.vet || '-'}</span>
                 </div>
             </div>
-            <div class="vac-footer">
-                <button class="btn-quick-vac" onclick="window.animalProfileManager.quickApplyNext('${meta.name}', '${meta.dose}')">Próxima Dose</button>
-                <button class="btn-del-vac" onclick="window.animalProfileManager.deleteHistoryEntry(${entry.id})"><i class="fas fa-trash"></i></button>
+            <div class="vac-actions">
+                <button class="btn-apply-next" onclick="window.animalProfileManager.quickApplyNext('${meta.name}', '${meta.dose}')">
+                    <i class="fas fa-syringe"></i> Aplicar Próxima Dose
+                </button>
+                <button class="vac-del-btn" onclick="window.animalProfileManager.deleteHistoryEntry(${entry.id})"><i class="fas fa-trash"></i></button>
             </div>
         </div>`;
     }
@@ -175,6 +182,7 @@ class AnimalProfileManager {
         document.getElementById('history-type').value = 'VACINAÇÃO';
         this.toggleVaccineFields('VACINAÇÃO');
         document.getElementById('vac-name').value = name;
+        
         const nextDoseMap = { '1ª Dose': '2ª Dose', '2ª Dose': '3ª Dose', '3ª Dose': 'Reforço Anual', 'Reforço Anual': 'Reforço Anual' };
         document.getElementById('vac-dose').value = nextDoseMap[lastDose] || 'Reforço Anual';
         this.autoCalculateBooster();

@@ -11,7 +11,6 @@ class ReservationsManager {
             'GATIL': { species: 'GATO' }
         };
         this.allKennels = [];
-        // Removido this.init() do constructor para evitar dupla inicialização (já chamado no app.js)
     }
 
     init() {
@@ -152,16 +151,16 @@ class ReservationsManager {
     }
 
     calculateTotalDays() {
-        const d1 = new Date(document.getElementById('checkin-date').value);
-        const d2 = new Date(document.getElementById('checkout-date').value);
+        const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
+        const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
         if (d1 && d2 && d2 > d1) {
             this.calculateTotalValue();
         }
     }
 
     calculateTotalValue() {
-        const d1 = new Date(document.getElementById('checkin-date').value);
-        const d2 = new Date(document.getElementById('checkout-date').value);
+        const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
+        const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
         const daily = parseFloat(document.getElementById('daily-rate')?.value) || 0;
         
         if (d1 && d2 && d2 > d1) {
@@ -272,8 +271,8 @@ class ReservationsManager {
             status: 'ATIVA'
         };
 
-        const d1 = new Date(data.checkin_date);
-        const d2 = new Date(data.checkout_date);
+        const d1 = new Date(data.checkin_date + 'T00:00:00');
+        const d2 = new Date(data.checkout_date + 'T00:00:00');
         data.total_days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
         data.total_value = (data.total_days * data.daily_rate) + data.transport_value + data.bath_value;
 
@@ -287,9 +286,7 @@ class ReservationsManager {
                 window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
             }
             
-            // Se o checkbox de WhatsApp estiver marcado, compartilha após salvar
             if (document.getElementById('whatsapp-receipt')?.checked) {
-                // Buscamos a reserva salva (se for nova, pegamos a mais recente)
                 const reservations = await db.getReservations();
                 const targetRes = this.currentReservationId ? reservations.find(r => r.id == this.currentReservationId) : reservations[0];
                 if (targetRes) this.shareReceipt(targetRes.id);
@@ -395,7 +392,6 @@ class ReservationsManager {
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
-        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');

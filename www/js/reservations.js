@@ -151,16 +151,16 @@ class ReservationsManager {
     }
 
     calculateTotalDays() {
-        const d1 = new Date(document.getElementById('checkin-date').value);
-        const d2 = new Date(document.getElementById('checkout-date').value);
+        const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
+        const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
         if (d1 && d2 && d2 > d1) {
             this.calculateTotalValue();
         }
     }
 
     calculateTotalValue() {
-        const d1 = new Date(document.getElementById('checkin-date').value);
-        const d2 = new Date(document.getElementById('checkout-date').value);
+        const d1 = new Date(document.getElementById('checkin-date').value + 'T00:00:00');
+        const d2 = new Date(document.getElementById('checkout-date').value + 'T00:00:00');
         const daily = parseFloat(document.getElementById('daily-rate')?.value) || 0;
         
         if (d1 && d2 && d2 > d1) {
@@ -250,6 +250,7 @@ class ReservationsManager {
         const checkoutDate = document.getElementById('checkout-date').value;
         const paymentMethod = document.getElementById('payment-method').value;
 
+        // Validação obrigatória
         if (!animalId || !accommodationType || !kennelNumber || !dailyRateStr || !checkinDate || !checkoutDate || !paymentMethod) {
             window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (*)', 'warning');
             return;
@@ -270,8 +271,8 @@ class ReservationsManager {
             status: 'ATIVA'
         };
 
-        const d1 = new Date(data.checkin_date);
-        const d2 = new Date(data.checkout_date);
+        const d1 = new Date(data.checkin_date + 'T00:00:00');
+        const d2 = new Date(data.checkout_date + 'T00:00:00');
         data.total_days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
         data.total_value = (data.total_days * data.daily_rate) + data.transport_value + data.bath_value;
 
@@ -282,7 +283,7 @@ class ReservationsManager {
                 window.hotelPetApp.showNotification('Reserva atualizada!', 'success');
             } else {
                 await db.addReservation(data);
-                window.hotelPetApp.showNotification('Reserva salva!', 'success');
+                window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
             }
             
             if (document.getElementById('whatsapp-receipt')?.checked) {
@@ -295,7 +296,7 @@ class ReservationsManager {
             await this.loadReservations();
             if (window.kennelVisualization) window.kennelVisualization.refresh();
         } catch (e) {
-            window.hotelPetApp.showNotification('Erro ao salvar.', 'error');
+            window.hotelPetApp.showNotification('Erro ao salvar: ' + e.message, 'error');
         } finally {
             window.hotelPetApp.hideLoading();
         }
@@ -391,6 +392,7 @@ class ReservationsManager {
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
+        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');
@@ -419,7 +421,7 @@ class ReservationsManager {
                     date: today,
                     description: `Reserva finalizada. Dias: ${updatedRes.total_days}. Valor: ${this.formatCurrency(updatedRes.total_value)}.`
                 });
-                window.hotelPetApp.showNotification('Reserva finalizada!', 'success');
+                window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
                 this.closeDetailModal();
                 await this.loadReservations();
                 if (window.kennelVisualization) window.kennelVisualization.refresh();
@@ -435,6 +437,7 @@ class ReservationsManager {
         const res = await db.getReservationById(id);
         if (!res) return;
 
+        // Abrir diálogo de impressão (Salvar PDF)
         if (window.printReceipt) window.printReceipt(id);
 
         const cleanPhone = res.tutor_phone ? res.tutor_phone.replace(/\D/g, '') : '';
@@ -452,7 +455,7 @@ class ReservationsManager {
         );
 
         if (cleanPhone) window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
-        else window.hotelPetApp.showNotification('Tutor sem telefone.', 'info');
+        else window.hotelPetApp.showNotification('Tutor sem telefone cadastrado.', 'info');
     }
 }
 window.ReservationsManager = ReservationsManager;

@@ -11,12 +11,14 @@ class ReservationsManager {
             'GATIL': { species: 'GATO' }
         };
         this.allKennels = [];
-        this.init();
+        // Removido this.init() do constructor para evitar dupla inicialização (já chamado no app.js)
     }
 
     init() {
+        if (this.isInitialized) return;
         this.bindEvents();
         this.createDetailModal();
+        this.isInitialized = true;
         console.log('Reservations Manager: Iniciado');
     }
 
@@ -25,7 +27,12 @@ class ReservationsManager {
         if (addBtn) addBtn.onclick = () => this.openReservationModal();
 
         const form = document.getElementById('reservation-form');
-        if (form) form.onsubmit = (e) => { e.preventDefault(); this.saveReservation(); };
+        if (form) {
+            form.onsubmit = (e) => { 
+                e.preventDefault(); 
+                this.saveReservation(); 
+            };
+        }
 
         document.getElementById('reservation-accommodation-type')?.addEventListener('change', (e) => {
             this.populateKennelNumbers(e.target.value);
@@ -89,8 +96,8 @@ class ReservationsManager {
             animals.map(a => `<option value="${a.id}" data-species="${a.species}">${a.name} (${a.tutor_name})</option>`).join('');
         
         select.onchange = (e) => {
-            const species = e.target.options[e.target.selectedIndex].dataset.species;
-            this.filterAccommodationBySpecies(species);
+            const species = e.target.options[e.target.selectedIndex]?.dataset.species;
+            if (species) this.filterAccommodationBySpecies(species);
         };
     }
 
@@ -133,7 +140,7 @@ class ReservationsManager {
             
             availableKennels.forEach(kennel => {
                 const isOccupied = occupiedNumbers.includes(kennel.number);
-                const isCurrent = currentKennel && kennel.number === currentKennel && kennel.type === accommodationType;
+                const isCurrent = currentKennel && kennel.number == currentKennel && kennel.type === accommodationType;
                 options += `<option value="${kennel.number}" ${isOccupied && !isCurrent ? 'disabled' : ''} ${isCurrent ? 'selected' : ''}>
                     ${accommodationType} ${kennel.number} ${isOccupied && !isCurrent ? '(Ocupado)' : '(Livre)'}
                 </option>`;
@@ -224,8 +231,10 @@ class ReservationsManager {
         document.getElementById('payment-method').value = res.payment_method;
         document.getElementById('transport-service').checked = res.transport_service;
         document.getElementById('transport-value').value = res.transport_value || '';
+        document.getElementById('transport-value').disabled = !res.transport_service;
         document.getElementById('bath-service').checked = res.bath_service;
         document.getElementById('bath-value').value = res.bath_value || '';
+        document.getElementById('bath-value').disabled = !res.bath_service;
         await this.populateKennelNumbers(res.accommodation_type, res.kennel_number);
         document.getElementById('reservation-kennel-number').value = res.kennel_number;
         this.calculateTotalValue();
@@ -234,14 +243,28 @@ class ReservationsManager {
     }
 
     async saveReservation() {
+        const animalId = document.getElementById('reservation-animal').value;
+        const accommodationType = document.getElementById('reservation-accommodation-type').value;
+        const kennelNumber = document.getElementById('reservation-kennel-number').value;
+        const dailyRateStr = document.getElementById('daily-rate').value;
+        const checkinDate = document.getElementById('checkin-date').value;
+        const checkoutDate = document.getElementById('checkout-date').value;
+        const paymentMethod = document.getElementById('payment-method').value;
+
+        // Validação obrigatória
+        if (!animalId || !accommodationType || !kennelNumber || !dailyRateStr || !checkinDate || !checkoutDate || !paymentMethod) {
+            window.hotelPetApp.showNotification('Preencha todos os campos obrigatórios (*)', 'warning');
+            return;
+        }
+
         const data = {
-            animal_id: document.getElementById('reservation-animal').value,
-            accommodation_type: document.getElementById('reservation-accommodation-type').value,
-            kennel_number: document.getElementById('reservation-kennel-number').value,
-            daily_rate: parseFloat(document.getElementById('daily-rate').value),
-            checkin_date: document.getElementById('checkin-date').value,
-            checkout_date: document.getElementById('checkout-date').value,
-            payment_method: document.getElementById('payment-method').value,
+            animal_id: animalId,
+            accommodation_type: accommodationType,
+            kennel_number: kennelNumber,
+            daily_rate: parseFloat(dailyRateStr),
+            checkin_date: checkinDate,
+            checkout_date: checkoutDate,
+            payment_method: paymentMethod,
             transport_service: document.getElementById('transport-service').checked,
             transport_value: parseFloat(document.getElementById('transport-value').value) || 0,
             bath_service: document.getElementById('bath-service').checked,
@@ -251,14 +274,35 @@ class ReservationsManager {
 
         const d1 = new Date(data.checkin_date);
         const d2 = new Date(data.checkout_date);
-        data.total_days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        data.total_days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
         data.total_value = (data.total_days * data.daily_rate) + data.transport_value + data.bath_value;
 
-        if (this.currentReservationId) await db.updateReservation(this.currentReservationId, data);
-        else await db.addReservation(data);
-        
-        window.hotelPetApp.closeAllModals();
-        this.loadReservations();
+        window.hotelPetApp.showLoading();
+        try {
+            if (this.currentReservationId) {
+                await db.updateReservation(this.currentReservationId, data);
+                window.hotelPetApp.showNotification('Reserva atualizada!', 'success');
+            } else {
+                await db.addReservation(data);
+                window.hotelPetApp.showNotification('Reserva salva com sucesso!', 'success');
+            }
+            
+            // Se o checkbox de WhatsApp estiver marcado, compartilha após salvar
+            if (document.getElementById('whatsapp-receipt')?.checked) {
+                // Buscamos a reserva salva (se for nova, pegamos a mais recente)
+                const reservations = await db.getReservations();
+                const targetRes = this.currentReservationId ? reservations.find(r => r.id == this.currentReservationId) : reservations[0];
+                if (targetRes) this.shareReceipt(targetRes.id);
+            }
+
+            window.hotelPetApp.closeAllModals();
+            await this.loadReservations();
+            if (window.kennelVisualization) window.kennelVisualization.refresh();
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao salvar: ' + e.message, 'error');
+        } finally {
+            window.hotelPetApp.hideLoading();
+        }
     }
 
     applyFilters() {
@@ -301,8 +345,8 @@ class ReservationsManager {
                     <div id="detail-content" class="detail-content"></div>
                     <div class="detail-actions">
                         <button class="btn btn-secondary" id="detail-edit-btn"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn btn-success" id="detail-whatsapp-btn"><i class="fab fa-whatsapp"></i> Compartilhar</button>
-                        <button class="btn btn-danger" id="detail-finalize-btn"><i class="fas fa-check-circle"></i> Finalizar Agora</button>
+                        <button class="btn btn-success" id="detail-whatsapp-btn"><i class="fab fa-whatsapp"></i> Compartilhar Recibo</button>
+                        <button class="btn btn-danger" id="detail-finalize-btn"><i class="fas fa-check-circle"></i> Finalizar Reserva</button>
                     </div>
                 </div>
             </div>
@@ -320,7 +364,7 @@ class ReservationsManager {
         const content = document.getElementById('detail-content');
         content.innerHTML = `
             <div class="detail-profile-summary">
-                <div class="detail-photo-area"><img src="${res.photo_url || ''}" class="detail-photo"></div>
+                <div class="detail-photo-area"><img src="${res.photo_url || ''}" class="detail-photo" onerror="this.style.display='none'"></div>
                 <div class="detail-info-main"><h3>${res.animal_name}</h3><p>Tutor: <strong>${res.tutor_name}</strong></p><span class="status-badge ${res.status.toLowerCase()}">${res.status}</span></div>
             </div>
             <div class="detail-grid">
@@ -328,6 +372,8 @@ class ReservationsManager {
                 <div class="detail-item"><span class="label">Saída Prevista:</span><span class="value">${this.formatDate(res.checkout_date)}</span></div>
                 <div class="detail-item"><span class="label">Diárias:</span><span class="value">${res.total_days}</span></div>
                 <div class="detail-item"><span class="label">Alojamento:</span><span class="value">${res.accommodation_type} ${res.kennel_number}</span></div>
+                <div class="detail-item"><span class="label">Diária:</span><span class="value">${this.formatCurrency(res.daily_rate)}</span></div>
+                <div class="detail-item"><span class="label">Pagamento:</span><span class="value">${res.payment_method}</span></div>
             </div>
             <div class="detail-total"><span class="label">VALOR TOTAL:</span><span class="value">${this.formatCurrency(res.total_value)}</span></div>
         `;
@@ -343,23 +389,24 @@ class ReservationsManager {
         else if (action === 'whatsapp') this.shareReceipt(this.currentReservationId);
     }
 
-    // Lógica de encerramento antecipado solicitada
     async finalizeReservation(id) {
         const res = await db.getReservationById(id);
         const today = new Date().toISOString().split('T')[0];
         let infoMessage = 'Deseja finalizar esta reserva?';
         let updatedRes = { ...res };
 
+        // Lógica de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
-            const d1 = new Date(res.checkin_date);
-            const d2 = new Date(today);
+            const d1 = new Date(res.checkin_date + 'T00:00:00');
+            const d2 = new Date(today + 'T00:00:00');
             const actualDays = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
             const newValue = (actualDays * res.daily_rate) + (res.transport_service ? res.transport_value : 0) + (res.bath_service ? res.bath_value : 0);
+            
             infoMessage = `ENCERRAMENTO ANTECIPADO DETECTADO!\n\n` +
-                          `Período Original: ${res.total_days} dias (${this.formatCurrency(res.total_value)})\n` +
-                          `Período Realizado: ${actualDays} dias\n` +
-                          `Novo Valor Total: ${this.formatCurrency(newValue)}\n\n` +
-                          `Deseja confirmar o desconto e finalizar?`;
+                          `Original: ${res.total_days} dias (${this.formatCurrency(res.total_value)})\n` +
+                          `Realizado: ${actualDays} dias\n` +
+                          `Novo Total: ${this.formatCurrency(newValue)}\n\n` +
+                          `Confirmar desconto e finalizar?`;
             
             updatedRes.total_days = actualDays;
             updatedRes.checkout_date = today;
@@ -367,18 +414,25 @@ class ReservationsManager {
         }
 
         if (confirm(infoMessage)) {
+            window.hotelPetApp.showLoading();
             updatedRes.status = 'FINALIZADA';
-            await db.updateReservation(id, updatedRes);
-            await db.addAnimalHistory({
-                animal_id: res.animal_id,
-                type: 'HOSPEDAGEM',
-                date: today,
-                description: `Reserva encerrada. Permanência: ${updatedRes.total_days} dias. Valor pago: ${this.formatCurrency(updatedRes.total_value)}.`
-            });
-            window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
-            this.closeDetailModal();
-            this.loadReservations();
-            if (window.kennelVisualization) window.kennelVisualization.refresh();
+            try {
+                await db.updateReservation(id, updatedRes);
+                await db.addAnimalHistory({
+                    animal_id: res.animal_id,
+                    type: 'HOSPEDAGEM',
+                    date: today,
+                    description: `Reserva finalizada. Dias: ${updatedRes.total_days}. Valor: ${this.formatCurrency(updatedRes.total_value)}.`
+                });
+                window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
+                this.closeDetailModal();
+                await this.loadReservations();
+                if (window.kennelVisualization) window.kennelVisualization.refresh();
+            } catch(e) {
+                window.hotelPetApp.showNotification('Erro ao finalizar.', 'error');
+            } finally {
+                window.hotelPetApp.hideLoading();
+            }
         }
     }
 
@@ -386,28 +440,25 @@ class ReservationsManager {
         const res = await db.getReservationById(id);
         if (!res) return;
 
-        // 1. Abrir diálogo de impressão para gerar PDF (conforme solicitado "em pdf")
-        // O usuário pode escolher "Salvar como PDF" na impressora do sistema.
+        // Abrir diálogo de impressão (Salvar PDF)
         if (window.printReceipt) window.printReceipt(id);
 
-        // 2. Preparar mensagem formatada para WhatsApp
         const cleanPhone = res.tutor_phone ? res.tutor_phone.replace(/\D/g, '') : '';
         const message = encodeURIComponent(
-            `*RECIBO DE HOSPEDAGEM - HOTEL PET CÁ*\n` +
+            `*RECIBO - HOTEL PET CÁ*\n` +
             `Aqui seu pet é bem cuidado.\n\n` +
             `🐾 *Pet:* ${res.animal_name}\n` +
             `👤 *Tutor:* ${res.tutor_name}\n` +
             `🏠 *Alojamento:* ${res.accommodation_type} ${res.kennel_number}\n` +
-            `📅 *Entrada:* ${this.formatDate(res.checkin_date)}\n` +
-            `📅 *Saída:* ${this.formatDate(res.checkout_date)}\n` +
-            `⏳ *Diárias:* ${res.total_days}\n` +
-            `💰 *Valor Total:* ${this.formatCurrency(res.total_value)}\n\n` +
-            `*Status:* ${res.status === 'FINALIZADA' ? '✅ PAGO E ENCERRADO' : '⏳ EM ANDAMENTO'}\n\n` +
-            `Obrigado pela confiança!`
+            `📅 *Período:* ${this.formatDate(res.checkin_date)} até ${this.formatDate(res.checkout_date)}\n` +
+            `⏳ *Dias:* ${res.total_days}\n` +
+            `💰 *Total:* ${this.formatCurrency(res.total_value)}\n` +
+            `💳 *Pgto:* ${res.payment_method}\n\n` +
+            `*Status:* ${res.status === 'FINALIZADA' ? '✅ PAGO' : '⏳ ATIVO'}`
         );
 
         if (cleanPhone) window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
-        else window.hotelPetApp.showNotification('WhatsApp enviado, mas tutor sem telefone cadastrado.', 'info');
+        else window.hotelPetApp.showNotification('Tutor sem telefone cadastrado.', 'info');
     }
 }
 window.ReservationsManager = ReservationsManager;

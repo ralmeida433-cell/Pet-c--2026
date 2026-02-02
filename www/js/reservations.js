@@ -368,7 +368,7 @@ class ReservationsManager {
         }
         
         listContainer.innerHTML = data.map(r => `
-            <div class="reservation-card ${r.status.toLowerCase()}" data-reservation-id="${r.id}">
+            <div class="reservation-card ${r.status.toLowerCase()}">
                 <div class="reservation-card-header">
                     <div class="res-pet-info">
                         <div class="res-pet-avatar">

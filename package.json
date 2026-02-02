@@ -10,7 +10,8 @@
     "android:copy": "npx cap copy android",
     "android:open": "npx cap open android",
     "android:build": "cd android && gradlew assembleDebug",
-    "android:release": "cd android && gradlew assembleRelease"
+    "android:release": "cd android && gradlew assembleRelease",
+    "android:full-build": "npm run build && npm run android:sync && npm run android:build"
   },
   "keywords": [],
   "author": "",

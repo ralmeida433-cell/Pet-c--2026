@@ -60,16 +60,4 @@ body {
 .delete-btn-mini { background: none; border: none; color: #cbd5e1; cursor: pointer; }
 .delete-btn-mini:hover { color: #ef4444; }
 
-/* ... (restante do CSS) ... */
-
-/* Esconder barra de rolagem da sidebar */
-.sidebar {
-    -ms-overflow-style: none;  /* IE e Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-
-.sidebar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-/* ... (continua) ... */
+/* ... (O restante do CSS sincronizado) ... */

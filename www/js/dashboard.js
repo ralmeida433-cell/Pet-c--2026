@@ -20,7 +20,6 @@ class DashboardManager {
 
         this.bindStatCardEvents();
 
-        // Delegação de evento para expansão dos cards recentes
         document.addEventListener('click', (e) => {
             const header = e.target.closest('.dashboard-res-header');
             if (header) {

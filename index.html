@@ -53,6 +53,7 @@
             <li class="menu-item" data-section="dashboard"><a href="#" onclick="navigateToSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
             <li class="menu-item" data-section="animals"><a href="#" onclick="navigateToSection('animals')"><i class="fas fa-dog"></i><span>Animais</span></a></li>
             <li class="menu-item" data-section="reservations"><a href="#" onclick="navigateToSection('reservations')"><i class="fas fa-calendar-check"></i><span>Reservas</span></a></li>
+            <li class="menu-item" data-section="inventory"><a href="#" onclick="navigateToSection('inventory')"><i class="fas fa-boxes"></i><span>Estoque</span></a></li>
             <li class="menu-item" data-section="reports"><a href="#" onclick="navigateToSection('reports')"><i class="fas fa-chart-bar"></i><span>Relatórios</span></a></li>
         </ul>
     </nav>
@@ -112,6 +113,11 @@
                     <input type="month" id="month-filter" class="month-filter-modern">
                 </div>
                 <div class="table-container"></div>
+            </section>
+
+            <section id="inventory" class="content-section">
+                <div class="page-header"><div class="page-header-content"><h1>Estoque</h1><p>Produtos</p></div><div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-product-btn"><i class="fas fa-plus"></i> Novo</button></div></div>
+                <div class="table-container"><table id="products-table"><thead><tr><th>Img</th><th>Nome</th><th>Cat</th><th>Est</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
             </section>
 
             <section id="reports" class="content-section">
@@ -232,6 +238,7 @@
     <script src="js/reservations.js"></script>
     <script src="js/reports.js"></script>
     <script src="js/kennels.js"></script>
+    <script src="js/inventory.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/features.js"></script>
     <script src="js/animal-profile.js"></script>

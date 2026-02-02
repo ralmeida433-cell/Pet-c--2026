@@ -3,7 +3,6 @@
     "appName": "Hotel Pet CA",
     "webDir": "www",
     "bundledWebRuntime": false,
-    "npmClient": "npm",
     "plugins": {
         "SplashScreen": {
             "launchShowDuration": 2000,

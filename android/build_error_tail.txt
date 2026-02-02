@@ -1,0 +1,50 @@
+> Task :capacitor-keyboard:generateDebugRFile UP-TO-DATE
+> Task :capacitor-splash-screen:compileDebugLibraryResources UP-TO-DATE
+> Task :capacitor-splash-screen:parseDebugLocalResources UP-TO-DATE
+> Task :capacitor-splash-screen:generateDebugRFile UP-TO-DATE
+> Task :capacitor-status-bar:compileDebugLibraryResources UP-TO-DATE
+> Task :capacitor-status-bar:parseDebugLocalResources UP-TO-DATE
+> Task :capacitor-status-bar:generateDebugRFile UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :capacitor-android:javaPreCompileDebug UP-TO-DATE
+> Task :capacitor-android:compileDebugJavaWithJavac FAILED
+
+[Incubating] Problems report is available at: file:///C:/Users/rafae/Desktop/hotel%20pet/android/build/reports/problems/problems-report.html
+.\gradlew : 
+No linha:1 caractere:1
++ .\gradlew assembleDebug > 
+build_output_now.log 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (:Stri  
+  ng) [], RemoteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+FAILURE: Build failed with 
+an exception.
+
+* What went wrong:
+Execution failed for task ':
+capacitor-android:compileDeb
+ugJavaWithJavac'.
+> Java compilation 
+initialization error
+    error: invalid source 
+release: 21
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or 
+--debug option to get more 
+log output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 13s
+78 actionable tasks: 1 executed, 77 up-to-date

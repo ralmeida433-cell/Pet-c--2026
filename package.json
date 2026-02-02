@@ -5,13 +5,11 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "xcopy /E /Y js www\\js && xcopy /E /Y css www\\css",
     "android:sync": "npx cap sync android",
     "android:copy": "npx cap copy android",
     "android:open": "npx cap open android",
     "android:build": "cd android && gradlew assembleDebug",
-    "android:release": "cd android && gradlew assembleRelease",
-    "android:full-build": "npm run build && npm run android:sync && npm run android:build"
+    "android:release": "cd android && gradlew assembleRelease"
   },
   "keywords": [],
   "author": "",

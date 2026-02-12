@@ -46,7 +46,9 @@ class KennelVisualization {
                             entrada: reserva.checkin_date,
                             saida: reserva.checkout_date,
                             tipo_animal: reserva.animal_species || 'CÃO',
-                            animal_id: reserva.animal_id // Adicionando ID do animal
+                            animal_id: reserva.animal_id,
+                            photo_url: reserva.photo_url,
+                            sexo: reserva.animal_sex
                         });
                     });
                 }
@@ -74,8 +76,6 @@ class KennelVisualization {
                 ${this.renderKennelSection('Gatil', gatils, 'GATIL')}
             </div>
         `;
-
-        this.injectStyles();
     }
 
     renderStats(stats) {
@@ -85,28 +85,28 @@ class KennelVisualization {
                     <div class="stat-icon"><i class="fas fa-bed"></i></div>
                     <div class="stat-info">
                         <h3>${stats.ocupados}</h3>
-                        <p>Ocupados</p>
+                        <p>OCUPADOS</p>
                     </div>
                 </div>
                 <div class="stat-item disponiveis">
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-icon"><i class="fas fa-check"></i></div>
                     <div class="stat-info">
                         <h3>${stats.disponiveis}</h3>
-                        <p>Disponíveis</p>
+                        <p>DISPONÍVEIS</p>
                     </div>
                 </div>
                 <div class="stat-item total">
                     <div class="stat-icon"><i class="fas fa-home"></i></div>
                     <div class="stat-info">
                         <h3>${stats.total}</h3>
-                        <p>Total</p>
+                        <p>TOTAL</p>
                     </div>
                 </div>
                 <div class="stat-item taxa">
                     <div class="stat-icon"><i class="fas fa-percentage"></i></div>
                     <div class="stat-info">
                         <h3>${stats.taxaOcupacao}%</h3>
-                        <p>Taxa</p>
+                        <p>TAXA</p>
                     </div>
                 </div>
             </div>
@@ -119,10 +119,8 @@ class KennelVisualization {
         const kennelCards = canis.map(canil => this.renderKennel(canil)).join('');
 
         const expansionButton = `
-            <div class="kennel-card expansion-card sutil" onclick="kennelVisualization.openAddKennelModal('${tipo}')" title="Adicionar Novo">
-                <div class="expansion-content">
-                    <i class="fas fa-plus"></i>
-                </div>
+            <div class="kennel-card expansion-card" onclick="kennelVisualization.openAddKennelModal('${tipo}')" title="Adicionar Novo Alojamento">
+                <i class="fas fa-plus"></i>
             </div>
         `;
 
@@ -130,8 +128,7 @@ class KennelVisualization {
             <div class="kennel-section">
                 <h3 class="section-title">
                     <i class="fas fa-${icon}"></i>
-                    ${titulo}
-                    <span class="section-count">${canis.length}</span>
+                    <span>${titulo} ${canis.length}</span>
                 </h3>
                 <div class="kennels-grid ${tipoClass}">
                     ${kennelCards}
@@ -147,33 +144,50 @@ class KennelVisualization {
         const isOcupado = !!ocupacao;
         const statusClass = isOcupado ? 'ocupado' : 'disponivel';
         const tipoClass = canil.type.toLowerCase();
-        
-        const clickAction = isOcupado 
-            ? `kennelVisualization.viewAnimalProfile(${ocupacao.animal_id})` 
+
+        const clickAction = isOcupado
+            ? `kennelVisualization.viewAnimalProfile(${ocupacao.animal_id})`
             : `kennelVisualization.reservarCanil('${canilId}')`;
+
+        // Gender Icon Logic
+        let genderIcon = '';
+        if (isOcupado && ocupacao.sexo) {
+            const sex = ocupacao.sexo.toUpperCase();
+            if (sex === 'M' || sex === 'MACHO') genderIcon = '<i class="fas fa-mars" style="color:#3b82f6; font-size:12px;"></i>';
+            else if (sex === 'F' || sex === 'FEMEA' || sex === 'FÊMEA') genderIcon = '<i class="fas fa-venus" style="color:#ec4899; font-size:12px;"></i>';
+        }
 
         return `
             <div class="kennel-card ${statusClass} ${tipoClass}" data-kennel-id="${canilId}" onclick="${clickAction}">
                 <div class="kennel-roof"></div>
                 <div class="kennel-header">
                     <span class="kennel-number">${canil.number}</span>
-                    <div class="kennel-actions">
+                    <div class="status-indicator">
                         ${!isOcupado ? `
-                            <button class="action-btn delete-kennel-btn" onclick="event.stopPropagation(); kennelVisualization.deleteKennel(${canil.id}, '${canil.type} ${canil.number}')">
-                                <i class="fas fa-times"></i>
-                            </button>
+                            <i class="fas fa-times btn-delete-kennel" onclick="event.stopPropagation(); kennelVisualization.deleteKennel(${canil.id}, '${canil.type} ${canil.number}')" title="Excluir Alojamento"></i>
+                            <i class="fas fa-check"></i>
                         ` : ''}
-                        <i class="fas fa-${isOcupado ? 'paw' : 'check'} status-icon"></i>
                     </div>
                 </div>
                 <div class="kennel-content">
                     ${isOcupado ? `
-                        <div class="animal-info">
-                            <div class="animal-name">${ocupacao.animal}</div>
-                            <div class="tutor-info">${ocupacao.tutor}</div>
+                         <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-start; width:100%; height:100%; padding-top:0;">
+                            <div class="pet-photo-circle" style="width:55px; height:55px; margin:-12px auto 6px; box-shadow:0 4px 8px rgba(0,0,0,0.12); background:linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); flex-shrink:0;">
+                                ${ocupacao.photo_url
+                    ? `<img src="${ocupacao.photo_url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.setProperty('display', 'flex', 'important');">
+                                       <div class="photo-placeholder" style="display:none !important; width:100%; height:100%; align-items:center; justify-content:center; font-size:1.4rem; color:#6366f1;"><i class="fas fa-${ocupacao.tipo_animal === 'GATO' ? 'cat' : 'dog'}"></i></div>`
+                    : `<div class="photo-placeholder" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#6366f1;"><i class="fas fa-${ocupacao.tipo_animal === 'GATO' ? 'cat' : 'dog'}"></i></div>`
+                }
+                            </div>
+                            <div class="animal-info" style="text-align:center; width:100%; padding:0 2px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <div class="animal-name" style="font-weight:800; color:#1e293b; font-size:0.75rem; line-height:1.2; word-wrap:break-word; overflow-wrap:break-word; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; width:100%; text-align:center;">
+                                    ${ocupacao.animal} <i class="fas fa-${ocupacao.sexo === 'M' ? 'mars' : 'venus'}" style="font-size:0.7rem; color:${ocupacao.sexo === 'M' ? '#3b82f6' : '#ec4899'}; margin-left:2px; vertical-align:middle;"></i>
+                                </div>
+                                <div class="tutor-info" style="font-size:0.65rem; color:#64748b; margin-top:3px; margin-bottom:6px; word-wrap:break-word; overflow-wrap:break-word; line-height:1.2; width:100%; text-align:center;">${ocupacao.tutor.split(' ')[0]}</div>
+                            </div>
                         </div>
                     ` : `
-                        <button class="btn-reservar-icon" onclick="event.stopPropagation(); kennelVisualization.reservarCanil('${canilId}')">
+                        <button class="btn-reservar-circle" onclick="event.stopPropagation(); kennelVisualization.reservarCanil('${canilId}')">
                             <i class="fas fa-plus"></i>
                         </button>
                     `}
@@ -229,7 +243,7 @@ class KennelVisualization {
             }, 500);
         }
     }
-    
+
     viewAnimalProfile(animalId) {
         if (window.hotelPetApp && window.animalProfileManager) {
             window.hotelPetApp.navigateToSection('animal-profile');
@@ -309,140 +323,5 @@ class KennelVisualization {
         } catch (e) { window.hotelPetApp.showNotification('Erro ao adicionar.', 'error'); }
     }
 
-    injectStyles() {
-        if (document.getElementById('kennels-personalized-styles')) return;
-        const styles = document.createElement('style');
-        styles.id = 'kennels-personalized-styles';
-        styles.textContent = `
-            /* Estatísticas com melhor espaçamento */
-            .kennels-stats {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
-            @media (min-width: 600px) {
-                .kennels-stats { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-            }
-
-            .stat-item {
-                background: white;
-                padding: 1.25rem;
-                border-radius: 1.25rem;
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                border: 1px solid #f1f5f9;
-            }
-
-            .stat-item .stat-icon {
-                width: 44px; height: 44px;
-                border-radius: 12px;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 1.2rem; color: white;
-            }
-
-            .stat-item.ocupados .stat-icon { background: #ef4444; }
-            .stat-item.disponiveis .stat-icon { background: #10b981; }
-            .stat-item.total .stat-icon { background: #3b82f6; }
-            .stat-item.taxa .stat-icon { background: #8b5cf6; }
-
-            .stat-info h3 { font-size: 1.5rem; margin: 0; line-height: 1; }
-            .stat-info p { font-size: 0.75rem; margin: 0; color: #64748b; text-transform: uppercase; font-weight: 600; }
-
-            /* Grid de Casinhas */
-            .kennels-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                gap: 1.5rem 1rem;
-                padding-top: 1rem;
-            }
-
-            /* Card Formato Casinha */
-            .kennel-card {
-                position: relative;
-                background: white;
-                border-radius: 0 0 1rem 1rem;
-                border: 2px solid #e2e8f0;
-                min-height: 100px;
-                display: flex;
-                flex-direction: column;
-                margin-top: 25px; /* Espaço para o telhado */
-                transition: all 0.3s ease;
-                cursor: pointer;
-            }
-
-            /* Telhado da Casinha */
-            .kennel-roof {
-                position: absolute;
-                top: -26px; left: -2px; right: -2px;
-                height: 26px;
-                background: inherit;
-                clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-                border: 2px solid #e2e8f0;
-                border-bottom: none;
-                background: #f8fafc;
-                z-index: 1;
-            }
-
-            .kennel-card.ocupado { border-color: #fecaca; background: #fff1f2; }
-            .kennel-card.ocupado .kennel-roof { background: #fff1f2; border-color: #fecaca; }
-            
-            .kennel-card.disponivel { border-color: #bbf7d0; background: #f0fdf4; }
-            .kennel-card.disponivel .kennel-roof { background: #f0fdf4; border-color: #bbf7d0; }
-
-            .kennel-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-            .kennel-header {
-                padding: 0.5rem;
-                display: flex; justify-content: space-between; align-items: center;
-                z-index: 2;
-            }
-
-            .kennel-number { font-weight: 800; font-size: 1rem; color: #1e293b; }
-            
-            .status-icon { font-size: 0.8rem; }
-            .ocupado .status-icon { color: #ef4444; }
-            .disponivel .status-icon { color: #10b981; }
-
-            .kennel-content {
-                padding: 0.5rem;
-                flex-grow: 1;
-                display: flex; flex-direction: column; justify-content: center;
-                text-align: center;
-            }
-
-            .animal-name { font-weight: 700; font-size: 0.85rem; color: #1e293b; line-height: 1.2; }
-            .tutor-info { font-size: 0.65rem; color: #64748b; margin-top: 2px; }
-
-            .btn-reservar-icon {
-                background: #2563eb; color: white; border: none;
-                width: 32px; height: 32px; border-radius: 50%;
-                margin: 0 auto; display: flex; align-items: center; justify-content: center;
-                cursor: pointer; transition: all 0.2s;
-            }
-            .btn-reservar-icon:hover { transform: scale(1.1); background: #1d4ed8; }
-
-            /* Botão de Adicionar Sutil */
-            .expansion-card.sutil {
-                background: transparent; border: 2px dashed #cbd5e1;
-                margin-top: 25px; min-height: 100px;
-                display: flex; align-items: center; justify-content: center;
-            }
-            .expansion-card.sutil .kennel-roof { display: none; }
-            .expansion-card.sutil:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
-            
-            .expansion-content i { font-size: 1.5rem; color: #94a3b8; transition: color 0.2s; }
-            .expansion-card.sutil:hover i { color: #3b82f6; }
-
-            .delete-kennel-btn {
-                background: none; border: none; color: #94a3b8; 
-                padding: 4px; cursor: pointer; font-size: 0.8rem;
-            }
-            .delete-kennel-btn:hover { color: #ef4444; transform: scale(1.2); }
-        `;
-        document.head.appendChild(styles);
-    }
 }
 window.kennelVisualization = null;

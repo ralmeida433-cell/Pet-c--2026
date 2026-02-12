@@ -14,22 +14,176 @@
         rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/pdf-helper.js"></script>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/modern-styles.css">
+    <link rel="stylesheet" href="css/overview-modern.css">
+    <link rel="stylesheet" href="css/fix-styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Nativo Android">
     <meta name="theme-color" content="#2563eb">
-    
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <link rel="icon" type="image/png" href="css/logo.png">
 </head>
 
 <body>
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h1>Hotel Pet CÁ</h1>
+                <p>Sistema Premium de Gerenciamento</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Criar Conta</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="auth-error" id="login-error"></div>
+                <div class="auth-success" id="login-success"></div>
+
+                <div class="auth-input-group">
+                    <label>Email</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="auth-input" id="login-email" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+
+                <div class="auth-input-group">
+                    <label>Senha</label>
+                    <div class="auth-input-wrapper auth-password-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="auth-input" id="login-password" placeholder="••••••••" required>
+                        <button type="button" class="auth-toggle-password"
+                            onclick="togglePasswordVisibility('login-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <a href="#" class="auth-forgot-link" onclick="showForgotPassword(event)">Esqueceu a senha?</a>
+
+                <button type="submit" class="auth-submit-btn">Entrar</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="auth-form" onsubmit="handleSignup(event)">
+                <div class="auth-error" id="signup-error"></div>
+                <div class="auth-success" id="signup-success"></div>
+
+                <div class="auth-input-group">
+                    <label>Nome Completo</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="auth-input" id="signup-name" placeholder="Seu nome completo" required>
+                    </div>
+                </div>
+
+                <div class="auth-input-group">
+                    <label>Email</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="auth-input" id="signup-email" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+
+                <div class="auth-input-group">
+                    <label>Senha</label>
+                    <div class="auth-input-wrapper auth-password-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="auth-input" id="signup-password" placeholder="Mínimo 6 caracteres"
+                            required minlength="6">
+                        <button type="button" class="auth-toggle-password"
+                            onclick="togglePasswordVisibility('signup-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">Criar Conta</button>
+            </form>
+
+            <div class="auth-divider">
+                <span>ou</span>
+            </div>
+
+            <button class="auth-social-btn google" onclick="handleGoogleLogin()">
+                <i class="fab fa-google"></i>
+                <span>Continuar com Google</span>
+            </button>
+
+            <div class="auth-footer">
+                <p>© 2026 Hotel Pet CÁ • Todos os direitos reservados</p>
+            </div>
+        </div>
+    </div>
+
     <div id="loading" class="loading-screen">
         <div class="loading-content">
             <div class="pet-logo-animated"><i class="fas fa-paw"></i></div>
-            <h2>Hotel Pet CÁ</h2>
-            <p>Sistema Moderno de Gerenciamento</p>
+            <h2 style="font-family: 'Poppins', sans-serif; font-weight: 800; letter-spacing: 1px;">PetCá Premium</h2>
+            <p>Gerenciamento de Elite para Hospedagens</p>
             <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+
+    <!-- TUTORIAL / ONBOARDING -->
+    <div id="tutorial-overlay" class="tutorial-overlay">
+        <div class="tutorial-card">
+            <div class="tutorial-slides">
+                <div class="tutorial-slide">
+                    <div class="tutorial-icon"><i class="fas fa-rocket"></i></div>
+                    <h2>Seja Bem-vindo!</h2>
+                    <p>Você está acessando a plataforma PetCá Premium. O sistema mais completo para gerenciar seu hotel
+                        com praticidade e elegância.</p>
+                </div>
+                <div class="tutorial-slide">
+                    <div class="tutorial-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i
+                            class="fas fa-calendar-check"></i></div>
+                    <h2>Reservas Inteligentes</h2>
+                    <p>Organize check-ins, check-outs e serviços extras como banho e transporte em um painel visual
+                        extremamente intuitivo.</p>
+                </div>
+                <div class="tutorial-slide">
+                    <div class="tutorial-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i
+                            class="fas fa-chart-line"></i></div>
+                    <h2>Relatórios de Elite</h2>
+                    <p>Acompanhe o crescimento do seu negócio com PDFs profissionais, estatísticas de faturamento e
+                        preferências dos seus clientes.</p>
+                </div>
+                <div class="tutorial-slide">
+                    <div class="tutorial-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);"><i
+                            class="fas fa-cloud-upload-alt"></i></div>
+                    <h2>Login e Nuvem</h2>
+                    <p>Sincronize seus dados com o Google Drive para nunca perder nada e acessar de qualquer lugar.
+                        Vamos começar?</p>
+                </div>
+            </div>
+            <div class="tutorial-dots">
+                <div class="tutorial-dot active"></div>
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot"></div>
+                <div class="tutorial-dot"></div>
+            </div>
+            <div class="tutorial-footer">
+                <button class="btn btn-secondary" id="skip-tutorial">Pular</button>
+                <button class="btn btn-primary" id="next-slide">Próximo</button>
+            </div>
         </div>
     </div>
 
@@ -38,22 +192,50 @@
             <button class="header-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <span class="mobile-header-title" id="mobile-page-title">Visão Geral</span>
         </div>
+        <div class="mobile-header-right">
+            <div class="notification-wrapper">
+                <button class="header-notification-btn" id="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                </button>
+                <div class="notification-dropdown" id="notification-dropdown">
+                    <div class="notification-header">
+                        <h3>Notificações</h3>
+                        <button class="btn-clear-notifications" id="clear-notifications">Limpar</button>
+                    </div>
+                    <div class="notification-list" id="notification-list">
+                        <p class="empty-notifications">Nenhuma notificação no momento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="css/logo.png" alt="Hotel Pet CÁ" class="logo-image-only"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="logo-fallback" style="display: none;"><i class="fas fa-paw"></i></div>
             </div>
             <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         </div>
         <ul class="sidebar-menu">
-            <li class="menu-item active" data-section="overview"><a href="#" onclick="navigateToSection('overview')"><i class="fas fa-eye"></i><span>Visão Geral</span></a></li>
-            <li class="menu-item" data-section="dashboard"><a href="#" onclick="navigateToSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
-            <li class="menu-item" data-section="animals"><a href="#" onclick="navigateToSection('animals')"><i class="fas fa-dog"></i><span>Animais</span></a></li>
-            <li class="menu-item" data-section="reservations"><a href="#" onclick="navigateToSection('reservations')"><i class="fas fa-calendar-check"></i><span>Reservas</span></a></li>
-            <li class="menu-item" data-section="reports"><a href="#" onclick="navigateToSection('reports')"><i class="fas fa-chart-bar"></i><span>Relatórios</span></a></li>
+            <li class="menu-item active" data-section="overview"><a href="#" onclick="navigateToSection('overview')"><i
+                        class="fas fa-eye"></i><span>Visão Geral</span></a></li>
+            <li class="menu-item" data-section="dashboard"><a href="#" onclick="navigateToSection('dashboard')"><i
+                        class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+            <li class="menu-item" data-section="animals"><a href="#" onclick="navigateToSection('animals')"><i
+                        class="fas fa-dog"></i><span>Animais</span></a></li>
+            <li class="menu-item" data-section="reservations"><a href="#" onclick="navigateToSection('reservations')"><i
+                        class="fas fa-calendar-check"></i><span>Reservas</span></a></li>
+            <li class="menu-item" data-section="reports"><a href="#" onclick="navigateToSection('reports')"><i
+                        class="fas fa-chart-bar"></i><span>Relatórios</span></a></li>
+            <li class="menu-item" data-section="posts"><a href="#" onclick="navigateToSection('posts')"><i
+                        class="fas fa-pen-fancy"></i><span>Marketing</span></a></li>
+            <li class="menu-item menu-bottom" data-section="settings"><a href="#"
+                    onclick="navigateToSection('settings')"><i class="fas fa-cog"></i><span>Configurações</span></a>
+            </li>
         </ul>
     </nav>
 
@@ -62,38 +244,294 @@
     <main class="main-content">
         <div id="app" class="app-container hidden">
             <section id="overview" class="content-section active">
-                <div class="page-header"><div class="page-header-content"><h1>Visão Geral</h1><p>Status das acomodações</p></div></div>
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Visão Geral</h1>
+                        <p>Status das acomodações</p>
+                    </div>
+                </div>
                 <div id="kennels-visualization" class="kennels-container"></div>
             </section>
 
             <section id="dashboard" class="content-section">
-                <div class="page-header"><div class="page-header-content"><h1>Dashboard</h1><p>Visão geral do sistema</p></div></div>
-                <div class="dashboard-grid">
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-paw"></i></div><div class="stat-info"><h3 id="total-animals">0</h3><p>Pets</p></div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-bed"></i></div><div class="stat-info"><h3 id="active-reservations">0</h3><p>Ativas</p></div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div class="stat-info"><h3 id="monthly-revenue">R$ 0</h3><p>Mês</p></div></div>
-                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-percentage"></i></div><div class="stat-info"><h3 id="occupancy-rate">0%</h3><p>Ocupação</p></div></div>
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Dashboard</h1>
+                        <p>Visão geral do sistema</p>
+                    </div>
                 </div>
-                <div class="charts-container">
-                    <div class="chart-card"><h3>Mensal</h3><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
-                    <div class="chart-card"><h3>Ocupação</h3><div class="chart-wrapper"><canvas id="kennel-chart"></canvas></div></div>
+                <div class="dashboard-welcome">
+                    <h2>Visão Geral</h2>
+                    <p>Bem-vindo ao painel de controle</p>
+                </div>
+
+                <div class="dashboard-modern-grid">
+                    <!-- Pets -->
+                    <div class="stat-card-modern blue" onclick="window.hotelPetApp.navigateToSection('animals')">
+                        <div class="watermark-icon"><i class="fas fa-paw"></i></div>
+                        <div class="stat-content">
+                            <h3 id="total-animals">0</h3>
+                            <p>Pets Cadastrados</p>
+                        </div>
+                    </div>
+
+                    <!-- Ativas -->
+                    <div class="stat-card-modern purple" onclick="window.hotelPetApp.navigateToSection('reservations')">
+                        <div class="watermark-icon"><i class="fas fa-bed"></i></div>
+                        <div class="stat-content">
+                            <h3 id="active-reservations">0</h3>
+                            <p>Reservas Ativas</p>
+                        </div>
+                    </div>
+
+                    <!-- Receita -->
+                    <div class="stat-card-modern green" onclick="window.hotelPetApp.navigateToSection('reports')">
+                        <div class="watermark-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="stat-content">
+                            <h3 id="monthly-revenue">R$ 0,00</h3>
+                            <p>Receita Mensal</p>
+                        </div>
+                    </div>
+
+                    <!-- Ocupação -->
+                    <div class="stat-card-modern orange" onclick="window.hotelPetApp.navigateToSection('reservations')">
+                        <div class="watermark-icon"><i class="fas fa-chart-pie"></i></div>
+                        <div class="stat-content">
+                            <h3 id="occupancy-rate">0%</h3>
+                            <p>Taxa de Ocupação</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos Modernos -->
+                <!-- Dashboard Layout 2026 -->
+                <div class="dashboard-grid-2026"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+
+                    <!-- Nova Seção de Gráficos de Receita (Topo da Esquerda) -->
+                    <div class="chart-column"
+                        style="display: flex; flex-direction: column; gap: 1.5rem; grid-column: span 1;">
+                        <!-- Gráfico Comparativo de Receita -->
+                        <div class="chart-card-modern" style="padding: 1.5rem;">
+                            <div class="chart-header"
+                                style="justify-content: space-between; align-items: center; display: flex;">
+                                <h3>Comparativo de Receita</h3>
+                                <div class="chart-controls" style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="revenue-comp-mode" class="form-select-sm"
+                                        style="padding: 4px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem;">
+                                        <option value="monthly">Mensal</option>
+                                        <option value="yearly">Anual</option>
+                                    </select>
+                                    <button class="btn-icon"
+                                        onclick="window.dashboardManager.expandChart('revenueComparison')"
+                                        title="Expandir">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="revenue-comparison-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Métodos de Pagamento -->
+                        <div class="chart-card-modern" style="padding: 1.5rem;">
+                            <div class="chart-header"
+                                style="justify-content: space-between; align-items: center; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    <h3>Pagamentos</h3>
+                                    <div id="top-payment-badge"
+                                        style="display:none; align-items:center; background:#f0f9ff; padding:2px 8px; border-radius:12px; border:1px solid #bae6fd;">
+                                        <i class="fas fa-trophy"
+                                            style="color:#fbbf24; font-size:0.8rem; margin-right:4px;"></i>
+                                        <span id="top-payment-name"
+                                            style="font-size:0.75rem; color:#0284c7; font-weight:600;">-</span>
+                                    </div>
+                                </div>
+                                <div class="chart-controls" style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="month" id="payment-period-filter" class="form-select-sm"
+                                        style="padding: 4px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem; cursor:pointer;"
+                                        onchange="window.dashboardManager.loadPaymentChart()">
+                                    <button class="btn-icon" onclick="window.dashboardManager.expandChart('payments')"
+                                        title="Expandir">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="payment-methods-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Crescimento (1-5 anos) -->
+                        <div class="chart-card-modern" style="padding: 1.5rem;">
+                            <div class="chart-header"
+                                style="justify-content: space-between; align-items: center; display: flex;">
+                                <h3>Crescimento da Receita</h3>
+                                <div class="chart-controls" style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="growth-period" class="form-select-sm"
+                                        style="padding: 4px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.8rem;">
+                                        <option value="1">1 Ano</option>
+                                        <option value="5" selected>5 Anos</option>
+                                    </select>
+                                    <button class="btn-icon" onclick="window.dashboardManager.expandChart('growth')"
+                                        title="Expandir">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="height: 250px; position: relative;">
+                                <canvas id="revenue-growth-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Termômetros de Ocupação -->
+                        <div class="chart-card-modern" style="padding: 1.5rem;">
+                            <div class="chart-header">
+                                <h3>Lotação em Tempo Real</h3>
+                                <i class="fas fa-tachometer-alt text-primary"></i>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+                                <div class="gauge-wrapper" style="text-align: center;">
+                                    <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                                        <canvas id="gauge-interno"></canvas>
+                                        <div class="gauge-value" id="val-interno"
+                                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #1e293b;">
+                                            0%</div>
+                                    </div>
+                                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Canil Interno</p>
+                                </div>
+                                <div class="gauge-wrapper" style="text-align: center;">
+                                    <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                                        <canvas id="gauge-externo"></canvas>
+                                        <div class="gauge-value" id="val-externo"
+                                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #1e293b;">
+                                            0%</div>
+                                    </div>
+                                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Canil Externo</p>
+                                </div>
+                                <div class="gauge-wrapper" style="text-align: center;">
+                                    <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                                        <canvas id="gauge-gatil"></canvas>
+                                        <div class="gauge-value" id="val-gatil"
+                                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #1e293b;">
+                                            0%</div>
+                                    </div>
+                                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Gatil</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Painel Demográfico -->
+                        <div class="chart-card-modern">
+                            <div class="chart-header">
+                                <h3>Perfil dos Hóspedes</h3>
+                                <i class="fas fa-users text-purple"></i>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                <div class="demo-box"
+                                    style="background: #eff6ff; padding: 1rem; border-radius: 12px; text-align: center;">
+                                    <i class="fas fa-dog fa-2x" style="color: #3b82f6; margin-bottom: 0.5rem;"></i>
+                                    <h4 id="demo-dogs" style="margin: 0; font-size: 1.2rem; color: #1e293b;">0</h4>
+                                    <span style="font-size: 0.8rem; color: #64748b;">Cães</span>
+                                </div>
+                                <div class="demo-box"
+                                    style="background: #fdf2f8; padding: 1rem; border-radius: 12px; text-align: center;">
+                                    <i class="fas fa-cat fa-2x" style="color: #ec4899; margin-bottom: 0.5rem;"></i>
+                                    <h4 id="demo-cats" style="margin: 0; font-size: 1.2rem; color: #1e293b;">0</h4>
+                                    <span style="font-size: 0.8rem; color: #64748b;">Gatos</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; border-top: 1px solid #f1f5f9;">
+                                <details id="vaccine-accordion" style="width: 100%; cursor: pointer;">
+                                    <summary
+                                        style="padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; list-style: none; outline: none;">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-syringe" style="color: #64748b;"></i>
+                                            <span style="color: #64748b; font-weight: 500;">Vacinas Aplicadas</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <strong id="demo-vaccines-count" style="color: #10b981;">-</strong>
+                                            <i class="fas fa-chevron-down"
+                                                style="color: #94a3b8; font-size: 0.8rem; transition: transform 0.2s;"></i>
+                                        </div>
+                                    </summary>
+                                    <div id="vaccine-list-container"
+                                        style="padding-bottom: 1rem; max-height: 250px; overflow-y: auto;">
+                                        <!-- Lista injetada via JS -->
+                                        <p style="text-align: center; color: #94a3b8; font-size: 0.8rem;">Carregando
+                                            dados...</p>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Direita: Top Clientes e Receita -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Top 10 Clientes -->
+                        <div class="chart-card-modern" style="flex: 1;">
+                            <div class="chart-header">
+                                <h3>Top Clientes Fidelidade</h3>
+                                <i class="fas fa-crown text-warning"></i>
+                            </div>
+                            <div class="top-clients-list" id="top-clients-container"
+                                style="max-height: 300px; overflow-y: auto; margin-top: 1rem;">
+                                <!-- Preenchido via JS -->
+                                <p style="text-align: center; color: #cbd5e1; padding: 2rem;">Carregando ranking...</p>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico Financeiro -->
+                        <div class="chart-card-modern">
+                            <div class="chart-header">
+                                <h3>Performance Financeira</h3>
+                                <i class="fas fa-chart-line text-success"></i>
+                            </div>
+                            <div class="chart-container-wrapper" style="height: 200px;">
+                                <canvas id="revenue-composition-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Gráfico de Previsão de Lotação (Full Width) -->
+                <div class="chart-card-modern" style="margin-top: 1.5rem;">
+                    <div class="chart-header">
+                        <h3>Tendência de Ocupação (Próximos 7 dias)</h3>
+                        <i class="fas fa-calendar-alt text-info"></i>
+                    </div>
+                    <div class="chart-container-wrapper" style="height: 250px;">
+                        <canvas id="occupancy-trend-chart"></canvas>
+                    </div>
                 </div>
             </section>
 
             <section id="animals" class="content-section">
                 <div class="page-header">
-                    <div class="page-header-content"><h1>Pets</h1><p>Gestão de animais</p></div>
-                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-animal-btn"><i class="fas fa-plus"></i> Novo</button></div>
+                    <div class="page-header-content">
+                        <h1>Pets</h1>
+                        <p>Gestão de animais</p>
+                    </div>
+                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-animal-btn"><i
+                                class="fas fa-plus"></i> Novo</button></div>
                 </div>
                 <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="animal-search" placeholder="Buscar..."><button class="voice-search-btn" onclick="startVoiceSearch('animal-search')"><i class="fas fa-microphone"></i></button></div>
+                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="animal-search"
+                            placeholder="Buscar..." autocomplete="off"><button class="voice-search-btn"
+                            onclick="startVoiceSearch('animal-search')"><i class="fas fa-microphone"></i></button></div>
                 </div>
                 <div class="table-container"></div>
             </section>
 
             <section id="animal-profile" class="content-section">
                 <div class="profile-minimal-header">
-                    <button class="back-link" onclick="navigateToSection('animals')"><i class="fas fa-chevron-left"></i> Voltar</button>
+                    <button class="back-link" onclick="navigateToSection('animals')"><i class="fas fa-chevron-left"></i>
+                        Voltar</button>
                     <div class="profile-title-group">
                         <h1>Perfil do Pet</h1>
                         <span>Histórico e saúde</span>
@@ -104,42 +542,308 @@
 
             <section id="reservations" class="content-section">
                 <div class="page-header">
-                    <div class="page-header-content"><h1>Reservas</h1><p>Hospedagens</p></div>
-                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-reservation-btn"><i class="fas fa-plus"></i> Nova</button></div>
+                    <div class="page-header-content">
+                        <h1>Reservas</h1>
+                        <p>Hospedagens</p>
+                    </div>
+                    <div class="page-header-actions"><button class="btn btn-primary btn-sm" id="add-reservation-btn"><i
+                                class="fas fa-plus"></i> Nova</button></div>
                 </div>
                 <div class="filters-container">
-                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="reservation-search" placeholder="Buscar..."></div>
-                    <input type="month" id="month-filter" class="month-filter-modern">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="reservation-search" placeholder="Buscar por pet ou tutor..."
+                            autocomplete="off" spellcheck="false">
+                        <button class="clear-search-btn"
+                            onclick="document.getElementById('reservation-search').value = ''; window.reservationsManager.applyFilters();"
+                            title="Limpar busca">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="filter-group-modern" style="flex-wrap: wrap;">
+                        <div style="position:relative; flex:1; min-width:140px;">
+                            <input type="date" id="date-search-filter" class="month-filter-modern"
+                                placeholder="Data específica">
+                            <button class="btn-clear-month"
+                                onclick="document.getElementById('date-search-filter').value = ''; window.reservationsManager.applyFilters();"
+                                title="Limpar data"
+                                style="position:absolute; right:5px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94a3b8;"><i
+                                    class="fas fa-times"></i></button>
+                        </div>
+                        <label class="show-finished-filter" for="show-finished-cb"
+                            style="display:flex; align-items:center; gap:0.5rem; background:white; padding:0.5rem 1rem; border-radius:12px; border:2px solid #e2e8f0; cursor:pointer; margin-bottom: 0;">
+                            <input type="checkbox" id="show-finished-cb"
+                                style="width:20px; height:20px; cursor:pointer;">
+                            <span
+                                style="margin:0; font-size:0.9rem; font-weight:600; color:#475569; user-select:none;">Ver
+                                Finalizadas</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="table-container"></div>
             </section>
 
             <section id="reports" class="content-section">
-                <div class="page-header"><div class="page-header-content"><h1>Relatórios</h1><p>Estatísticas</p></div></div>
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Relatórios</h1>
+                        <p>Estatísticas</p>
+                    </div>
+                </div>
                 <div class="reports-grid">
-                    <div class="report-card"><h3>Mensal</h3><select id="report-month"></select><button class="btn btn-secondary btn-sm" id="generate-monthly-report">Gerar</button></div>
-                    <div class="report-card"><h3>Anual</h3><select id="report-year"></select><button class="btn btn-secondary btn-sm" id="generate-yearly-report">Gerar</button></div>
+                    <div class="report-card">
+                        <h3>Mensal</h3><select id="report-month"></select><button class="btn btn-secondary btn-sm"
+                            id="generate-monthly-report">Gerar</button>
+                    </div>
+                    <div class="report-card">
+                        <h3>Anual</h3><select id="report-year"></select><button class="btn btn-secondary btn-sm"
+                            id="generate-yearly-report">Gerar</button>
+                    </div>
                 </div>
                 <div id="report-content" class="report-content"></div>
+            </section>
+            <section id="posts" class="content-section">
+                <!-- Banner Roxo -->
+                <div class="marketing-banner">
+                    <div class="banner-content">
+                        <h2>Criar Novo Post</h2>
+                        <p>Transforme fotos em marketing profissional com IA.</p>
+                        <a href="https://aistudio.google.com/app/apps/drive/1nA6xcX4jgq2KTJ0gMnQYQ2Iuzuz56nRg?showAssistant=true&showPreview=true"
+                            target="_blank" class="btn btn-sm btn-outline-light mt-2"
+                            style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; text-decoration: none; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-external-link-alt"></i> Abrir Protótipo no Google AI Studio
+                        </a>
+                    </div>
+                    <i class="fas fa-dog banner-icon"></i>
+                </div>
+
+                <div class="marketing-tutorial-area" style="margin-top: 2rem;">
+                    <div class="tutorial-header" style="text-align: center; margin-bottom: 2rem;">
+                        <h3 style="color: #581c87; font-size: 1.5rem; margin-bottom: 0.5rem;">Guia Rápido: Como Criar
+                            sua Arte</h3>
+                        <p style="color: #64748b;">Siga estes passos simples para gerar posts profissionais em segundos
+                        </p>
+                    </div>
+
+                    <div class="tutorial-steps"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <!-- Passo 1 -->
+                        <div class="t-step-card"
+                            style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #8b5cf6;">
+                            <div
+                                style="background: #f3f0ff; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #8b5cf6; font-weight: bold;">
+                                1</div>
+                            <h4 style="margin-bottom: 0.5rem; color: #1e293b;">Acesse o Estúdio</h4>
+                            <p style="font-size: 0.9rem; color: #64748b;">Clique no botão roxo acima para abrir o
+                                assistente inteligente do PetCá no Google AI Studio.</p>
+                        </div>
+
+                        <!-- Passo 2 -->
+                        <div class="t-step-card"
+                            style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #fbbf24;">
+                            <div
+                                style="background: #fffbeb; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #fbbf24; font-weight: bold;">
+                                2</div>
+                            <h4 style="margin-bottom: 0.5rem; color: #1e293b;">Envie suas Fotos</h4>
+                            <p style="font-size: 0.9rem; color: #64748b;">Dentro do Google AI Studio, faça o upload das
+                                fotos do pet, do banho ou do produto que deseja divulgar.</p>
+                        </div>
+
+                        <!-- Passo 3 -->
+                        <div class="t-step-card"
+                            style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #ec4899;">
+                            <div
+                                style="background: #fdf2f8; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #ec4899; font-weight: bold;">
+                                3</div>
+                            <h4 style="margin-bottom: 0.5rem; color: #1e293b;">Peça a Variação</h4>
+                            <p style="font-size: 0.9rem; color: #64748b;">Diga à IA qual estilo você quer: <strong>Banho
+                                    & Tosa</strong>, <strong>Hotel</strong> ou <strong>Promocional</strong>. Ela já
+                                conhece nossas cores roxo e amarelo!</p>
+                        </div>
+
+                        <!-- Passo 4 -->
+                        <div class="t-step-card"
+                            style="background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 5px solid #10b981;">
+                            <div
+                                style="background: #f0fdf4; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #10b981; font-weight: bold;">
+                                4</div>
+                            <h4 style="margin-bottom: 0.5rem; color: #1e293b;">Pronto para Postar</h4>
+                            <p style="font-size: 0.9rem; color: #64748b;">A IA criará a arte com logo e a legenda
+                                perfeita. Basta salvar e compartilhar nas redes sociais.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top: 2rem; background: #f8fafc; padding: 1.5rem; border-radius: 15px; text-align: center; border: 1px dashed #cbd5e1;">
+                        <i class="fas fa-magic" style="color: #8b5cf6; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                        <p style="color: #475569; font-weight: 500;">O protótipo já está pré-configurado com a
+                            identidade visual da PetCá!</p>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="settings" class="content-section">
+                <div class="page-header">
+                    <div class="page-header-content">
+                        <h1>Configurações</h1>
+                        <p>Preferências do Sistema</p>
+                    </div>
+                </div>
+
+                <div class="settings-container">
+
+                    <!-- APARÊNCIA -->
+                    <div class="settings-group">
+                        <h3>Aparência</h3>
+                        <div class="settings-card">
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-icon dark-icon"><i class="fas fa-moon"></i></div>
+                                    <div>
+                                        <strong>Modo Escuro</strong>
+                                        <span>Interface com cores escuras para descanso visual</span>
+                                    </div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="dark-mode-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INTELIGÊNCIA ARTIFICIAL -->
+                    <div class="settings-group">
+                        <h3>Inteligência Artificial (IA)</h3>
+                        <div class="settings-card ia-card-modern">
+                            <div class="ia-info">
+                                <i class="fas fa-brain fa-2x ia-icon-glow"></i>
+                                <p>Potencialize seu marketing e análise com IA de ponta. Escolha seu provedor preferido.
+                                </p>
+                            </div>
+
+                            <div class="provider-grid">
+                                <button class="provider-pill active" data-provider="gemini">
+                                    <i class="fab fa-google"></i> Gemini
+                                </button>
+                                <button class="provider-pill" data-provider="pollinations">
+                                    <i class="fas fa-bolt"></i> Pollinations
+                                </button>
+                                <button class="provider-pill" data-provider="huggingface">
+                                    <i class="fas fa-face-smile"></i> Hugging Face
+                                </button>
+                            </div>
+
+                            <div id="api-key-container" class="api-field-group">
+                                <label>Chave de Acesso Oficial</label>
+                                <div class="premium-input-wrapper">
+                                    <input type="password" id="ai-api-key" placeholder="Insira sua chave API...">
+                                    <button class="visibility-toggle" onclick="togglePassword('ai-api-key')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="api-actions">
+                                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
+                                        Obter chave <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <button id="btn-save-api" class="btn btn-primary btn-sm">Salvar
+                                        Configurações</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DADOS E BACKUP -->
+                    <div class="settings-group">
+                        <h3>Cloud & Backup</h3>
+                        <div class="settings-card">
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-icon drive-icon"><i class="fab fa-google-drive"></i></div>
+                                    <div class="drive-label-group">
+                                        <strong>Sincronização na Nuvem</strong>
+                                        <span id="drive-status-label">Backup automático desativado</span>
+                                    </div>
+                                </div>
+                                <div class="drive-actions">
+                                    <button id="btn-google-login" class="btn btn-outline-primary btn-sm">
+                                        <i class="fab fa-google"></i> Conectar Drive
+                                    </button>
+                                    <div id="drive-status" style="display: none;">
+                                        <div class="connected-badge">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span id="user-email">email@google.com</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUPORTE E AJUDA -->
+                    <div class="settings-group">
+                        <h3>Ajuda & Suporte</h3>
+                        <div class="settings-card">
+                            <div class="setting-row clickable" onclick="window.tutorialManager.restartTutorial()">
+                                <div class="setting-info">
+                                    <div class="setting-icon help-icon"><i class="fas fa-magic"></i></div>
+                                    <div>
+                                        <strong>Reiniciar Tutorial</strong>
+                                        <span>Ver as dicas de boas-vindas novamente</span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right arrow-indicator"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="app-version">
+                        <p>Hotel Pet App v2.5.0</p>
+                        <p class="copyright">© 2026 PetCá Systems</p>
+                    </div>
+                </div>
             </section>
         </div>
     </main>
 
     <div id="animal-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3 id="animal-modal-title">Novo Animal</h3><button class="close-modal">&times;</button></div>
+            <div class="modal-header">
+                <h3 id="animal-modal-title">Novo Animal</h3><button class="close-modal">&times;</button>
+            </div>
             <form id="animal-form">
                 <div class="form-group animal-photo-group">
-                    <div class="photo-selector-modern" onclick="document.getElementById('animal-photo').click()">
-                        <div class="photo-preview-box"><img id="photo-preview" style="display:none;"><div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i></div></div>
+                    <div class="photo-selector-modern" onclick="window.animalsManager.takePhoto()">
+                        <div class="photo-preview-box"><img id="photo-preview" style="display:none;">
+                            <div class="photo-placeholder" id="photo-placeholder"><i class="fas fa-camera"></i></div>
+                        </div>
                         <input type="file" id="animal-photo" accept="image/*" hidden>
                     </div>
                 </div>
                 <div class="form-group"><label>Nome *</label><input type="text" id="animal-name" required></div>
                 <div class="form-group"><label>Tutor *</label><input type="text" id="tutor-name" required></div>
                 <div class="form-group"><label>Telefone *</label><input type="tel" id="tutor-phone" required></div>
-                <div class="form-group"><label>Espécie *</label><select id="animal-species" required><option value="CÃO">Cão</option><option value="GATO">Gato</option></select></div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
+                <div class="form-group"><label>Espécie *</label><select id="animal-species" required>
+                        <option value="CÃO">Cão</option>
+                        <option value="GATO">Gato</option>
+                    </select></div>
+                <div class="form-group"><label>Sexo *</label><select id="animal-sex" required>
+                        <option value="M">Macho</option>
+                        <option value="F">Fêmea</option>
+                    </select></div>
+
+                <div class="form-group"><label>Peso (kg)</label><input type="text" id="animal-weight"
+                        placeholder="Ex: 12.5"></div>
+                <div class="form-group"><label>Alergias</label><input type="text" id="animal-allergies"
+                        placeholder="Ex: Frango, Dipirona"></div>
+                <div class="form-group"><label>Medicação Contínua</label><input type="text" id="animal-medication"
+                        placeholder="Ex: Gardenal 12/12h"></div>
+                <div class="form-group"><label>Observações Veterinárias</label><textarea id="animal-vet-notes" rows="3"
+                        placeholder="Histórico, cuidados especiais..."></textarea></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary"
+                        onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit"
+                        class="btn btn-primary">Salvar</button></div>
             </form>
         </div>
     </div>
@@ -147,12 +851,15 @@
     <!-- MODAL DE HISTÓRICO ATUALIZADO COM VACINAÇÃO -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>Adicionar Registro</h3><button class="close-modal">&times;</button></div>
+            <div class="modal-header">
+                <h3>Adicionar Registro</h3><button class="close-modal">&times;</button>
+            </div>
             <form id="history-form">
                 <input type="hidden" id="history-animal-name">
                 <div class="form-row">
                     <div class="form-group"><label>Tipo *</label>
-                        <select id="history-type" required onchange="window.animalProfileManager.onHistoryTypeChange(this.value)">
+                        <select id="history-type" required
+                            onchange="window.animalProfileManager.onHistoryTypeChange(this.value)">
                             <option value="">Selecione</option>
                             <option value="VACINAÇÃO">Vacinação 💉</option>
                             <option value="BANHO">Banho</option>
@@ -163,14 +870,16 @@
                             <option value="OBSERVAÇÃO">Observação Geral</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Data Aplicação *</label><input type="date" id="history-date" required></div>
+                    <div class="form-group"><label>Data Aplicação *</label><input type="date" id="history-date"
+                            required></div>
                 </div>
 
                 <!-- Campos de Vacinação Inteligentes -->
-                <div id="vaccine-fields" style="display: none; background: #f0f7ff; padding: 1.25rem; border-radius: 12px; border: 1px solid #dbeafe; margin: 0 1.5rem 1rem 1.5rem;">
+                <div id="vaccine-fields"
+                    style="display: none; background: #f0f7ff; padding: 1.25rem; border-radius: 12px; border: 1px solid #dbeafe; margin: 0 1.5rem 1rem 1.5rem;">
                     <div class="form-group" style="padding:0 0 1rem 0;">
                         <label>Nome da Vacina *</label>
-                        <select id="vac-name" onchange="window.animalProfileManager.calculateBooster()">
+                        <select id="vac-name" onchange="window.animalProfileManager.onVaccineNameChange(this.value)">
                             <optgroup label="Cães (Canina)">
                                 <option value="V8 (Polivalente)">V8 (Polivalente)</option>
                                 <option value="V10 (Polivalente)">V10 (Polivalente)</option>
@@ -185,7 +894,12 @@
                                 <option value="V4 (Quádrupla Felina)">V4 (Quádrupla Felina)</option>
                                 <option value="V5 (Quíntupla Felina)">V5 (Quíntupla Felina)</option>
                             </optgroup>
+                            <option value="OUTRA">Outra (Digitar Nome)</option>
                         </select>
+                    </div>
+                    <div class="form-group" id="other-vac-name-group" style="display: none; padding:0 0 1rem 0;">
+                        <label>Nome da Vacina (Personalizado)</label>
+                        <input type="text" id="vac-name-custom" placeholder="Digite o nome da vacina">
                     </div>
                     <div class="form-row" style="padding:0;">
                         <div class="form-group" style="padding:0 0 1rem 0;"><label>Dose *</label>
@@ -196,35 +910,137 @@
                                 <option value="Reforço Anual">Reforço Anual</option>
                             </select>
                         </div>
-                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Próximo Reforço</label><input type="date" id="vac-next-date"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Próximo Reforço</label><input
+                                type="date" id="vac-next-date"></div>
                     </div>
                     <div class="form-row" style="padding:0;">
-                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Lote</label><input type="text" id="vac-lote" placeholder="Lote"></div>
-                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Fabricante</label><input type="text" id="vac-lab" placeholder="Fabricante"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Lote</label><input type="text"
+                                id="vac-lote" placeholder="Lote"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Fabricante</label><input type="text"
+                                id="vac-lab" placeholder="Fabricante"></div>
                     </div>
                     <div class="form-row" style="padding:0;">
-                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Peso (kg)</label><input type="text" id="vac-weight" placeholder="0.0"></div>
-                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Valor (R$)</label><input type="number" id="vac-price" step="0.01"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Peso (kg)</label><input type="text"
+                                id="vac-weight" placeholder="0.0"></div>
+                        <div class="form-group" style="padding:0 0 1rem 0;"><label>Valor (R$)</label><input
+                                type="number" id="vac-price" step="0.01"></div>
                     </div>
-                    <div class="form-group" style="padding:0;"><label>Veterinário</label><input type="text" id="vac-vet" placeholder="Nome/CRMV"></div>
+                    <div class="form-group" style="padding:0;"><label>Veterinário</label><input type="text" id="vac-vet"
+                            placeholder="Nome/CRMV"></div>
                 </div>
 
-                <div class="form-group"><label>Descrição / Reações *</label><textarea id="history-description" rows="3" required></textarea></div>
-                <div class="form-actions"><button type="button" class="btn btn-secondary" id="cancel-history">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Registro</button></div>
+                <div class="form-group"><label>Descrição / Reações *</label><textarea id="history-description" rows="3"
+                        required></textarea></div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary"
+                        id="cancel-history">Cancelar</button><button type="submit" class="btn btn-primary">Salvar
+                        Registro</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESERVA -->
+    <div id="reservation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="reservation-modal-title">Nova Reserva</h3><button class="close-modal">&times;</button>
+            </div>
+            <form id="reservation-form">
+                <div class="form-group"><label>Animal *</label><select id="reservation-animal" required></select></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Tipo de Alojamento *</label><select
+                            id="reservation-accommodation-type">
+                            <option value="">Selecione</option>
+                        </select></div>
+                    <div class="form-group"><label>Número *</label><select id="reservation-kennel-number" disabled>
+                            <option value="">Escolha o número</option>
+                        </select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Check-in *</label><input type="date" id="checkin-date" required>
+                    </div>
+                    <div class="form-group"><label>Check-out *</label><input type="date" id="checkout-date" required>
+                    </div>
+                </div>
+                <div class="form-group"><label>Valor da Diária (R$) *</label><input type="number" id="daily-rate"
+                        step="0.01" required></div>
+                <div class="form-group"><label>Forma de Pagamento *</label>
+                    <select id="payment-method" required>
+                        <option value="">Selecione</option>
+                        <option value="DINHEIRO">Dinheiro</option>
+                        <option value="PIX">PIX</option>
+                        <option value="CARTÃO DÉBITO">Cartão Débito</option>
+                        <option value="CARTÃO CRÉDITO">Cartão Crédito</option>
+                    </select>
+                </div>
+                <div class="services-section">
+                    <h4>Serviços Adicionais</h4>
+                    <div class="service-item">
+                        <label><input type="checkbox" id="transport-service"> Transporte</label>
+                        <input type="number" id="transport-value" step="0.01" placeholder="Valor (R$)" disabled>
+                    </div>
+                    <div class="service-item">
+                        <label><input type="checkbox" id="bath-service"> Banho</label>
+                        <input type="number" id="bath-value" step="0.01" placeholder="Valor (R$)" disabled>
+                    </div>
+                </div>
+                <div class="form-group"><label>Valor Total</label><input type="text" id="total-value" readonly></div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="whatsapp-receipt"> Enviar recibo por WhatsApp após salvar</label>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-secondary"
+                        onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit"
+                        class="btn btn-primary">Salvar Reserva</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="receipt-config-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configurar Recibo</h3><button class="close-modal">&times;</button>
+            </div>
+            <form id="receipt-config-form">
+                <input type="hidden" id="receipt-res-id">
+                <div class="form-group">
+                    <label>Endereço da PetCá</label>
+                    <textarea id="receipt-address"
+                        rows="3">Rod. José Francisco da Silva, 250 - Chácara Bom Retiro, Nova Lima - MG, 34002-000</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Telefone para Contato</label>
+                    <input type="tel" id="receipt-phone" value="(31) 2010-9901">
+                </div>
+                <div
+                    style="margin-bottom: 20px; padding: 15px; background: #f0e7ff; border-radius: 12px; border: 1px solid #dcd0ff;">
+                    <p style="font-size: 0.85rem; color: #673ab7; margin: 0;"><i class="fas fa-info-circle"></i> Estes
+                        dados aparecerão no cabeçalho do recibo PDF estilizado.</p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="hotelPetApp.closeAllModals()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Gerar Recibo
+                        PDF</button>
+                </div>
             </form>
         </div>
     </div>
 
     <div class="fab-container" id="fab-container">
         <div class="fab-menu" id="fab-menu">
-            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()"><i class="fas fa-calendar-check"></i><span>Reserva</span></button>
-            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()"><i class="fas fa-dog"></i><span>Animal</span></button>
+            <button class="fab-item" onclick="window.reservationsManager.openReservationModal()"><i
+                    class="fas fa-calendar-check"></i><span>Reserva</span></button>
+            <button class="fab-item" onclick="window.animalsManager.openAnimalModal()"><i
+                    class="fas fa-dog"></i><span>Animal</span></button>
         </div>
         <button class="fab-main" id="fab-main"><i class="fas fa-plus"></i></button>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="js/config.js"></script>
     <script src="js/storage-service.js"></script>
     <script src="js/database.js"></script>
     <script src="js/dashboard.js"></script>
@@ -233,24 +1049,75 @@
     <script src="js/reports.js"></script>
     <script src="js/kennels.js"></script>
     <script src="js/backup.js"></script>
+    <script src="js/drive-sync.js"></script>
+    <script src="js/notification-service.js"></script>
     <script src="js/features.js"></script>
+    <script src="js/ai-secretary.js"></script>
+    <script src="js/receipt-generator.js"></script>
     <script src="js/animal-profile.js"></script>
+
+    <!-- Fullscreen Chart Modal -->
+    <div id="chart-modal" class="modal">
+        <div class="modal-content"
+            style="width: 95%; height: 90vh; max-width: none; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 id="modal-chart-title">Visualização Expandida</h3>
+                <button class="close-modal"
+                    onclick="document.getElementById('chart-modal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="modal-body" style="flex: 1; position: relative; min-height: 0; padding: 10px;">
+                <canvas id="modal-chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchImageTab(tab) {
+            // UI Update
+            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+            if (tab === 'upload') document.getElementById('tab-upload').classList.add('active');
+            else document.getElementById('tab-ai-gen').classList.add('active');
+
+            // Show/Hide Panels
+            document.getElementById('source-upload-panel').style.display = tab === 'upload' ? 'block' : 'none';
+            document.getElementById('source-ai-panel').style.display = tab === 'ai' ? 'block' : 'none';
+        }
+    </script>
+    <script src="js/settings.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/tutorial.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/auth-ui.js"></script>
     <script src="js/app.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar Managers Extras
+            // (O app.js vai chamar, mas garantindo aqui caso app.js ja tenha rodado ou precise de ordem)
+        });
         function navigateToSection(sectionName) { if (window.hotelPetApp) window.hotelPetApp.navigateToSection(sectionName); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); }
         window.addEventListener('load', () => {
+            // Aumentado o tempo de loading para um efeito mais premium
             setTimeout(() => {
-                document.getElementById('loading').classList.add('fade-out');
+                const loading = document.getElementById('loading');
+                loading.classList.add('fade-out');
                 setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('app').classList.remove('hidden');
-                    document.getElementById('app').classList.add('visible');
-                }, 800);
-            }, 1000);
+                    loading.style.display = 'none';
+                    const app = document.getElementById('app');
+                    app.classList.remove('hidden');
+                    app.classList.add('visible');
+                    // Ativar primeira transição suave
+                    const firstSection = document.querySelector('.content-section.active');
+                    if (firstSection) {
+                        firstSection.style.opacity = '1';
+                        firstSection.style.transform = 'translateY(0)';
+                    }
+                }, 1200);
+            }, 2500); // 2.5 segundos de pura elegância inicial
         });
     </script>
 </body>
+
 </html>

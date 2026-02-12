@@ -1,3 +1,39 @@
+# Dependencies
 node_modules/
-.DS_Store
+package-lock.json
+
+# Build outputs
+*.apk
+*.aab
+build/
+dist/
+www/
+
+# Logs
 *.log
+build_*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp
+
+# Environment
+.env
+.env.local

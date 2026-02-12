@@ -7,7 +7,7 @@ package-lock.json
 *.aab
 build/
 dist/
-www/
+# www/
 
 # Logs
 *.log

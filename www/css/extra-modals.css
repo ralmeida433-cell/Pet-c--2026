@@ -1,0 +1,55 @@
+/* ============================================================ */
+/* NOVO: MODAL DE AÇÕES RÁPIDAS (Check-out / View) */
+/* ============================================================ */
+
+/* Animação suave para os botões do modal de ação */
+.btn-action-large {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-action-large:active {
+    transform: scale(0.98);
+    box-shadow: none !important;
+}
+
+/* Modal de Checkout */
+.checkout-content {
+    animation: slideUp 0.3s ease-out;
+}
+
+.checkout-summary-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-row.total span {
+    font-size: 1.2rem;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade Modais */
+@media (max-width: 480px) {
+    .modal-content.action-menu-content {
+        max-width: 90%;
+        padding: 1rem;
+    }
+
+    .btn-action-large {
+        padding: 0.8rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .modal-content.checkout-content {
+        max-width: 95%;
+    }
+}

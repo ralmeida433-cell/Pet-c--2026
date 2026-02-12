@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="css/modern-styles.css">
     <link rel="stylesheet" href="css/overview-modern.css">
     <link rel="stylesheet" href="css/fix-styles.css">
+    <link rel="stylesheet" href="css/extra-modals.css">
 
     <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Nativo Android">
     <meta name="theme-color" content="#2563eb">
@@ -743,6 +744,93 @@
                         onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit"
                         class="btn btn-primary">Salvar</button></div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE AÇÕES RÁPIDAS DO CANIL -->
+    <div id="kennel-action-modal" class="modal">
+        <div class="modal-content action-menu-content" style="max-width: 350px; border-radius: 24px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="action-menu-body" style="text-align: center; padding: 0 1.5rem 2rem;">
+                <div class="pet-photo-large" id="action-pet-photo"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #6366f1; overflow: hidden; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h3 id="action-pet-name" style="margin: 0; font-size: 1.5rem; color: #1e293b;">Pet Name</h3>
+                <p id="action-tutor-name"
+                    style="margin: 0.25rem 0 1.5rem; color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Tutor Name</p>
+
+                <div class="action-buttons-grid" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button class="btn-action-large finish" id="btn-action-finish"
+                        style="background: #10b981; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                        Finalizar Estadia
+                    </button>
+
+                    <button class="btn-action-large view-res" id="btn-action-reservation"
+                        style="background: #3b82f6; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                        <i class="fas fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                        Ver Reserva
+                    </button>
+
+                    <button class="btn-action-large view-profile" id="btn-action-profile"
+                        style="background: #8b5cf6; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                        <i class="fas fa-id-card" style="font-size: 1.2rem;"></i>
+                        Ver Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CHECKOUT / FINALIZAÇÃO -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content checkout-content" style="max-width: 400px; border-radius: 24px;">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9;">
+                <h3 style="color: #1e293b; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-clipboard-check" style="color: #10b981;"></i> Finalizar Estadia
+                </h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="checkout-body" style="padding: 1.5rem;">
+                <div class="checkout-summary-card"
+                    style="background: #f8fafc; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                    <div class="checkout-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                        <span>Dias Totais:</span>
+                        <strong style="color: #1e293b;" id="checkout-days">0</strong>
+                    </div>
+                    <div class="checkout-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                        <span>Data Saída:</span>
+                        <strong style="color: #1e293b;" id="checkout-date-display">-</strong>
+                    </div>
+                    <div class="checkout-divider" style="height: 1px; background: #cbd5e1; margin: 0.5rem 0;"></div>
+                    <div class="checkout-row total"
+                        style="display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; color: #0f172a; font-weight: 800;">
+                        <span>Valor Final:</span>
+                        <span style="color: #10b981;" id="checkout-total">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div id="early-checkout-warning"
+                    style="display: none; background: #fff1f2; color: #be123c; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid #fecdd3;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> Encerramento antecipado.<br>
+                    O valor foi recalculado com base nos dias reais.
+                </div>
+
+                <div class="form-actions" style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary close-modal-btn"
+                        style="flex: 1; border-radius: 12px;">Cancelar</button>
+                    <button type="button" id="confirm-checkout-btn" class="btn"
+                        style="flex: 1; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 600;">
+                        Confirmar Saída
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

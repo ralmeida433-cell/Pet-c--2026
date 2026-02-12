@@ -77,6 +77,19 @@ class ReservationsManager {
                 card.classList.toggle('expanded');
             }
         });
+
+        // Eventos do Modal de Checkout
+        const checkoutModal = document.getElementById('checkout-modal');
+        if (checkoutModal) {
+            // Fechar no X
+            checkoutModal.querySelector('.close-modal')?.addEventListener('click', () => checkoutModal.classList.remove('active'));
+            // Fechar no Botão Cancelar
+            checkoutModal.querySelector('.close-modal-btn')?.addEventListener('click', () => checkoutModal.classList.remove('active'));
+            // Fechar ao clicar fora
+            window.addEventListener('click', (e) => {
+                if (e.target === checkoutModal) checkoutModal.classList.remove('active');
+            });
+        }
     }
 
     updateAvailability() {
@@ -403,8 +416,6 @@ class ReservationsManager {
         });
 
         this.renderReservationsList(filtered);
-
-        this.renderReservationsList(filtered);
     }
 
     renderReservationsList(data) {
@@ -462,8 +473,7 @@ class ReservationsManager {
                     <div class="card-actions">
                         <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); window.reservationsManager.editReservation(${r.id})"><i class="fas fa-pen"></i> Editar</button>
                         <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); window.reservationsManager.shareReceipt(${r.id})"><i class="fab fa-whatsapp"></i> Recibo</button>
-                        <button class="btn btn-success btn-sm" onclick="event.stopPropagation(); window.reservationsManager.shareReceipt(${r.id})"><i class="fab fa-whatsapp"></i> Recibo</button>
-                        ${r.status === 'ATIVA' ? `<button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); window.reservationsManager.finalizeReservation(${r.id})"><i class="fas fa-check-circle"></i> Finalizar</button>` : ''}
+                        ${r.status === 'ATIVA' ? `<button class="btn btn-success btn-sm" style="background-color: #10b981; border-color: #10b981;" onclick="event.stopPropagation(); window.reservationsManager.openFinishReservationModal(${r.id})"><i class="fas fa-check-circle"></i> Finalizar</button>` : ''}
                         ${r.status === 'FINALIZADA' ? `<button class="btn btn-vac-delete" style="width:auto; padding:0 1rem; background:#fee2e2; color:#ef4444; border:none;" onclick="event.stopPropagation(); window.reservationsManager.deleteReservation(${r.id})"><i class="fas fa-trash-alt"></i> Excluir</button>` : ''} 
                     </div>
                 </div>
@@ -472,24 +482,15 @@ class ReservationsManager {
     }
 
     createDetailModal() {
+        // Modal antigo removido/mantido vazio se necessário para compatibilidade, 
+        // mas a lógica agora usa cards expansíveis e o novo checkout-modal no HTML
         if (document.getElementById('reservation-detail-modal')) return;
-        const modalHTML = `
-            <div id="reservation-detail-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header"><h3>Detalhes da Reserva</h3><button class="close-modal">&times;</button></div>
-                    <div id="detail-content" class="detail-content"></div>
-                    <div class="detail-actions">
-                        <button class="btn btn-secondary" id="detail-edit-btn"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn btn-success" id="detail-whatsapp-btn"><i class="fab fa-whatsapp"></i> Compartilhar Recibo</button>
-                        <button class="btn btn-danger" id="detail-finalize-btn"><i class="fas fa-check-circle"></i> Finalizar Reserva</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        document.getElementById('detail-edit-btn')?.addEventListener('click', () => this.handleDetailAction('edit'));
-        document.getElementById('detail-whatsapp-btn')?.addEventListener('click', () => this.handleDetailAction('whatsapp'));
-        document.getElementById('detail-finalize-btn')?.addEventListener('click', () => this.handleDetailAction('finalize'));
+        // Inserimos o modal de detalhes apenas se necessário, mas os botões agora ficam no card
+    }
+
+    // Método alias para compatibilidade com o botão antigo se houver
+    finalizeReservation(id) {
+        this.openFinishReservationModal(id);
     }
 
     async openDetailModal(id) {
@@ -508,50 +509,79 @@ class ReservationsManager {
         else if (action === 'whatsapp') this.shareReceipt(this.currentReservationId);
     }
 
-    async finalizeReservation(id) {
+    async openFinishReservationModal(id) {
         const res = await db.getReservationById(id);
-        const today = new Date().toISOString().split('T')[0];
-        let infoMessage = 'Deseja finalizar esta reserva?';
-        let updatedRes = { ...res };
+        if (!res) return;
 
-        // Lógica de Encerramento Antecipado
+        const modal = document.getElementById('checkout-modal');
+        const today = new Date().toISOString().split('T')[0];
+
+        let days = res.total_days;
+        let totalValue = res.total_value;
+        let isEarly = false;
+
+        // Cálculo de Encerramento Antecipado
         if (today < res.checkout_date && today >= res.checkin_date) {
             const d1 = new Date(res.checkin_date + 'T00:00:00');
             const d2 = new Date(today + 'T00:00:00');
             const actualDays = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
-            const newValue = (actualDays * res.daily_rate) + (res.transport_service ? res.transport_value : 0) + (res.bath_service ? res.bath_value : 0);
 
-            infoMessage = `ENCERRAMENTO ANTECIPADO DETECTADO!\n\n` +
-                `Original: ${res.total_days} dias (${this.formatCurrency(res.total_value)})\n` +
-                `Realizado: ${actualDays} dias\n` +
-                `Novo Total: ${this.formatCurrency(newValue)}\n\n` +
-                `Confirmar desconto e finalizar?`;
+            // Recalcula total com serviços extras
+            const extras = (res.transport_service ? res.transport_value : 0) + (res.bath_service ? res.bath_value : 0);
+            const newValue = (actualDays * res.daily_rate) + extras;
 
-            updatedRes.total_days = actualDays;
-            updatedRes.checkout_date = today;
-            updatedRes.total_value = newValue;
+            days = actualDays;
+            totalValue = newValue;
+            isEarly = true;
         }
 
-        if (confirm(infoMessage)) {
-            window.hotelPetApp.showLoading();
-            updatedRes.status = 'FINALIZADA';
-            try {
-                await db.updateReservation(id, updatedRes);
-                await db.addAnimalHistory({
-                    animal_id: res.animal_id,
-                    type: 'HOSPEDAGEM',
-                    date: today,
-                    description: `Reserva finalizada. Dias: ${updatedRes.total_days}. Valor: ${this.formatCurrency(updatedRes.total_value)}.`
-                });
-                window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
-                this.closeDetailModal();
-                await this.loadReservations();
-                if (window.kennelVisualization) window.kennelVisualization.refresh();
-            } catch (e) {
-                window.hotelPetApp.showNotification('Erro ao finalizar.', 'error');
-            } finally {
-                window.hotelPetApp.hideLoading();
+        // Atualiza UI do Modal
+        document.getElementById('checkout-days').innerText = days;
+        document.getElementById('checkout-date-display').innerText = this.formatDate(today);
+        document.getElementById('checkout-total').innerText = this.formatCurrency(totalValue);
+
+        const warning = document.getElementById('early-checkout-warning');
+        if (warning) warning.style.display = isEarly ? 'block' : 'none';
+
+        // Configura botão de confirmação
+        const confirmBtn = document.getElementById('confirm-checkout-btn');
+        confirmBtn.onclick = () => {
+            // Cria objeto atualizado
+            const updatedRes = { ...res };
+            if (isEarly) {
+                updatedRes.total_days = days;
+                updatedRes.checkout_date = today;
+                updatedRes.total_value = totalValue;
             }
+            updatedRes.status = 'FINALIZADA';
+
+            this.processFinalization(id, updatedRes, days, totalValue);
+            modal.classList.remove('active');
+        };
+
+        modal.classList.add('active');
+    }
+
+    async processFinalization(id, updatedRes, days, totalValue) {
+        window.hotelPetApp.showLoading();
+        try {
+            await db.updateReservation(id, updatedRes);
+            const today = new Date().toISOString().split('T')[0];
+
+            await db.addAnimalHistory({
+                animal_id: updatedRes.animal_id,
+                type: 'HOSPEDAGEM',
+                date: today,
+                description: `Reserva finalizada. Dias: ${days}. Valor: ${this.formatCurrency(totalValue)}.`
+            });
+
+            window.hotelPetApp.showNotification('Reserva finalizada com sucesso!', 'success');
+            await this.loadReservations();
+            if (window.kennelVisualization) window.kennelVisualization.refresh();
+        } catch (e) {
+            window.hotelPetApp.showNotification('Erro ao finalizar: ' + e.message, 'error');
+        } finally {
+            window.hotelPetApp.hideLoading();
         }
     }
 

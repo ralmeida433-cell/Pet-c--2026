@@ -41,6 +41,7 @@ class KennelVisualization {
                     reservasAtivas.forEach(reserva => {
                         const canilId = `${reserva.accommodation_type}-${reserva.kennel_number}`;
                         this.ocupacao.set(canilId, {
+                            id: reserva.id, // ID da Reserva
                             animal: reserva.animal_name,
                             tutor: reserva.tutor_name,
                             entrada: reserva.checkin_date,
@@ -67,6 +68,16 @@ class KennelVisualization {
         const gatils = this.canis.filter(c => c.type === 'GATIL');
 
         const stats = this.calcularEstatisticas();
+
+        // Setup do modal de ações rápidas (fechar ao clicar fora ou no X)
+        const actionModal = document.getElementById('kennel-action-modal');
+        if (actionModal && !actionModal.hasAttribute('data-initialized')) {
+            actionModal.querySelector('.close-modal').onclick = () => actionModal.classList.remove('active');
+            window.addEventListener('click', (e) => {
+                if (e.target === actionModal) actionModal.classList.remove('active');
+            });
+            actionModal.setAttribute('data-initialized', 'true');
+        }
 
         container.innerHTML = `
             <div class="kennels-overview">
@@ -145,8 +156,9 @@ class KennelVisualization {
         const statusClass = isOcupado ? 'ocupado' : 'disponivel';
         const tipoClass = canil.type.toLowerCase();
 
+        // Click Action: SE OCUPADO -> ABRE MENU | SE LIVRE -> RESERVA
         const clickAction = isOcupado
-            ? `kennelVisualization.viewAnimalProfile(${ocupacao.animal_id})`
+            ? `kennelVisualization.openActionMenu('${ocupacao.id}', '${ocupacao.animal_id}', '${this.escapeStr(ocupacao.animal)}', '${this.escapeStr(ocupacao.tutor)}', '${ocupacao.photo_url || ''}')`
             : `kennelVisualization.reservarCanil('${canilId}')`;
 
         // Gender Icon Logic
@@ -194,6 +206,65 @@ class KennelVisualization {
                 </div>
             </div>
         `;
+    }
+
+    escapeStr(str) {
+        if (!str) return '';
+        return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // --- NOVO: ABRIR MENU DE AÇÕES ---
+    openActionMenu(reservaId, animalId, nomeAnimal, nomeTutor, photoUrl) {
+        const modal = document.getElementById('kennel-action-modal');
+        if (!modal) return;
+
+        // Popula dados
+        document.getElementById('action-pet-name').innerText = nomeAnimal;
+        document.getElementById('action-tutor-name').innerText = nomeTutor;
+
+        const photoDiv = document.getElementById('action-pet-photo');
+        if (photoUrl && photoUrl !== 'null' && photoUrl !== 'undefined') {
+            photoDiv.innerHTML = `<img src="${photoUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+            photoDiv.innerHTML = `<i class="fas fa-paw"></i>`;
+        }
+
+        // Configura ações dos botões
+        const btnFinish = document.getElementById('btn-action-finish');
+        const btnRes = document.getElementById('btn-action-reservation');
+        const btnProfile = document.getElementById('btn-action-profile');
+
+        // 1. Finalizar Reserva
+        btnFinish.onclick = () => {
+            modal.classList.remove('active');
+            if (window.reservationsManager) {
+                // Vai para a aba de reservas e abre o modal de finalizar
+                window.hotelPetApp.navigateToSection('reservations');
+                setTimeout(() => {
+                    window.reservationsManager.openFinishReservationModal(reservaId);
+                }, 300);
+            }
+        };
+
+        // 2. Ver Reserva
+        btnRes.onclick = () => {
+            modal.classList.remove('active');
+            if (window.reservationsManager) {
+                window.hotelPetApp.navigateToSection('reservations');
+                // Tenta filtrar ou destacar a reserva (opcional, por simplicidade apenas vai para a lista)
+                document.getElementById('reservation-search').value = nomeAnimal;
+                window.reservationsManager.applyFilters();
+            }
+        };
+
+        // 3. Ver Perfil
+        btnProfile.onclick = () => {
+            modal.classList.remove('active');
+            this.viewAnimalProfile(animalId);
+        };
+
+        // Abre modal
+        modal.classList.add('active');
     }
 
     calcularEstatisticas() {

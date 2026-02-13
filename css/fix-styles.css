@@ -1,0 +1,172 @@
+/* --- Configurações Overflow Fixes --- */
+
+.settings-card {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    padding: 1rem;
+    /* Reduzido de 1.5rem se necessário */
+    box-sizing: border-box;
+}
+
+.settings-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Provider Grid Responsivo */
+.provider-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.provider-pill {
+    flex: 1 1 auto;
+    min-width: 120px;
+    white-space: nowrap;
+    justify-content: center;
+}
+
+/* Input Wrapper Overflow */
+.premium-input-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.premium-input-wrapper input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 40px;
+    /* Espaço para o olho */
+    min-width: 0;
+    /* Importante para flex item shrinking */
+}
+
+/* API Actions */
+.api-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.api-actions .btn {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.api-actions .help-link {
+    flex: 1 1 100%;
+    text-align: center;
+    order: 2;
+    /* Link embaixo do botão em mobile se desejar */
+}
+
+@media (min-width: 600px) {
+    .api-actions .help-link {
+        flex: 0 0 auto;
+        order: 0;
+        text-align: left;
+    }
+
+    .api-actions .btn {
+        flex: 0 0 auto;
+    }
+}
+
+/* --- Chart Expander & Modal Styles --- */
+
+.btn-icon {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+}
+
+#chart-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+#chart-modal .modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+}
+
+#chart-modal .close-modal {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+#chart-modal .close-modal:hover {
+    color: #ef4444;
+}
+
+/* Responsividade do Grid */
+@media (max-width: 768px) {
+    .dashboard-grid-2026 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-controls select {
+        max-width: 100px;
+        font-size: 0.75rem !important;
+        padding: 2px 4px !important;
+    }
+
+    .chart-header h3 {
+        font-size: 0.95rem;
+    }
+}
+
+/* Desktop Notification Styles */
+.notification-wrapper.desktop-only {
+    position: relative;
+    display: flex;
+    /* Ensure it takes space */
+}
+
+.notification-wrapper.desktop-only .notification-dropdown {
+    top: 50px;
+    right: 0;
+    left: auto;
+    width: 350px;
+    transform-origin: top right;
+}
+
+@media (max-width: 1024px) {
+    .notification-wrapper.desktop-only {
+        display: none;
+    }
+
+    /* Hide desktop profile on mobile */
+    #header-user-profile {
+        display: none !important;
+    }
+}

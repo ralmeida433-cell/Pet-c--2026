@@ -1202,12 +1202,24 @@
                 </div>
 
                 <div style="text-align: center;">
+                    <!-- Hidden field to store email for resending -->
+                    <input type="hidden" id="resend-email-storage">
+
+                    <button id="btn-resend-email" class="btn-auth-submit"
+                        onclick="window.authManager.resendConfirmationEmail()"
+                        style="margin-bottom: 1rem; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0;">
+                        <i class="fas fa-paper-plane"></i> Reenviar E-mail de Confirmação
+                    </button>
+
                     <button class="btn-auth-submit" onclick="document.querySelector('.auth-tab:first-child').click()"
-                        style="margin-bottom: 1rem;">
+                        style="margin-bottom: 1.5rem;">
                         <i class="fas fa-arrow-left"></i> Voltar para o Login
                     </button>
-                    <p style="font-size: 0.85rem; color: #94a3b8;">Não recebeu o e-mail? Verifique sua conexão e tente
-                        novamente em alguns minutos.</p>
+
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.4;">
+                        Ainda não recebeu? Verifique o Spam ou aguarde alguns minutos antes de reenviar.
+                        O Supabase limita o envio para evitar abusos.
+                    </p>
                 </div>
             </div>
             <!-- Update Password Form (Nova Senha) -->

@@ -439,6 +439,10 @@ class AuthManager {
                 this.updateUI(data.session); // Force UI update
                 alert('Bem-vindo, ' + name + '!');
             } else {
+                // Store email in hidden field for resending
+                const emailStorage = document.getElementById('resend-email-storage');
+                if (emailStorage) emailStorage.value = email;
+
                 // Show Registration Success Screen
                 document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
                 const successScreen = document.getElementById('auth-register-success');
@@ -539,6 +543,42 @@ class AuthManager {
         document.querySelectorAll('.auth-form-container').forEach(e => e.classList.remove('active'));
         const updateForm = document.getElementById('auth-update-pass');
         if (updateForm) updateForm.classList.add('active');
+    }
+
+    async resendConfirmationEmail() {
+        const email = document.getElementById('resend-email-storage')?.value;
+        if (!email) {
+            alert('Erro: E-mail não encontrado. Por favor, tente se cadastrar novamente.');
+            return;
+        }
+
+        const btn = document.getElementById('btn-resend-email');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        }
+
+        try {
+            const { error } = await this.supabase.auth.resend({
+                type: 'signup',
+                email: email,
+                options: {
+                    emailRedirectTo: window.location.origin
+                }
+            });
+
+            if (error) throw error;
+
+            alert('E-mail de confirmação reenviado com sucesso! Verifique sua caixa de entrada.');
+        } catch (err) {
+            console.error('Erro ao reenviar e-mail:', err);
+            alert('Não foi possível reenviar o e-mail: ' + err.message + '. Aguarde alguns minutos e tente novamente.');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Reenviar E-mail de Confirmação';
+            }
+        }
     }
 
     setLoading(isLoading) {

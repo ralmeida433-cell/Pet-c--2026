@@ -1034,6 +1034,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-db.js"></script>
+    <script src="js/auth.js"></script>
     <!-- <script src="js/database.js"></script> -->
     <script src="js/dashboard.js"></script>
     <script src="js/animals.js"></script>
@@ -1106,6 +1107,85 @@
                     }
                 }, 1200);
             }, 2500); // 2.5 segundos de pura elegância inicial
+        });
+    </script>
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="login-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h2 class="auth-title">Bem-vindo ao PetCá</h2>
+                <div class="auth-subtitle">Faça login para gerenciar seu hotel</div>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab pointer active"
+                    onclick="document.getElementById('auth-login').classList.add('active'); document.getElementById('auth-register').classList.remove('active'); this.classList.add('active'); this.nextElementSibling.classList.remove('active');">
+                    Entrar</div>
+                <div class="auth-tab pointer"
+                    onclick="document.getElementById('auth-login').classList.remove('active'); document.getElementById('auth-register').classList.add('active'); this.classList.add('active'); this.previousElementSibling.classList.remove('active');">
+                    Cadastrar</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="auth-login" class="auth-form-container active">
+                <form id="auth-login-form">
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-password" class="auth-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="alert('Funcionalidade em desenvolvimento')">Esqueci a senha</div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="auth-register" class="auth-form-container">
+                <form id="auth-register-form">
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="reg-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Senha</label>
+                        <input type="password" id="reg-password" class="auth-input" placeholder="Mínimo 6 caracteres"
+                            required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-user-plus"></i> Criar Conta
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer" style="margin-top: 2rem;">
+                &copy; 2026 PetCá Systems
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Button (Logout) - Sera inserido via JS ou manualmente -->
+    <script>
+        // Adiciona botão de logout na sidebar se não existir
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar-menu');
+            if (sidebar && !document.getElementById('logout-item')) {
+                const logoutHtml = `
+                    <div id="logout-item" class="menu-item" onclick="window.authManager.logout()" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </div>
+                `;
+                sidebar.insertAdjacentHTML('beforeend', logoutHtml);
+            }
         });
     </script>
 </body>

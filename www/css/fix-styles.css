@@ -144,3 +144,29 @@
         font-size: 0.95rem;
     }
 }
+
+/* Desktop Notification Styles */
+.notification-wrapper.desktop-only {
+    position: relative;
+    display: flex;
+    /* Ensure it takes space */
+}
+
+.notification-wrapper.desktop-only .notification-dropdown {
+    top: 50px;
+    right: 0;
+    left: auto;
+    width: 350px;
+    transform-origin: top right;
+}
+
+@media (max-width: 1024px) {
+    .notification-wrapper.desktop-only {
+        display: none;
+    }
+
+    /* Hide desktop profile on mobile */
+    #header-user-profile {
+        display: none !important;
+    }
+}

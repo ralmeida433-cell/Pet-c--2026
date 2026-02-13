@@ -48,10 +48,11 @@ class SettingsManager {
 
     loadPreferences() {
         // Dark Mode
-        const isDark = localStorage.getItem('petca_dark_mode') === 'true';
-        const toggle = document.getElementById('dark-mode-toggle');
-        if (toggle) toggle.checked = isDark;
-        if (isDark) document.body.classList.add('dark-mode');
+        // Dark Mode REMOVED
+        if (document.body.classList.contains('dark-mode')) {
+            document.body.classList.remove('dark-mode');
+        }
+        localStorage.removeItem('petca_dark_mode');
 
         // API Key
         const apiKey = localStorage.getItem('petca_api_key');

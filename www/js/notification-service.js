@@ -2,6 +2,8 @@ class NotificationService {
     constructor() {
         this.notifications = [];
         this.isInitialized = false;
+        this.mobileDropdown = null;
+        this.desktopDropdown = null;
     }
 
     init() {
@@ -14,27 +16,50 @@ class NotificationService {
     }
 
     bindEvents() {
-        const btn = document.getElementById('notification-btn');
-        const dropdown = document.getElementById('notification-dropdown');
 
-        btn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown?.classList.toggle('active');
-            if (dropdown?.classList.contains('active')) {
-                this.markAllAsRead();
-            }
+        // Support multiple notification buttons (desktop & mobile)
+        const btns = document.querySelectorAll('.header-notification-btn');
+        // We do not cache dropdown here, we find it dynamically
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Find relative dropdown inside closest wrapper
+                const wrapper = btn.closest('.notification-wrapper');
+                const dropdown = wrapper ? wrapper.querySelector('.notification-dropdown') : null;
+
+                if (dropdown) {
+                    const isActive = dropdown.classList.contains('active');
+
+                    // Close ALL other dropdowns
+                    document.querySelectorAll('.notification-dropdown').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('active');
+                    });
+
+                    if (isActive) {
+                        dropdown.classList.remove('active');
+                    } else {
+                        dropdown.classList.add('active');
+                        this.markAllAsRead();
+                    }
+                }
+            });
         });
 
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.notification-wrapper')) {
-                dropdown?.classList.remove('active');
+            if (!e.target.closest('.notification-wrapper') && !e.target.closest('.header-notification-btn')) {
+                document.querySelectorAll('.notification-dropdown').forEach(d => d.classList.remove('active'));
             }
         });
 
-        document.getElementById('clear-notifications')?.addEventListener('click', () => {
-            this.notifications = [];
-            this.renderNotifications();
-            this.updateBadge();
+        // Handle Clear Buttons (multiple)
+        const clearBtns = document.querySelectorAll('.btn-clear-notifications');
+        clearBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.notifications = [];
+                this.renderNotifications();
+                this.updateBadge(); // Update all badges
+            });
         });
     }
 
@@ -111,15 +136,14 @@ class NotificationService {
     }
 
     renderNotifications() {
-        const list = document.getElementById('notification-list');
-        if (!list) return;
+        const lists = document.querySelectorAll('.notification-list');
+        if (lists.length === 0) return;
 
-        if (this.notifications.length === 0) {
-            list.innerHTML = '<p class="empty-notifications">Nenhuma notificação no momento.</p>';
-            return;
-        }
-
-        list.innerHTML = this.notifications.map(n => `
+        lists.forEach(list => {
+            if (this.notifications.length === 0) {
+                list.innerHTML = '<p class="empty-notifications">Nenhuma notificação no momento.</p>';
+            } else {
+                list.innerHTML = this.notifications.map(n => `
             <div class="notification-item ${n.unread ? 'unread' : ''}" onclick="window.notificationService.handleAction('${n.id}')">
                 <div class="notification-icon ${n.type}">
                     <i class="fas ${n.type === 'vacina' ? 'fa-syringe' : n.type === 'reserva' ? 'fa-calendar-day' : 'fa-bell'}"></i>
@@ -130,7 +154,10 @@ class NotificationService {
                 </div>
             </div>
         `).join('');
+            }
+        });
     }
+
 
     handleAction(id) {
         const n = this.notifications.find(notif => notif.id === id);
@@ -163,11 +190,12 @@ class NotificationService {
 
     updateBadge() {
         const count = this.notifications.filter(n => n.unread).length;
-        const badge = document.getElementById('notification-count');
-        if (badge) {
+        const badges = document.querySelectorAll('.notification-badge');
+
+        badges.forEach(badge => {
             badge.innerText = count;
             badge.style.display = count > 0 ? 'flex' : 'none';
-        }
+        });
     }
 }
 

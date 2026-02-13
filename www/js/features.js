@@ -1,4 +1,5 @@
 // Funcionalidades Avançadas: Câmera, Notificações, Voz e Recibos
+const showNotification = (msg, type) => window.hotelPetApp?.showNotification(msg, type);
 
 // 1. Busca por Voz
 async function startVoiceSearch(targetInputId) {

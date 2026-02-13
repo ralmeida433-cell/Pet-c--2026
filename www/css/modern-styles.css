@@ -578,9 +578,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-size: contain;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
-}
+/* Removed problematic hover selector */
 
 /* Força o calendário a ocupar todo o input para clique (hack para mobile/desktop) */
 input[type="date"] {

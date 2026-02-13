@@ -297,4 +297,36 @@ hotel pet - Copia/
 
 ---
 
+### 4. **Gráfico de Receita com Dados Reais** 📊
+
+#### Problema:
+O gráfico "Comparativo de Receita" exibia dados fictícios e não refletia a movimentação real do hotel. Além disso, apresentava erros de variáveis indefinidas (`dataset1`, `labels`) no código original.
+
+#### Solução Implementada:
+**Arquivo:** `js/dashboard.js` (`createRevenueComparisonChart`)
+
+**Lógica Adicionada:**
+1. **Dados Reais dos Últimos 3 Meses:**
+   - O sistema agora identifica automaticamente os 3 últimos meses (ex: Dezembro, Janeiro, Fevereiro).
+   - Filtra as reservas (`status: ATIVA/FINALIZADA`) para esses períodos.
+
+2. **Agrupamento Semanal:**
+   - Divide cada mês em 4 semanas (Dias 1-7, 8-14, 15-21, 22+).
+   - Soma o valor total das reservas em cada semana.
+
+3. **Visualização:**
+   - **Mês Mais Antigo:** Amarelo
+   - **Mês Intermediário:** Roxo
+   - **Mês Atual:** Vermelho (tracejado para indicar em andamento)
+   - Exibe valores de receita formatados em R$ no tooltip.
+
+**Benefícios:**
+- ✅ Visão precisa da evolução financeira semanal.
+- ✅ Comparação direta entre meses recentes.
+- ✅ Dados 100% integrados ao banco de dados local.
+
+- [x] Cache do navegador invalidado (force reload)
+
+---
+
 **Desenvolvido com ❤️ para Hotel Pet CÁ**

@@ -270,103 +270,137 @@ class DashboardManager {
         if (!ctx) return;
         if (this.charts.revenueComparison) this.charts.revenueComparison.destroy();
 
-        // Processar dados reais
-        const dataByYearMonth = {}; // '2026-01': 1500
+        // 1. Identify the 3 months to display (Current, Current-1, Current-2)
+        const today = new Date();
+        const monthsToDisplay = [];
+        // Loop from 2 months ago to current month
+        for (let i = 2; i >= 0; i--) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            // Nome do mês Capitalizado (ex: 'Jan 2026')
+            const monthName = d.toLocaleString('pt-BR', { month: 'short' });
+            const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
+            monthsToDisplay.push({
+                year: d.getFullYear(),
+                month: d.getMonth(), // 0-11
+                label: `${capitalizedMonth} ${d.getFullYear()}`,
+                key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+                data: [0, 0, 0, 0] // 4 Weeks
+            });
+        }
+
+        // 2. Process reservations with Real Data
         if (reservations && Array.isArray(reservations)) {
             reservations.forEach(r => {
                 if (r.status !== 'ATIVA' && r.status !== 'FINALIZADA') return;
                 if (!r.checkin_date || !r.total_value) return;
 
-                const date = r.checkin_date.substring(0, 7); // YYYY-MM
-                const val = parseFloat(r.total_value);
+                // Safe parsing of YYYY-MM-DD
+                const parts = r.checkin_date.split('-');
+                if (parts.length !== 3) return;
 
-                dataByYearMonth[date] = (dataByYearMonth[date] || 0) + val;
+                const y = parseInt(parts[0]);
+                const m = parseInt(parts[1]);
+                const d = parseInt(parts[2]);
+
+                const rKey = `${y}-${String(m).padStart(2, '0')}`;
+
+                // Find if this reservation belongs to one of the 3 months
+                const monthObj = monthsToDisplay.find(mj => mj.key === rKey);
+
+                if (monthObj) {
+                    // Determine week (0 to 3)
+                    // 1-7: Week 0, 8-14: Week 1, 15-21: Week 2, 22+: Week 3
+                    let weekIndex = Math.floor((d - 1) / 7);
+                    if (weekIndex > 3) weekIndex = 3; // Cumulative for last week
+
+                    monthObj.data[weekIndex] += parseFloat(r.total_value);
+                }
             });
         }
 
-        // Configurar Comparação: Ano Atual vs Ano Anterior
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const lastYear = currentYear - 1;
+        const labels = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'];
 
-        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        // Colors from screenshot: Yellow (Oldest), Purple (Middle), Red (Newest/Current)
+        const colors = ['#fbbf24', '#8b5cf6', '#ef4444'];
 
-        const dataCurrentYear = [];
-        const dataLastYear = [];
-
-        for (let i = 1; i <= 12; i++) {
-            const m = String(i).padStart(2, '0');
-            dataCurrentYear.push(dataByYearMonth[`${currentYear}-${m}`] || 0);
-            dataLastYear.push(dataByYearMonth[`${lastYear}-${m}`] || 0);
-        }
-
-        // Detectar se há dados
-        const hasData = dataCurrentYear.some(v => v > 0) || dataLastYear.some(v => v > 0);
-        if (!hasData) {
-            console.log('Sem dados de receita para o gráfico comparativo.');
-        }
+        const datasets = monthsToDisplay.map((m, index) => {
+            const isCurrentMonth = index === monthsToDisplay.length - 1;
+            return {
+                label: m.label,
+                data: m.data,
+                borderColor: colors[index % colors.length],
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0, // Straight lines as in screenshot
+                pointBackgroundColor: '#fff',
+                pointBorderColor: colors[index % colors.length],
+                borderDash: isCurrentMonth ? [5, 5] : [], // Dash for current month
+                pointRadius: 4,
+                pointHoverRadius: 6
+            };
+        });
 
         this.charts.revenueComparison = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
-                datasets: [
-                    {
-                        label: 'Jan 2026', // Ou 2025
-                        data: dataset1,
-                        borderColor: '#fbbf24', // Amarelo
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        tension: 0
-                    },
-                    {
-                        label: 'Fev 2026', // Ou 2026
-                        data: dataset2,
-                        borderColor: '#8b5cf6', // Roxo
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        tension: 0
-                    },
-                    {
-                        label: 'Mar 2026',
-                        data: [500, 250, 600, 800],
-                        borderColor: '#ef4444', // Vermelho
-                        backgroundColor: 'transparent',
-                        borderWidth: 2,
-                        tension: 0,
-                        borderDash: [5, 5]
-                    }
-                ]
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { callback: (v) => 'R$ ' + v }
+                        ticks: {
+                            callback: (v) => 'R$ ' + v,
+                            font: { size: 10 }
+                        }
                     },
-                    x: { grid: { display: false } }
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 }
             }
         });
 
-        // Bind do select
+        // Update mode select listener if needed (currently supports only monthly view logic provided)
         const sel = document.getElementById('revenue-comp-mode');
         if (sel) {
             sel.onchange = () => {
-                // Logica real de filtro iria aqui
-                // Por enquanto apenas simula update visual
-                const isYear = sel.value === 'yearly';
-                this.charts.revenueComparison.data.datasets[0].label = isYear ? '2025' : 'Jan 2026';
-                this.charts.revenueComparison.data.datasets[1].label = isYear ? '2026' : 'Fev 2026';
-                this.charts.revenueComparison.data.datasets[2].hidden = !isYear; // Esconder 3a linha se for anual (exemplo)
-                this.charts.revenueComparison.update();
+                // If user changes to yearly, we might need to change logic. 
+                // For now, let's keep it simple or reload chart.
+                // Doing nothing to preserve the fix.
+                console.log('Mode changed to:', sel.value);
             }
         }
     }
@@ -418,49 +452,43 @@ class DashboardManager {
         console.log('Date Range:', { startDate, endDate });
 
         try {
-            // Debug: Check total reservations
-            const totalRes = await db.executeQuery('SELECT COUNT(*) as count FROM reservations');
-            console.log('Total reservations in DB:', totalRes[0]?.count);
-
-            // Debug: Check reservations with payment_method
-            const withPayment = await db.executeQuery('SELECT COUNT(*) as count FROM reservations WHERE payment_method IS NOT NULL AND payment_method != ""');
-            console.log('Reservations with payment method:', withPayment[0]?.count);
-
-            // Debug: Sample data
-            const sample = await db.executeQuery('SELECT id, payment_method, total_value, checkin_date, status FROM reservations WHERE payment_method IS NOT NULL LIMIT 5');
-            console.log('Sample reservations:', sample);
-
-            // MUDANÇA: Na primeira carga ou se não houver dados no período, buscar TODOS os dados
+            // Updated to avoid executeQuery (which does not exist in Supabase implementation)
             const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
             const isCurrentMonth = filterEl.value === currentMonth;
 
             if (isCurrentMonth) {
                 // Tentar primeiro com o mês atual
                 data = await db.getRevenueByPaymentMethod(startDate, endDate);
-                console.log('Query Result (current month):', data);
 
-                // Se não houver dados no mês atual, buscar TODOS os dados históricos
+                // Se não houver dados no mês atual, buscar TODOS os dados históricos (Fallback)
                 if (data.length === 0) {
-                    console.log('⚠️ No data in current month, loading ALL historical data...');
-                    data = await db.executeQuery(`
-                        SELECT payment_method, SUM(total_value) as total 
-                        FROM reservations 
-                        WHERE payment_method IS NOT NULL 
-                        AND status IN ('ATIVA', 'FINALIZADA')
-                        GROUP BY payment_method
-                    `);
-                    console.log('Query Result (ALL DATA):', data);
+                    // Manual fetch and aggregate for ALL data
+                    const { data: allData, error } = await db.supabase
+                        .from('reservations')
+                        .select('payment_method, total_value')
+                        .in('status', ['ATIVA', 'FINALIZADA']);
+
+                    if (error) {
+                        console.error('Error fetching all payment data:', error);
+                    } else if (allData) {
+                        // Client-side aggregation
+                        const groups = {};
+                        allData.forEach(r => {
+                            if (!r.payment_method) return;
+                            if (!groups[r.payment_method]) groups[r.payment_method] = 0;
+                            groups[r.payment_method] += (r.total_value || 0);
+                        });
+                        data = Object.keys(groups).map(k => ({ payment_method: k, total: groups[k] }));
+                    }
                 }
             } else {
                 // Filtro específico do usuário
                 data = await db.getRevenueByPaymentMethod(startDate, endDate);
-                console.log('Query Result (user filter):', data);
             }
-
-            console.log('Final result count:', data.length);
         } catch (e) {
             console.error('ERROR loading payment data:', e);
             window.hotelPetApp.showNotification('Erro ao carregar dados de pagamento.', 'error');
+            data = [];
         }
 
         // Mapa Base com cores da imagem solicitada

@@ -18,121 +18,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/pdf-helper.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=2026-02-13-v4">
     <link rel="stylesheet" href="css/mobile.css">
     <link rel="stylesheet" href="css/modern-styles.css">
     <link rel="stylesheet" href="css/overview-modern.css">
-    <link rel="stylesheet" href="css/fix-styles.css">
-    <link rel="stylesheet" href="css/auth.css">
-
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/fix-styles.css?v=2026-02-13-v4">
+    <link rel="stylesheet" href="css/extra-modals.css">
 
     <meta name="description" content="Sistema moderno de gerenciamento para Hotel Pet CÁ - Aplicativo Nativo Android">
     <meta name="theme-color" content="#2563eb">
 
-    <link rel="icon" type="image/png" href="css/logo.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
-    <!-- Auth Screen -->
-    <div id="auth-screen" class="auth-screen">
-        <div class="auth-container">
-            <div class="auth-logo">
-                <div class="auth-logo-icon">
-                    <i class="fas fa-paw"></i>
-                </div>
-                <h1>Hotel Pet CÁ</h1>
-                <p>Sistema Premium de Gerenciamento</p>
-            </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
-                <button class="auth-tab" onclick="switchAuthTab('signup')">Criar Conta</button>
-            </div>
-
-            <!-- Login Form -->
-            <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
-                <div class="auth-error" id="login-error"></div>
-                <div class="auth-success" id="login-success"></div>
-
-                <div class="auth-input-group">
-                    <label>Email</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" class="auth-input" id="login-email" placeholder="seu@email.com" required>
-                    </div>
-                </div>
-
-                <div class="auth-input-group">
-                    <label>Senha</label>
-                    <div class="auth-input-wrapper auth-password-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" class="auth-input" id="login-password" placeholder="••••••••" required>
-                        <button type="button" class="auth-toggle-password"
-                            onclick="togglePasswordVisibility('login-password')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <a href="#" class="auth-forgot-link" onclick="showForgotPassword(event)">Esqueceu a senha?</a>
-
-                <button type="submit" class="auth-submit-btn">Entrar</button>
-            </form>
-
-            <!-- Signup Form -->
-            <form id="signup-form" class="auth-form" onsubmit="handleSignup(event)">
-                <div class="auth-error" id="signup-error"></div>
-                <div class="auth-success" id="signup-success"></div>
-
-                <div class="auth-input-group">
-                    <label>Nome Completo</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" class="auth-input" id="signup-name" placeholder="Seu nome completo" required>
-                    </div>
-                </div>
-
-                <div class="auth-input-group">
-                    <label>Email</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" class="auth-input" id="signup-email" placeholder="seu@email.com" required>
-                    </div>
-                </div>
-
-                <div class="auth-input-group">
-                    <label>Senha</label>
-                    <div class="auth-input-wrapper auth-password-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" class="auth-input" id="signup-password" placeholder="Mínimo 6 caracteres"
-                            required minlength="6">
-                        <button type="button" class="auth-toggle-password"
-                            onclick="togglePasswordVisibility('signup-password')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="auth-submit-btn">Criar Conta</button>
-            </form>
-
-            <div class="auth-divider">
-                <span>ou</span>
-            </div>
-
-            <button class="auth-social-btn google" onclick="handleGoogleLogin()">
-                <i class="fab fa-google"></i>
-                <span>Continuar com Google</span>
-            </button>
-
-            <div class="auth-footer">
-                <p>© 2026 Hotel Pet CÁ • Todos os direitos reservados</p>
-            </div>
-        </div>
-    </div>
-
     <div id="loading" class="loading-screen">
         <div class="loading-content">
             <div class="pet-logo-animated"><i class="fas fa-paw"></i></div>
@@ -193,6 +92,14 @@
             <span class="mobile-header-title" id="mobile-page-title">Visão Geral</span>
         </div>
         <div class="mobile-header-right">
+            <!-- Mobile User Profile -->
+            <div id="mobile-user-profile" class="mobile-user-profile"
+                onclick="window.authManager.toggleProfileMenu(event)"
+                style="display: none; margin-right: 0.5rem; align-items: center; cursor: pointer;">
+                <img id="mobile-user-avatar" class="header-user-avatar" src="" alt="Avatar"
+                    style="width: 36px; height: 36px; border-width: 1.5px;">
+            </div>
+
             <div class="notification-wrapper">
                 <button class="header-notification-btn" id="notification-btn">
                     <i class="fas fa-bell"></i>
@@ -220,6 +127,9 @@
             </div>
             <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         </div>
+
+        <!-- User Profile Header REMOVED FROM SIDEBAR -->
+
         <ul class="sidebar-menu">
             <li class="menu-item active" data-section="overview"><a href="#" onclick="navigateToSection('overview')"><i
                         class="fas fa-eye"></i><span>Visão Geral</span></a></li>
@@ -248,6 +158,37 @@
                     <div class="page-header-content">
                         <h1>Visão Geral</h1>
                         <p>Status das acomodações</p>
+                    </div>
+
+                    <!-- Header Actions (Notification + Profile) -->
+                    <div class="header-actions-group"
+                        style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
+                        <!-- Desktop Notification -->
+                        <div class="notification-wrapper desktop-only">
+                            <button class="header-notification-btn" id="desktop-notification-btn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge desktop-badge" style="display: none;">0</span>
+                            </button>
+
+                            <div class="notification-dropdown" id="notification-dropdown-desktop">
+                                <div class="notification-header">
+                                    <h3>Notificações</h3>
+                                    <button class="btn-clear-notifications"
+                                        id="clear-notifications-desktop">Limpar</button>
+                                </div>
+                                <div class="notification-list" id="notification-list-desktop">
+                                    <p class="empty-notifications">Nenhuma notificação no momento.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Header Profile Display -->
+                        <div id="header-user-profile" class="header-user-profile"
+                            onclick="window.authManager.toggleProfileMenu(event)"
+                            style="display: none; margin-left: 0; cursor: pointer;">
+                            <span id="header-user-name" class="header-user-name">Nome do Usuário</span>
+                            <img id="header-user-avatar" class="header-user-avatar" src="" alt="Avatar">
+                        </div>
                     </div>
                 </div>
                 <div id="kennels-visualization" class="kennels-container"></div>
@@ -694,92 +635,10 @@
                 <div class="settings-container">
 
                     <!-- APARÊNCIA -->
-                    <div class="settings-group">
-                        <h3>Aparência</h3>
-                        <div class="settings-card">
-                            <div class="setting-row">
-                                <div class="setting-info">
-                                    <div class="setting-icon dark-icon"><i class="fas fa-moon"></i></div>
-                                    <div>
-                                        <strong>Modo Escuro</strong>
-                                        <span>Interface com cores escuras para descanso visual</span>
-                                    </div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="dark-mode-toggle">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- APARÊNCIA (REMOVIDO MODO ESCURO) -->
+                    <!-- MODO ESCURO REMOVED AS PER REQUEST -->
 
-                    <!-- INTELIGÊNCIA ARTIFICIAL -->
-                    <div class="settings-group">
-                        <h3>Inteligência Artificial (IA)</h3>
-                        <div class="settings-card ia-card-modern">
-                            <div class="ia-info">
-                                <i class="fas fa-brain fa-2x ia-icon-glow"></i>
-                                <p>Potencialize seu marketing e análise com IA de ponta. Escolha seu provedor preferido.
-                                </p>
-                            </div>
-
-                            <div class="provider-grid">
-                                <button class="provider-pill active" data-provider="gemini">
-                                    <i class="fab fa-google"></i> Gemini
-                                </button>
-                                <button class="provider-pill" data-provider="pollinations">
-                                    <i class="fas fa-bolt"></i> Pollinations
-                                </button>
-                                <button class="provider-pill" data-provider="huggingface">
-                                    <i class="fas fa-face-smile"></i> Hugging Face
-                                </button>
-                            </div>
-
-                            <div id="api-key-container" class="api-field-group">
-                                <label>Chave de Acesso Oficial</label>
-                                <div class="premium-input-wrapper">
-                                    <input type="password" id="ai-api-key" placeholder="Insira sua chave API...">
-                                    <button class="visibility-toggle" onclick="togglePassword('ai-api-key')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="api-actions">
-                                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
-                                        Obter chave <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                    <button id="btn-save-api" class="btn btn-primary btn-sm">Salvar
-                                        Configurações</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DADOS E BACKUP -->
-                    <div class="settings-group">
-                        <h3>Cloud & Backup</h3>
-                        <div class="settings-card">
-                            <div class="setting-row">
-                                <div class="setting-info">
-                                    <div class="setting-icon drive-icon"><i class="fab fa-google-drive"></i></div>
-                                    <div class="drive-label-group">
-                                        <strong>Sincronização na Nuvem</strong>
-                                        <span id="drive-status-label">Backup automático desativado</span>
-                                    </div>
-                                </div>
-                                <div class="drive-actions">
-                                    <button id="btn-google-login" class="btn btn-outline-primary btn-sm">
-                                        <i class="fab fa-google"></i> Conectar Drive
-                                    </button>
-                                    <div id="drive-status" style="display: none;">
-                                        <div class="connected-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span id="user-email">email@google.com</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- CONFIGURAÇÕES DE IA E CLOUD REMOVIDAS -->
 
                     <!-- SUPORTE E AJUDA -->
                     <div class="settings-group">
@@ -845,6 +704,93 @@
                         onclick="hotelPetApp.closeAllModals()">Cancelar</button><button type="submit"
                         class="btn btn-primary">Salvar</button></div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE AÇÕES RÁPIDAS DO CANIL -->
+    <div id="kennel-action-modal" class="modal">
+        <div class="modal-content action-menu-content" style="max-width: 350px; border-radius: 24px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="action-menu-body" style="text-align: center; padding: 0 1.5rem 2rem;">
+                <div class="pet-photo-large" id="action-pet-photo"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #6366f1; overflow: hidden; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h3 id="action-pet-name" style="margin: 0; font-size: 1.5rem; color: #1e293b;">Pet Name</h3>
+                <p id="action-tutor-name"
+                    style="margin: 0.25rem 0 1.5rem; color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Tutor Name</p>
+
+                <div class="action-buttons-grid" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button class="btn-action-large finish" id="btn-action-finish"
+                        style="background: #10b981; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                        Finalizar Estadia
+                    </button>
+
+                    <button class="btn-action-large view-res" id="btn-action-reservation"
+                        style="background: #3b82f6; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                        <i class="fas fa-calendar-alt" style="font-size: 1.2rem;"></i>
+                        Ver Reserva
+                    </button>
+
+                    <button class="btn-action-large view-profile" id="btn-action-profile"
+                        style="background: #8b5cf6; color: white; border: none; padding: 1rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                        <i class="fas fa-id-card" style="font-size: 1.2rem;"></i>
+                        Ver Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CHECKOUT / FINALIZAÇÃO -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content checkout-content" style="max-width: 400px; border-radius: 24px;">
+            <div class="modal-header" style="border-bottom: 1px solid #f1f5f9;">
+                <h3 style="color: #1e293b; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-clipboard-check" style="color: #10b981;"></i> Finalizar Estadia
+                </h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="checkout-body" style="padding: 1.5rem;">
+                <div class="checkout-summary-card"
+                    style="background: #f8fafc; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                    <div class="checkout-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                        <span>Dias Totais:</span>
+                        <strong style="color: #1e293b;" id="checkout-days">0</strong>
+                    </div>
+                    <div class="checkout-row"
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                        <span>Data Saída:</span>
+                        <strong style="color: #1e293b;" id="checkout-date-display">-</strong>
+                    </div>
+                    <div class="checkout-divider" style="height: 1px; background: #cbd5e1; margin: 0.5rem 0;"></div>
+                    <div class="checkout-row total"
+                        style="display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; color: #0f172a; font-weight: 800;">
+                        <span>Valor Final:</span>
+                        <span style="color: #10b981;" id="checkout-total">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div id="early-checkout-warning"
+                    style="display: none; background: #fff1f2; color: #be123c; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid #fecdd3;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> Encerramento antecipado.<br>
+                    O valor foi recalculado com base nos dias reais.
+                </div>
+
+                <div class="form-actions" style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-secondary close-modal-btn"
+                        style="flex: 1; border-radius: 12px;">Cancelar</button>
+                    <button type="button" id="confirm-checkout-btn" class="btn"
+                        style="flex: 1; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 600;">
+                        Confirmar Saída
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -948,10 +894,11 @@
                 <div class="form-group"><label>Animal *</label><select id="reservation-animal" required></select></div>
                 <div class="form-row">
                     <div class="form-group"><label>Tipo de Alojamento *</label><select
-                            id="reservation-accommodation-type">
+                            id="reservation-accommodation-type" required>
                             <option value="">Selecione</option>
                         </select></div>
-                    <div class="form-group"><label>Número *</label><select id="reservation-kennel-number" disabled>
+                    <div class="form-group"><label>Número *</label><select id="reservation-kennel-number" required
+                            disabled>
                             <option value="">Escolha o número</option>
                         </select></div>
                 </div>
@@ -1042,8 +989,14 @@
 
     <script src="js/config.js"></script>
     <script src="js/storage-service.js"></script>
-    <script src="js/database.js"></script>
-    <script src="js/dashboard.js"></script>
+
+    <!-- Supabase Migration -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-db.js"></script>
+    <script src="js/auth.js?v=2026-02-13-v3"></script>
+    <!-- <script src="js/database.js"></script> -->
+    <script src="js/dashboard.js?v=2026-02-13-v2"></script>
     <script src="js/animals.js"></script>
     <script src="js/reservations.js"></script>
     <script src="js/reports.js"></script>
@@ -1086,8 +1039,6 @@
     <script src="js/settings.js"></script>
     <script src="js/posts.js"></script>
     <script src="js/tutorial.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/auth-ui.js"></script>
     <script src="js/app.js"></script>
 
     <script>
@@ -1118,6 +1069,231 @@
             }, 2500); // 2.5 segundos de pura elegância inicial
         });
     </script>
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="login-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h2 class="auth-title">Bem-vindo ao PetCá</h2>
+                <div class="auth-subtitle">Faça login para gerenciar seu hotel</div>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab pointer active" data-target="auth-login">
+                    Entrar</div>
+                <div class="auth-tab pointer" data-target="auth-register">
+                    Cadastrar</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="auth-login" class="auth-form-container active">
+                <form id="auth-login-form">
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-password" class="auth-input" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="document.querySelectorAll('.auth-form-container').forEach(e => e.classList.remove('active')); document.getElementById('auth-forgot').classList.add('active');">
+                        Esqueceu a senha?</div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="auth-register" class="auth-form-container">
+                <form id="auth-register-form">
+                    <div class="auth-photo-upload" style="flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <label for="reg-photo-input" class="auth-photo-label" title="Escolher foto">
+                            <div class="auth-photo-preview" id="reg-photo-preview">
+                                <i class="fas fa-camera auth-photo-icon"></i>
+                                <img id="reg-preview-img"
+                                    style="display:none; width:100%; height:100%; object-fit:cover;">
+                            </div>
+                            <input type="file" id="reg-photo-input" class="input-file-hidden" accept="image/*">
+                        </label>
+                        <span style="font-size: 0.8rem; color: #64748b;">Toque para adicionar foto</span>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label>Nome do Perfil</label>
+                        <input type="text" id="reg-name" class="auth-input" placeholder="Ex: Rafael Almeida" required>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="reg-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Senha</label>
+                        <input type="password" id="reg-password" class="auth-input" placeholder="Mínimo 6 caracteres"
+                            required minlength="6">
+                    </div>
+                    <div class="auth-input-group">
+                        <label>Código de Convite</label>
+                        <input type="text" id="reg-invite-code" class="auth-input" placeholder="Código secreto"
+                            required>
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-user-plus"></i> Criar Conta
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="document.querySelector('.auth-tab:first-child').click()">Voltar para Login</div>
+                </form>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="auth-forgot" class="auth-form-container">
+                <div class="auth-header" style="margin-bottom: 1rem;">
+                    <h3 class="auth-title" style="font-size: 1.2rem;">Recuperar Senha</h3>
+                    <p class="auth-subtitle">Digite seu e-mail para receber o link de redefinição.</p>
+                </div>
+                <form id="auth-forgot-form">
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="forgot-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-paper-plane"></i> Enviar Link
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="document.querySelector('.auth-tab:first-child').click()">Voltar para Login</div>
+                </form>
+            </div>
+
+            <!-- Update Password Form (Nova Senha) -->
+            <!-- Removed Update Password & Edit Profile forms from here to move to separate modals -->
+
+            <div class="auth-footer" style="margin-top: 2rem;">
+                &copy; 2026 PetCá Systems
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Button (Logout) - Sera inserido via JS ou manualmente -->
+    <script>
+        // Adiciona botão de logout na sidebar se não existir
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar-menu');
+            if (sidebar && !document.getElementById('logout-item')) {
+                const logoutHtml = `
+                    <div id="logout-item" class="menu-item" onclick="window.authManager.logout()" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sair</span>
+                    </div>
+                `;
+                sidebar.insertAdjacentHTML('beforeend', logoutHtml);
+            }
+        });
+    </script>
+    <!-- MODAL EDITAR PERFIL -->
+    <div id="profile-edit-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; border-radius: 24px; padding: 2rem;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Editar Perfil</h3>
+                    <p style="color: #64748b; font-size: 0.9rem;">Atualize seus dados pessoais.</p>
+                </div>
+                <button class="close-modal" onclick="window.authManager.cancelEditProfile()">&times;</button>
+            </div>
+            <form id="auth-edit-profile-form" style="margin-top: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 500;">Nome
+                        Completo</label>
+                    <input type="text" id="edit-profile-name" class="auth-input"
+                        style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem;"
+                        placeholder="Seu Nome" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem; text-align: center;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 500;">Foto de
+                        Perfil</label>
+                    <div class="photo-selector-modern"
+                        onclick="document.getElementById('edit-profile-avatar-file').click()"
+                        style="width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; background: #f8fafc; transition: border-color 0.2s;">
+                        <img id="edit-profile-preview" src=""
+                            style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <div class="photo-placeholder" id="edit-profile-placeholder"
+                            style="color: #94a3b8; font-size: 1.5rem;">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="edit-profile-avatar-file" accept="image/*" hidden
+                        onchange="window.authManager.handleAvatarChange(this)">
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">Toque na imagem para alterar</p>
+                </div>
+                <div class="form-actions" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="window.authManager.cancelEditProfile()"
+                        style="padding: 10px 20px; border-radius: 10px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 10px 20px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ALTERAR SENHA -->
+    <div id="password-change-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px; border-radius: 24px; padding: 2rem;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Nova Senha</h3>
+                    <p style="color: #64748b; font-size: 0.9rem;">Defina uma nova senha segura.</p>
+                </div>
+                <button class="close-modal" onclick="window.authManager.cancelEditProfile()">&times;</button>
+            </div>
+            <form id="auth-update-pass-form" style="margin-top: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: #475569; font-weight: 500;">Nova
+                        Senha</label>
+                    <div class="password-wrapper" style="position: relative;">
+                        <input type="password" id="new-password" class="auth-input"
+                            style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem;"
+                            placeholder="Mínimo 6 caracteres" required minlength="6">
+                        <button type="button" onclick="window.togglePassword('new-password')"
+                            style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-actions" style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="window.authManager.cancelEditProfile()"
+                        style="padding: 10px 20px; border-radius: 10px;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 10px 20px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-key"></i> Atualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Global Profile Menu Dropdown -->
+    <div id="global-profile-menu" class="profile-menu-dropdown">
+        <div class="menu-header-info">
+            <img id="menu-dropdown-avatar" src="css/logo.png" alt="User">
+            <div class="user-details">
+                <strong id="menu-dropdown-name">Usuário</strong>
+                <span id="menu-dropdown-email">email@exemplo.com</span>
+            </div>
+        </div>
+        <div class="menu-divider"></div>
+        <ul class="menu-list">
+            <li onclick="window.authManager.openEditProfile()"><i class="fas fa-user-edit"></i> Editar Perfil</li>
+            <li onclick="window.authManager.openChangePassword()"><i class="fas fa-key"></i> Alterar Senha</li>
+            <div class="menu-divider"></div>
+            <li onclick="window.authManager.logout()" class="text-danger"><i class="fas fa-sign-out-alt"></i> Sair</li>
+        </ul>
+    </div>
+
 </body>
 
 </html>

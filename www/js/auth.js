@@ -120,39 +120,80 @@ class AuthManager {
         const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
 
         const nameInput = document.getElementById('edit-profile-name');
-        const avatarInput = document.getElementById('edit-profile-avatar');
-        const editForm = document.getElementById('auth-edit-profile');
-
         if (nameInput) nameInput.value = profile.name || '';
-        if (avatarInput) avatarInput.value = profile.avatar || '';
 
-        if (editForm) {
-            const overlay = document.getElementById('login-overlay');
-            overlay.classList.add('active');
+        // Setup Avatar Preview
+        this.tempEditAvatarBase64 = null; // Reset temp
+        const preview = document.getElementById('edit-profile-preview');
+        const placeholder = document.getElementById('edit-profile-placeholder');
+        const fileInput = document.getElementById('edit-profile-avatar-file');
 
-            document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
-            editForm.classList.add('active');
+        if (fileInput) fileInput.value = ''; // Reset file input
+
+        if (profile.avatar) {
+            if (preview) {
+                preview.src = profile.avatar;
+                preview.style.display = 'block';
+            }
+            if (placeholder) placeholder.style.display = 'none';
+        } else {
+            if (preview) preview.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'block';
+        }
+
+        const modal = document.getElementById('profile-edit-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+    }
+
+    handleAvatarChange(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.size > 2 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 2MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.tempEditAvatarBase64 = e.target.result;
+                const preview = document.getElementById('edit-profile-preview');
+                const placeholder = document.getElementById('edit-profile-placeholder');
+
+                if (preview) {
+                    preview.src = this.tempEditAvatarBase64;
+                    preview.style.display = 'block';
+                }
+                if (placeholder) placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
         }
     }
 
     cancelEditProfile() {
-        const overlay = document.getElementById('login-overlay');
-        overlay.classList.remove('active');
-        document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
-        // Restore login form as default active for next time
-        const loginForm = document.getElementById('auth-login');
-        if (loginForm) loginForm.classList.add('active');
+        // Close Edit Profile Modal
+        const editModal = document.getElementById('profile-edit-modal');
+        if (editModal) {
+            editModal.classList.remove('active');
+            setTimeout(() => editModal.style.display = 'none', 300);
+        }
+
+        // Close Change Password Modal
+        const passModal = document.getElementById('password-change-modal');
+        if (passModal) {
+            passModal.classList.remove('active');
+            setTimeout(() => passModal.style.display = 'none', 300);
+        }
     }
 
     openChangePassword() {
         this.closeProfileMenu();
-        const updatePassForm = document.getElementById('auth-update-pass');
-        if (updatePassForm) {
-            const overlay = document.getElementById('login-overlay');
-            overlay.classList.add('active');
-
-            document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
-            updatePassForm.classList.add('active');
+        const modal = document.getElementById('password-change-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
     }
 
@@ -282,8 +323,9 @@ class AuthManager {
                 const email = document.getElementById('reg-email').value;
                 const password = document.getElementById('reg-password').value;
                 const name = document.getElementById('reg-name').value;
+                const inviteCode = document.getElementById('reg-invite-code').value;
 
-                await this.register(email, password, name);
+                await this.register(email, password, name, inviteCode);
             };
         }
 
@@ -313,8 +355,8 @@ class AuthManager {
             editProfileForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('edit-profile-name').value;
-                const avatar = document.getElementById('edit-profile-avatar').value;
-                await this.updateProfile(name, avatar);
+                // If a new file was selected, use it. Otherwise, pass null/undefined to keep existing or handle inside updateProfile
+                await this.updateProfile(name, this.tempEditAvatarBase64);
             };
         }
 
@@ -343,7 +385,17 @@ class AuthManager {
         }
     }
 
-    async register(email, password, name) {
+    async register(email, password, name, inviteCode) {
+        // Validação Código Convite
+        const INVITE_CODE = "aop1ciaindp2";
+        // Convert to string and trim to avoid issues
+        const codeClean = (inviteCode || '').trim();
+
+        if (codeClean !== INVITE_CODE) {
+            alert('Código de convite inválido! Solicite o código ao administrador.');
+            return;
+        }
+
         if (!email || !password || !name) return alert('Preencha Nome, Email e Senha');
 
         this.setLoading(true);

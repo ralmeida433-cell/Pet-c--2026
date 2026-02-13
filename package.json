@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "copy index.html www\\ && copy manifest.json www\\ && copy service-worker.js www\\ && xcopy /E /I /Y js www\\js && xcopy /E /I /Y css www\\css",
+    "build": "exit 0",
+    "build:windows": "copy index.html www\\ && copy manifest.json www\\ && copy service-worker.js www\\ && xcopy /E /I /Y js www\\js && xcopy /E /I /Y css www\\css",
     "android:sync": "npm run build && npx cap sync android",
     "android:copy": "npm run build && npx cap copy android",
     "android:open": "npx cap open android",

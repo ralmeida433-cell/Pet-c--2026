@@ -1144,7 +1144,8 @@
                         <i class="fas fa-sign-in-alt"></i> Entrar
                     </button>
                     <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
-                        onclick="alert('Funcionalidade em desenvolvimento')">Esqueci a senha</div>
+                        onclick="document.querySelectorAll('.auth-form-container').forEach(e => e.classList.remove('active')); document.getElementById('auth-forgot').classList.add('active');">
+                        Esqueceu a senha?</div>
                 </form>
             </div>
 
@@ -1162,6 +1163,45 @@
                     </div>
                     <button type="submit" class="btn-auth-submit">
                         <i class="fas fa-user-plus"></i> Criar Conta
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="document.querySelector('.auth-tab.active').click()">Voltar para Login</div>
+                </form>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="auth-forgot" class="auth-form-container">
+                <div class="auth-header" style="margin-bottom: 1rem;">
+                    <h3 class="auth-title" style="font-size: 1.2rem;">Recuperar Senha</h3>
+                    <p class="auth-subtitle">Digite seu e-mail para receber o link de redefinição.</p>
+                </div>
+                <form id="auth-forgot-form">
+                    <div class="auth-input-group">
+                        <label>Email</label>
+                        <input type="email" id="forgot-email" class="auth-input" placeholder="seu@email.com" required>
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-paper-plane"></i> Enviar Link
+                    </button>
+                    <div class="auth-footer" style="margin-top: 10px; cursor: pointer;"
+                        onclick="document.querySelector('.auth-tab:first-child').click()">Voltar para Login</div>
+                </form>
+            </div>
+
+            <!-- Update Password Form (Nova Senha) -->
+            <div id="auth-update-pass" class="auth-form-container">
+                <div class="auth-header" style="margin-bottom: 1rem;">
+                    <h3 class="auth-title" style="font-size: 1.2rem;">Nova Senha</h3>
+                    <p class="auth-subtitle">Digite sua nova senha abaixo.</p>
+                </div>
+                <form id="auth-update-pass-form">
+                    <div class="auth-input-group">
+                        <label>Nova Senha</label>
+                        <input type="password" id="new-password" class="auth-input" placeholder="Mínimo 6 caracteres"
+                            required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-save"></i> Salvar Nova Senha
                     </button>
                 </form>
             </div>

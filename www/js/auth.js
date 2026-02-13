@@ -540,9 +540,29 @@ class AuthManager {
     }
 
     async logout() {
-        await this.supabase.auth.signOut();
-        localStorage.removeItem('user_profile'); // Limpa perfil ao sair
-        window.location.reload();
+        console.log('🚪 Iniciando processo de logout...');
+        try {
+            // 1. Tentar fazer o sign out no Supabase
+            if (this.supabase && this.supabase.auth) {
+                await this.supabase.auth.signOut();
+            }
+
+            // 2. Limpar TUDO do armazenamento local para evitar persistência de perfil
+            localStorage.clear();
+            sessionStorage.clear();
+
+            console.log('✅ Local storage e sessão limpos.');
+
+            // 3. Redirecionar para a página inicial limpa (sem hashtags ou parâmetros)
+            // Isso ajuda a limpar estados de erro ou confirmação na URL
+            window.location.href = window.location.origin + window.location.pathname;
+
+        } catch (error) {
+            console.error('❌ Erro durante o logout:', error);
+            // Mesmo se falhar o sign out remoto, limpamos o local e forçamos o recarregamento
+            localStorage.clear();
+            window.location.href = window.location.origin + window.location.pathname;
+        }
     }
 
     // --- UI HELPERS ---

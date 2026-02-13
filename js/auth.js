@@ -405,11 +405,16 @@ class AuthManager {
         this.setLoading(true);
 
         // 1. Criar Auth no Supabase
+        const redirectUrl = window.location.origin.includes('localhost')
+            ? 'https://pet-c-2026.vercel.app'
+            : window.location.origin;
+
         const { data, error } = await this.supabase.auth.signUp({
             email,
             password,
             options: {
-                data: { full_name: name }
+                data: { full_name: name },
+                emailRedirectTo: redirectUrl
             }
         });
 
@@ -559,11 +564,15 @@ class AuthManager {
         }
 
         try {
+            const redirectUrl = window.location.origin.includes('localhost')
+                ? 'https://pet-c-2026.vercel.app'
+                : window.location.origin;
+
             const { error } = await this.supabase.auth.resend({
                 type: 'signup',
                 email: email,
                 options: {
-                    emailRedirectTo: window.location.origin
+                    emailRedirectTo: redirectUrl
                 }
             });
 

@@ -379,6 +379,8 @@ class AuthManager {
         if (error) {
             if (error.message.includes('Email not confirmed')) {
                 alert('⚠️ Conta não confirmada! Por favor, verifique seu e-mail e clique no link de ativação enviado.');
+            } else if (error.message.includes('rate limit')) {
+                alert('⏳ Calma! Muitos pedidos em pouco tempo. Aguarde alguns minutos antes de tentar entrar novamente.');
             } else {
                 alert('Erro ao entrar: ' + error.message);
             }
@@ -421,7 +423,11 @@ class AuthManager {
         this.setLoading(false);
 
         if (error) {
-            alert('Erro ao cadastrar: ' + error.message);
+            if (error.message.includes('rate limit')) {
+                alert('⏳ Limite de envios atingido! O Supabase permite apenas alguns e-mails por hora. Aguarde cerca de 60 minutos ou tente usar outro e-mail.');
+            } else {
+                alert('Erro ao cadastrar: ' + error.message);
+            }
         } else {
             // 2. Persistir Perfil Localmente (Sessão)
             const profile = {

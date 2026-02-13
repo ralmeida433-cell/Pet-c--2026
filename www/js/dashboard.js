@@ -264,20 +264,48 @@ class DashboardManager {
     // --- NOVAS MÉTRICAS E GRÁFICOS (DASHBOARD 2026) ---
 
     // 1. Gráfico Comparativo (Linha Multilinha)
+    // 1. Gráfico Comparativo (Linha Multilinha) - DADOS REAIS
     createRevenueComparisonChart(reservations) {
         const ctx = document.getElementById('revenue-comparison-chart');
         if (!ctx) return;
         if (this.charts.revenueComparison) this.charts.revenueComparison.destroy();
 
-        // Modo: default mensal (Jan vs Fev do ano atual)
-        // Logica simplificada: Pegar 2025 e 2026
-        // Para demo: Vamos criar dados fictícios baseados no real para ter linha
+        // Processar dados reais
+        const dataByYearMonth = {}; // '2026-01': 1500
 
-        const labels = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'];
+        if (reservations && Array.isArray(reservations)) {
+            reservations.forEach(r => {
+                if (r.status !== 'ATIVA' && r.status !== 'FINALIZADA') return;
+                if (!r.checkin_date || !r.total_value) return;
 
-        // Dados Simulados para Comparação (Baseado na imagem da user)
-        const dataset1 = [1200, 1900, 300, 500]; // Ex: 2025 ou Jan
-        const dataset2 = [2000, 1500, 5000, 2500]; // Ex: 2026 ou Fev
+                const date = r.checkin_date.substring(0, 7); // YYYY-MM
+                const val = parseFloat(r.total_value);
+
+                dataByYearMonth[date] = (dataByYearMonth[date] || 0) + val;
+            });
+        }
+
+        // Configurar Comparação: Ano Atual vs Ano Anterior
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const lastYear = currentYear - 1;
+
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        const dataCurrentYear = [];
+        const dataLastYear = [];
+
+        for (let i = 1; i <= 12; i++) {
+            const m = String(i).padStart(2, '0');
+            dataCurrentYear.push(dataByYearMonth[`${currentYear}-${m}`] || 0);
+            dataLastYear.push(dataByYearMonth[`${lastYear}-${m}`] || 0);
+        }
+
+        // Detectar se há dados
+        const hasData = dataCurrentYear.some(v => v > 0) || dataLastYear.some(v => v > 0);
+        if (!hasData) {
+            console.log('Sem dados de receita para o gráfico comparativo.');
+        }
 
         this.charts.revenueComparison = new Chart(ctx, {
             type: 'line',

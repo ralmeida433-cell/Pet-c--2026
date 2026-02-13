@@ -1124,7 +1124,7 @@
 
                     <div class="auth-input-group">
                         <label>Nome do Perfil</label>
-                        <input type="text" id="reg-name" class="auth-input" placeholder="Ex: Rafael Almeida" required>
+                        <input type="text" id="reg-name" class="auth-input" placeholder="Seu Nome Completo" required>
                     </div>
 
                     <div class="auth-input-group">
@@ -1138,7 +1138,7 @@
                     </div>
                     <div class="auth-input-group">
                         <label>Código de Convite</label>
-                        <input type="text" id="reg-invite-code" class="auth-input" placeholder="Código secreto"
+                        <input type="text" id="reg-invite-code" class="auth-input" placeholder="Digite seu código"
                             required>
                     </div>
                     <button type="submit" class="btn-auth-submit">
@@ -1167,7 +1167,49 @@
                         onclick="document.querySelector('.auth-tab:first-child').click()">Voltar para Login</div>
                 </form>
             </div>
+            <!-- Registration Success Screen -->
+            <div id="auth-register-success" class="auth-form-container">
+                <div class="auth-header" style="text-align: center; margin-bottom: 2rem;">
+                    <div
+                        style="width: 80px; height: 80px; background: #f0fdf4; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2.5rem; border: 4px solid #d1fae5;">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <h3 class="auth-title" style="font-size: 1.5rem; color: #1e293b; margin-bottom: 0.5rem;">Verifique
+                        seu E-mail</h3>
+                    <p class="auth-subtitle" style="color: #64748b; line-height: 1.5;">Quase lá! Enviamos um link de
+                        confirmação para o seu endereço de e-mail.</p>
+                </div>
 
+                <div class="registration-instructions"
+                    style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle" style="color: #10b981; margin-top: 3px;"></i>
+                        <p style="font-size: 0.9rem; color: #475569; margin: 0;">Acesse seu e-mail agora e procure por
+                            <strong>"Confirmar cadastro"</strong>.
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                        <i class="fas fa-redo-alt" style="color: #3b82f6; margin-top: 3px;"></i>
+                        <p style="font-size: 0.9rem; color: #475569; margin: 0;">Verifique também sua pasta de
+                            <strong>Spam ou Promoções</strong>.
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <i class="fas fa-lock" style="color: #2563eb; margin-top: 3px;"></i>
+                        <p style="font-size: 0.9rem; color: #475569; margin: 0;">Após clicar no link, você poderá fazer
+                            o login normalmente.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn-auth-submit" onclick="document.querySelector('.auth-tab:first-child').click()"
+                        style="margin-bottom: 1rem;">
+                        <i class="fas fa-arrow-left"></i> Voltar para o Login
+                    </button>
+                    <p style="font-size: 0.85rem; color: #94a3b8;">Não recebeu o e-mail? Verifique sua conexão e tente
+                        novamente em alguns minutos.</p>
+                </div>
+            </div>
             <!-- Update Password Form (Nova Senha) -->
             <!-- Removed Update Password & Edit Profile forms from here to move to separate modals -->
 

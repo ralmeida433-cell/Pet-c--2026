@@ -255,22 +255,22 @@ class AuthManager {
 
         // Toggle Tabs (Login/Cadastro)
         document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.onclick = () => { // Usando onclick direto para evitar múltiplos listeners
+            tab.onclick = () => {
                 const targetId = tab.getAttribute('data-target');
-                console.log('Tab acionada:', targetId);
 
-                // Reset de classes
+                // Reset de classes e esconde telas especiais
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
+
+                // Garante que a tela de sucesso esteja escondida ao trocar de aba
+                const successScreen = document.getElementById('auth-register-success');
+                if (successScreen) successScreen.classList.remove('active');
 
                 // Ativar selecionados
                 tab.classList.add('active');
                 const targetEl = document.getElementById(targetId);
                 if (targetEl) {
                     targetEl.classList.add('active');
-                    console.log('Formulário exibido:', targetId);
-                } else {
-                    console.warn('⚠️ Target não encontrado:', targetId);
                 }
             };
         });
@@ -377,7 +377,11 @@ class AuthManager {
         this.setLoading(false);
 
         if (error) {
-            alert('Erro ao entrar: ' + error.message);
+            if (error.message.includes('Email not confirmed')) {
+                alert('⚠️ Conta não confirmada! Por favor, verifique seu e-mail e clique no link de ativação enviado.');
+            } else {
+                alert('Erro ao entrar: ' + error.message);
+            }
         } else {
             // Login com sucesso, o updateUI será chamado pelo onAuthStateChange
             // Mas podemos forçar atualização do perfil se necessário
@@ -435,9 +439,14 @@ class AuthManager {
                 this.updateUI(data.session); // Force UI update
                 alert('Bem-vindo, ' + name + '!');
             } else {
-                alert('Cadastro realizado! Se necessário, verifique seu e-mail.');
-                // Mesmo sem sessão ativa imediata, salvamos o perfil. 
-                // Quando ele logar, o email baterá e usaremos os dados.
+                // Show Registration Success Screen
+                document.querySelectorAll('.auth-form-container').forEach(f => f.classList.remove('active'));
+                const successScreen = document.getElementById('auth-register-success');
+                if (successScreen) {
+                    successScreen.classList.add('active');
+                } else {
+                    alert('Cadastro realizado! Por favor, verifique seu e-mail para confirmar a conta antes de fazer o login.');
+                }
             }
         }
     }

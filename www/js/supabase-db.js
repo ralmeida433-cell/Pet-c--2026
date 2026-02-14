@@ -6,7 +6,56 @@ class Database {
 
     async init() {
         console.log('✅ Conexão Supabase Pronta');
-        // Nenhuma lógica pesada necessária aqui
+        const userId = await this.getCurrentUserId();
+        if (userId) {
+            await this.ensureDefaultKennels(userId);
+        }
+    }
+
+    async getCurrentUserId() {
+        const { data: { session }, error } = await this.supabase.auth.getSession();
+        if (error || !session) return null;
+        return session.user.id;
+    }
+
+    async ensureDefaultKennels(userId) {
+        // Verificar se usuário já tem canis
+        const { count, error } = await this.supabase
+            .from('kennels')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Erro ao verificar canis:', error);
+            return;
+        }
+
+        if (count === 0) {
+            console.log('🏗️ Criando canis padrão para novo usuário...');
+            const defaultKennels = [
+                { type: 'INTERNO', count: 10, description: 'Área coberta climatizada' },
+                { type: 'EXTERNO', count: 10, description: 'Área externa com jardim' },
+                { type: 'GATIL', count: 5, description: 'Área especializada para felinos' }
+            ];
+
+            const inserts = [];
+            for (const { type, count, description } of defaultKennels) {
+                for (let i = 1; i <= count; i++) {
+                    inserts.push({
+                        type,
+                        number: i,
+                        description,
+                        user_id: userId
+                    });
+                }
+            }
+
+            if (inserts.length > 0) {
+                const { error: insertError } = await this.supabase.from('kennels').insert(inserts);
+                if (insertError) console.error('Erro ao criar canis padrão:', insertError);
+                else console.log('✅ Canis padrão criados com sucesso!');
+            }
+        }
     }
 
     // --- ANIMAIS ---
@@ -37,8 +86,11 @@ class Database {
     }
 
     async addAnimal(a) {
+        const userId = await this.getCurrentUserId();
+        if (!userId) throw new Error('Usuário não autenticado');
+
         // Remove undefined fields
-        const payload = { ...a };
+        const payload = { ...a, user_id: userId };
         // Garante que campos opcionais sejam null se vazios
         if (!payload.sex) payload.sex = 'M';
 
@@ -72,7 +124,10 @@ class Database {
     }
 
     async addAnimalHistory(h) {
-        const { error } = await this.supabase.from('animal_history').insert([h]);
+        const userId = await this.getCurrentUserId();
+        if (!userId) throw new Error('Usuário não autenticado');
+
+        const { error } = await this.supabase.from('animal_history').insert([{ ...h, user_id: userId }]);
         if (error) throw error;
     }
 
@@ -147,9 +202,13 @@ class Database {
     }
 
     async addReservation(r) {
+        const userId = await this.getCurrentUserId();
+        if (!userId) throw new Error('Usuário não autenticado');
+
         // Converter Bool para Boolean real se necessário (SQLite usa 0/1 as vezes)
         // Remover campos extras que não estão na tabela reservations (nomes do animal, etc)
         const payload = {
+            user_id: userId,
             animal_id: r.animal_id,
             accommodation_type: r.accommodation_type,
             kennel_number: r.kennel_number,
@@ -198,7 +257,10 @@ class Database {
     }
 
     async addKennel(type, number, description) {
-        const { error } = await this.supabase.from('kennels').insert([{ type, number, description }]);
+        const userId = await this.getCurrentUserId();
+        if (!userId) throw new Error('Usuário não autenticado');
+
+        const { error } = await this.supabase.from('kennels').insert([{ type, number, description, user_id: userId }]);
         if (error) throw error;
     }
 

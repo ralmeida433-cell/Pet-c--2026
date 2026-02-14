@@ -223,6 +223,11 @@ class AuthManager {
 
             if (profile) this.renderUserProfile(profile);
 
+            // Re-inicializa DB para garantir contexto do usuário (ex: criar canis padrão)
+            if (window.db && window.db.init) {
+                window.db.init();
+            }
+
         } else {
             // Se não estiver logado, mostra overlay
             overlay.classList.add('active');

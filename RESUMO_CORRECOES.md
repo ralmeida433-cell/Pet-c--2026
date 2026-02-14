@@ -1,3 +1,33 @@
+# 🚨 CORREÇÃO CRÍTICA DE SEGURANÇA (13/02/2026)
+
+## 🔒 Isolamento de Dados por Usuário
+
+### ❌ PROBLEMA GRAVE IDENTIFICADO:
+O sistema permitia que diferentes usuários visualizassem os dados uns dos outros (animais, reservas, etc.) porque o banco de dados Supabase estava configurado como um "banco compartilhado global" sem distinção de propriedade.
+
+### ✅ SOLUÇÃO APLICADA:
+Implementamos uma arquitetura de segurança completa baseada em **Row Level Security (RLS)**:
+
+1.  **Identificação de Propriedade:**
+    - Adicionada coluna `user_id` em todas as tabelas críticas (`animals`, `kennels`, `reservations`, `animal_history`).
+    - Cada registro agora é carimbado digitalmente com o ID do usuário que o criou.
+
+2.  **Políticas de Segurança (RLS):**
+    - Ativada segurança a nível de linha no banco de dados.
+    - Criadas regras estritas: "Um usuário só pode ver, editar ou excluir registros onde `user_id` é igual ao seu próprio ID de login".
+    - **Resultado:** Dados de outros usuários tornaram-se invisíveis e inacessíveis, mesmo se tentarem forçar o acesso.
+
+3.  **Correção no Código:**
+    - O sistema agora anexa automaticamente o seu ID seguro em cada novo cadastro (Animal, Reserva, etc.).
+    - Ao fazer login, o sistema inicializa um ambiente isolado, criando automaticamente seus próprios canis padrão (Interno, Externo, Gatil) se for seu primeiro acesso.
+
+### 🛡️ O QUE ISSO SIGNIFICA PARA VOCÊ:
+- **Privacidade Total:** Seus dados são SEUS. Ninguém mais tem acesso.
+- **Ambiente Limpo:** Ao logar, você não verá mais dados misturados de outros testes.
+- **Segurança Bancária:** Utilizamos o padrão de segurança recomendado pelo Supabase/PostgreSQL.
+
+---
+
 # 📝 RESUMO DAS CORREÇÕES - HOTEL PET CÁ
 
 ## 🎯 Problemas Resolvidos

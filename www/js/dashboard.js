@@ -777,9 +777,19 @@ class DashboardManager {
         const ids = ['gauge-interno', 'gauge-externo', 'gauge-gatil'];
         const valIds = ['val-interno', 'val-externo', 'val-gatil'];
 
-        // Buscar dados reais de ocupação (Simulado por enquanto, idealmente viria do DB com capacidade total)
-        // Capacidade simulada: Interno 20, Externo 15, Gatil 10
-        const capacities = { 'INTERNO': 20, 'EXTERNO': 15, 'GATIL': 10 };
+        // Buscar capacidade total REAL do banco de dados
+        const allKennels = await db.getAllKennels();
+        const capacities = { 'INTERNO': 0, 'EXTERNO': 0, 'GATIL': 0 };
+
+        if (allKennels && Array.isArray(allKennels)) {
+            allKennels.forEach(k => {
+                if (k.type) {
+                    const t = k.type.toUpperCase();
+                    if (capacities[t] !== undefined) capacities[t]++;
+                }
+            });
+        }
+
         const occupied = await db.getOccupiedKennelsCountByDate(new Date().toISOString().split('T')[0]);
 
         // occupied retorna array [{type: 'INTERNO', count: 5}, ...]
@@ -787,8 +797,11 @@ class DashboardManager {
         types.forEach((type, index) => {
             const key = type.toUpperCase();
             const occ = occupied.find(o => o.type === key)?.count || 0;
-            const total = capacities[key] || 15;
-            const percent = Math.round((occ / total) * 100);
+            const total = capacities[key] !== undefined ? capacities[key] : 0;
+            let percent = 0;
+            if (total > 0) {
+                percent = Math.round((occ / total) * 100);
+            }
 
             // Atualizar texto
             const valEl = document.getElementById(valIds[index]);

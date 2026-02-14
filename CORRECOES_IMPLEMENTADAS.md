@@ -329,4 +329,30 @@ O gráfico "Comparativo de Receita" exibia dados fictícios e não refletia a mo
 
 ---
 
+### 5. **Dashboard: Capacidade e Ocupação Real** 📊
+
+#### Problema:
+O dashboard exibia uma capacidade fixa incorreta (ex: 20 vagas para canil interno) invés da capacidade real cadastrada no banco de dados. Isso fazia com que a ocupação parecesse menor (ex: 25%) mesmo com todos os canis ocupados.
+
+#### Solução Implementada:
+**Arquivo:** `js/dashboard.js` (`createOccupationGauges`)
+
+**Lógica Adicionada:**
+1. **Busca Dinâmica de Capacidade:**
+   - O sistema agora busca todos os canis cadastrados (`db.getAllKennels()`) e conta a capacidade total por tipo (Interno, Externo, Gatil).
+   
+2. **Cálculo de Porcentagem Real:**
+   - Usa a capacidade real como divisor para o cálculo de ocupação.
+   - Corrige visualização para mostrar "100%" quando todos os canis existentes estão ocupados.
+
+3. **Tratamento de Erros:**
+   - Adicionada proteção contra divisão por zero caso não existam canis cadastrados.
+
+**Benefícios:**
+- ✅ Dashboard reflete exatamente a realidade física do hotel.
+- ✅ Métricas de ocupação precisas para tomada de decisão.
+- ✅ Suporte a alterações futuras na estrutura do hotel (novos canis são automaticamente contabilizados).
+
+---
+
 **Desenvolvido com ❤️ para Hotel Pet CÁ**

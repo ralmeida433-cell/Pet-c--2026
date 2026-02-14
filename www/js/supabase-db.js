@@ -51,9 +51,12 @@ class Database {
             }
 
             if (inserts.length > 0) {
-                const { error: insertError } = await this.supabase.from('kennels').insert(inserts);
+                const { error: insertError } = await this.supabase
+                    .from('kennels')
+                    .upsert(inserts, { onConflict: 'type, number, user_id', ignoreDuplicates: true });
+
                 if (insertError) console.error('Erro ao criar canis padrão:', insertError);
-                else console.log('✅ Canis padrão criados com sucesso!');
+                else console.log('✅ Canis padrão verificados/criados com sucesso!');
             }
         }
     }

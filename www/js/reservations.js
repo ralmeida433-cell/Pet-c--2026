@@ -135,17 +135,37 @@ class ReservationsManager {
         const select = document.getElementById('reservation-accommodation-type');
         if (!select) return;
 
-        const compatibleTypes = Object.entries(this.accommodationTypes)
-            .filter(([type, info]) => info.species === species)
+        // Normalização agressiva para garantir match (remove acentos e uppercase)
+        // Ex: 'Cão' -> 'CAO', 'Gato' -> 'GATO'
+        const normalize = (str) => str ? str.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+        const safeSpecies = normalize(species);
+
+        let compatibleTypes = Object.entries(this.accommodationTypes)
+            .filter(([type, info]) => {
+                // Info.species pode ser string ou array se expandirmos no futuro
+                const target = normalize(info.species);
+                return target === safeSpecies || (safeSpecies === 'CAO' && target === 'CAO') || (safeSpecies === 'GATO' && target === 'GATO');
+            })
             .map(([type]) => type);
+
+        // FALLBACK: Se não encontrou compatibilidade específica (ex: 'Ave', 'Roedor' ou erro de digitação),
+        // libera todos os tipos de alojamento para o usuário decidir.
+        if (compatibleTypes.length === 0) {
+            console.warn(`Espécie '${species}' não mapeada automaticamente. Exibindo todas as opções.`);
+            compatibleTypes = Object.keys(this.accommodationTypes);
+        }
 
         select.innerHTML = '<option value="">Selecione</option>';
         compatibleTypes.forEach(type => {
             select.innerHTML += `<option value="${type}">${type === 'GATIL' ? 'Gatil' : 'Canil ' + type.toLowerCase()}</option>`;
         });
 
-        document.getElementById('reservation-kennel-number').innerHTML = '<option value="">Escolha o número</option>';
-        document.getElementById('reservation-kennel-number').disabled = true;
+        // Reset e desabilita número até escolher o tipo
+        const numSelect = document.getElementById('reservation-kennel-number');
+        if (numSelect) {
+            numSelect.innerHTML = '<option value="">Escolha o número</option>';
+            numSelect.disabled = true;
+        }
     }
 
     async populateKennelNumbers(accommodationType, currentKennel = null) {
@@ -219,20 +239,21 @@ class ReservationsManager {
         } catch (error) { return dateStr; }
     }
 
-    openReservationModal(data = null) {
+    async openReservationModal(data = null) {
         const modal = document.getElementById('reservation-modal');
         const form = document.getElementById('reservation-form');
         if (!modal || !form) return;
 
         form.reset();
         this.currentReservationId = null;
-        this.loadAnimalsDropdown();
+
+        // Carregar listas (Aguardar para garantir que allKennels esteja populado)
+        await this.loadAnimalsDropdown();
 
         document.getElementById('transport-value').disabled = true;
         document.getElementById('bath-value').disabled = true;
         document.getElementById('total-value').value = this.formatCurrency(0);
 
-        // Verifica se o elemento existe antes de tentar acessar textContent
         const modalTitle = document.getElementById('reservation-modal-title');
         if (modalTitle) {
             modalTitle.textContent = 'Nova Reserva';
@@ -244,6 +265,37 @@ class ReservationsManager {
 
         document.getElementById('checkin-date').valueAsDate = today;
         document.getElementById('checkout-date').valueAsDate = tomorrow;
+
+        // Lógica para preenchimento automático (vindo da Visão Geral)
+        if (data && data.tipo && data.numero) {
+            // Se veio do mapa de canis, já sabemos o tipo e o número.
+            // Precisamos popular as opções de tipo de alojamento (sem filtro de animal ainda)
+            const typeSelect = document.getElementById('reservation-accommodation-type');
+            if (typeSelect) {
+                // Popula com todos os tipos disponíveis inicialmente
+                typeSelect.innerHTML = '<option value="">Selecione</option>';
+                Object.keys(this.accommodationTypes).forEach(type => {
+                    typeSelect.innerHTML += `<option value="${type}">${type === 'GATIL' ? 'Gatil' : 'Canil ' + type.toLowerCase()}</option>`;
+                });
+                typeSelect.value = data.tipo;
+
+                // Popula os números para esse tipo
+                await this.populateKennelNumbers(data.tipo, data.numero);
+
+                // Seleciona o número
+                const numSelect = document.getElementById('reservation-kennel-number');
+                if (numSelect) numSelect.value = data.numero;
+            }
+        } else {
+            // Se não tem dados, reseta os selects de alojamento
+            const typeSelect = document.getElementById('reservation-accommodation-type');
+            if (typeSelect) typeSelect.innerHTML = '<option value="">Selecione primeiro o animal</option>';
+            const numSelect = document.getElementById('reservation-kennel-number');
+            if (numSelect) {
+                numSelect.innerHTML = '<option value="">Escolha o número</option>';
+                numSelect.disabled = true;
+            }
+        }
 
         this.calculateTotalValue();
         modal.classList.add('active');
